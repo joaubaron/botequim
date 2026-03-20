@@ -1,831 +1,1712 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>SuaConta</title>
-    <meta name="theme-color" content="#1e1a2f">
-    <link rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23b96f30'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-weight='bold'%3E🍻%3C/text%3E%3C/svg%3E">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23b96f30'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='white'%3E🍻%3C/text%3E%3C/svg%3E">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: system-ui, 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#09090B">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Divida a conta do bar com gorjeta, cover e múltiplas pessoas">
+  <title>🍺 Conta do Bar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 
-        body {
-            background: linear-gradient(145deg, #0f0c1f 0%, #1a142f 100%);
-            min-height: 100vh;
-            padding: 1.5rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+  <style>
+    /* ─── Variables ─────────────────────────────── */
+    :root {
+      --bg:        #09090B;
+      --surface:   #18181B;
+      --card:      #1F1F23;
+      --card2:     #27272A;
+      --border:    rgba(255,255,255,0.08);
+      --border2:   rgba(255,255,255,0.05);
+      --amber:     #F59E0B;
+      --amber-lt:  #FCD34D;
+      --amber-dk:  #D97706;
+      --amber-glow:rgba(245,158,11,0.15);
+      --amber-glow2:rgba(245,158,11,0.08);
+      --green:     #22C55E;
+      --green-bg:  rgba(34,197,94,0.12);
+      --red:       #EF4444;
+      --red-bg:    rgba(239,68,68,0.15);
+      --blue:      #60A5FA;
+      --text1:     #FAFAFA;
+      --text2:     #A1A1AA;
+      --text3:     #71717A;
+      --nav-h:     68px;
+      --header-h:  64px;
+      --radius:    16px;
+      --radius-lg: 24px;
+      --radius-xl: 28px;
+      --font:      'Outfit', sans-serif;
+      --font-brand:'Syne', sans-serif;
+      --trans:     cubic-bezier(.4,0,.2,1);
+    }
 
-        .app-container {
-            max-width: 750px;
-            width: 100%;
-            margin: 0 auto;
-            background: rgba(30, 26, 47, 0.88);
-            backdrop-filter: blur(2px);
-            border-radius: 2rem;
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 215, 150, 0.2);
-            overflow: hidden;
-            padding: 1.5rem 1.2rem 2rem;
-        }
+    /* ─── Reset ─────────────────────────────────── */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; overflow:hidden; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text1);
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+      touch-action: pan-y;
+    }
+    input, button { font-family: var(--font); }
+    input:focus { outline: none; }
+    button { cursor: pointer; border: none; background: none; color: inherit; }
 
-        h1 {
-            font-size: 1.9rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #FFD966, #FFB347);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+    /* ─── App Shell ─────────────────────────────── */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative;
+    }
 
-        h1 small {
-            font-size: 0.75rem;
-            background: none;
-            color: #b9a9e6;
-            font-weight: normal;
-        }
+    /* ─── Background Glow ───────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -40%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80vw;
+      height: 80vw;
+      background: radial-gradient(ellipse, rgba(245,158,11,0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
 
-        .sub {
-            color: #cbc3e6;
-            margin-bottom: 1.5rem;
-            border-left: 3px solid #ffb347;
-            padding-left: 0.75rem;
-            font-size: 0.85rem;
-        }
+    /* ─── Header ─────────────────────────────────── */
+    .header {
+      height: var(--header-h);
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 10;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border2);
+      background: rgba(9,9,11,0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding-top: env(safe-area-inset-top);
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--amber-dk), var(--amber));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .header-title {
+      font-family: var(--font-brand);
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #FAFAFA 0%, #A1A1AA 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .header-title span {
+      background: linear-gradient(135deg, var(--amber), var(--amber-lt));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .header-actions { display: flex; gap: 8px; align-items: center; }
 
-        .card {
-            background: #26213b;
-            border-radius: 1.5rem;
-            padding: 1.2rem;
-            margin-bottom: 1.3rem;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
-        }
+    /* Toast inline in header */
+    #headerToast {
+      font-size: 0.72rem;
+      color: var(--amber);
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      opacity: 0;
+      transition: opacity .3s;
+      white-space: nowrap;
+    }
+    #headerToast.visible { opacity: 1; }
 
-        .card-title {
-            font-weight: 600;
-            color: #ffdd99;
-            margin-bottom: 1rem;
-            font-size: 1.15rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 1px dashed #4a3f6e;
-            padding-bottom: 0.5rem;
-        }
+    .icon-btn {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+      color: var(--text2);
+      transition: background .15s, color .15s, transform .1s;
+      touch-action: manipulation;
+    }
+    .icon-btn:active { transform: scale(0.92); background: var(--card2); }
 
-        .consumo-list {
-            list-style: none;
-            margin: 0.5rem 0 0.8rem;
-            max-height: 280px;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
+    /* ─── Tab Content Area ───────────────────────── */
+    .tab-content {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+    .tab-pane {
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 16px 16px 24px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(20px);
+      transition: opacity .25s var(--trans), transform .25s var(--trans);
+      will-change: transform, opacity;
+    }
+    .tab-pane.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+    .tab-pane:not(.active) { transform: translateX(-20px); }
 
-        .consumo-item {
-            background: #1e1a2f;
-            margin: 0.5rem 0;
-            padding: 0.7rem 1rem;
-            border-radius: 1.2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-            border: 1px solid #4a3d6e;
-        }
+    /* ─── Card ───────────────────────────────────── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .card-header {
+      padding: 16px 16px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text3);
+    }
+    .card-body { padding: 12px 16px 16px; }
 
-        .item-nome {
-            font-weight: 500;
-            flex: 2;
-            min-width: 110px;
-            word-break: break-word;
-            color: #f5edff;
-        }
+    /* ─── Empty State ─────────────────────────────── */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+      text-align: center;
+    }
+    .empty-icon {
+      font-size: 52px;
+      margin-bottom: 16px;
+      filter: grayscale(.4);
+    }
+    .empty-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text2);
+      margin-bottom: 6px;
+    }
+    .empty-sub {
+      font-size: 0.85rem;
+      color: var(--text3);
+      line-height: 1.5;
+    }
 
-        .item-valor {
-            font-family: monospace;
-            font-weight: 700;
-            background: #0e0b1a;
-            padding: 0.25rem 0.8rem;
-            border-radius: 2rem;
-            color: #ffda9e;
-            font-size: 0.9rem;
-        }
+    /* ─── Items List ─────────────────────────────── */
+    .items-list { display: flex; flex-direction: column; gap: 0; }
+    .item-wrapper {
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border2);
+    }
+    .item-wrapper:last-child { border-bottom: none; }
+    .item-delete-bg {
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 80px;
+      background: var(--red-bg);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      color: var(--red);
+    }
+    .item-card {
+      background: var(--card);
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
+      transition: transform .25s var(--trans), background .15s;
+      cursor: pointer;
+      user-select: none;
+    }
+    .item-card:active { background: var(--card2); }
+    .item-card.swiped { transform: translateX(-80px); }
+    .item-card.removing {
+      opacity: 0;
+      transform: translateX(-100%);
+      transition: opacity .2s, transform .25s var(--trans);
+    }
+    .item-card.adding {
+      animation: itemAdd .3s var(--trans);
+    }
+    @keyframes itemAdd {
+      from { opacity:0; transform: translateX(20px); }
+      to   { opacity:1; transform: translateX(0); }
+    }
+    .item-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--amber);
+      flex-shrink: 0;
+    }
+    .item-nome {
+      flex: 1;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text1);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .item-valor {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--amber);
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+    }
+    .item-edit-icon {
+      color: var(--text3);
+      font-size: 14px;
+      flex-shrink: 0;
+      padding-left: 4px;
+    }
 
-        .item-actions {
-            display: flex;
-            gap: 8px;
-        }
+    /* ─── List Card Total Row ─────────────────────── */
+    .list-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+      background: rgba(245,158,11,0.05);
+    }
+    .list-total-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .list-total-val {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--amber-lt);
+    }
 
-        button {
-            background: #3a2e58;
-            border: none;
-            padding: 0.45rem 1rem;
-            border-radius: 2rem;
-            font-weight: 600;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: 0.1s linear;
-            color: white;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
+    /* ─── Config Tab ─────────────────────────────── */
+    .config-section { margin-bottom: 12px; }
+    .config-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+    }
+    .config-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .config-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .config-label .label-icon { font-size: 1rem; }
+    .config-val-badge {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--amber);
+      background: var(--amber-glow2);
+      border: 1px solid rgba(245,158,11,0.2);
+      padding: 3px 10px;
+      border-radius: 99px;
+    }
 
-        button.primary {
-            background: #b96f30;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        }
-        button.primary:active { background: #9b591f; transform: scale(0.97);}
-        button.secondary { background: #2f284b; }
-        button.danger { background: #a03e3e; }
-        button.small { padding: 0.3rem 0.8rem; font-size: 0.7rem; }
-        button.success { background: #2d6a4f; }
+    /* Gorjeta presets */
+    .gorjeta-presets {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .gorjeta-preset-btn {
+      padding: 10px 4px;
+      border-radius: 10px;
+      background: var(--card2);
+      border: 1.5px solid var(--border);
+      color: var(--text2);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-align: center;
+      transition: all .15s;
+      touch-action: manipulation;
+    }
+    .gorjeta-preset-btn:active { transform: scale(0.94); }
+    .gorjeta-preset-btn.active {
+      background: var(--amber-glow);
+      border-color: var(--amber);
+      color: var(--amber-lt);
+    }
+    .gorjeta-custom-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .gorjeta-custom-row label {
+      font-size: 0.8rem;
+      color: var(--text3);
+      white-space: nowrap;
+    }
+    .gorjeta-custom-input {
+      flex: 1;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text1);
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: center;
+      transition: border-color .2s;
+    }
+    .gorjeta-custom-input:focus {
+      border-color: var(--amber);
+      background: var(--amber-glow2);
+    }
 
-        .add-form {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 12px;
-        }
-        .add-form input {
-            flex: 2;
-            min-width: 120px;
-            background: #110e1e;
-            border: 1px solid #4a3f6a;
-            padding: 0.7rem 1rem;
-            border-radius: 2rem;
-            color: #ffffff;
-            outline: none;
-            font-size: 0.9rem;
-        }
-        .add-form input:focus { border-color: #ffb347; }
-        .add-form input::placeholder { color: #7a6b9e; }
+    /* Stepper */
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .stepper-btn {
+      width: 52px; height: 48px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 300;
+      color: var(--text2);
+      transition: background .15s, color .15s;
+      touch-action: manipulation;
+      flex-shrink: 0;
+    }
+    .stepper-btn:active { background: var(--card2); color: var(--text1); }
+    .stepper-val {
+      flex: 1;
+      text-align: center;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text1);
+      border: none;
+      background: none;
+      padding: 0;
+      min-width: 0;
+    }
+    .stepper-sep {
+      width: 1px;
+      height: 28px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
 
-        .config-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        .config-row {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.8rem;
-            background: #1a162e;
-            padding: 0.7rem 1rem;
-            border-radius: 1.2rem;
-        }
-        .config-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-            color: #ffdfb3;
-            min-width: 110px;
-        }
-        .config-input-wrapper {
-            flex: 1;
-            min-width: 140px;
-        }
-        .config-input-wrapper input {
-            width: 100%;
-            background: #0c0920;
-            border: 1px solid #5e4d86;
-            padding: 0.6rem 1rem;
-            border-radius: 1.8rem;
-            color: #ffecb3;
-            font-weight: 500;
-            font-size: 1rem;
-            text-align: center;
-            outline: none;
-        }
-        .config-input-wrapper input:focus {
-            border-color: #ffaa44;
-            box-shadow: 0 0 0 2px rgba(255, 180, 70, 0.3);
-        }
-        input[type=number]::-webkit-inner-spin-button,
-        input[type=number]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-            appearance: textfield;
-        }
-        .btn-10pct {
-            background: #b96f30;
-            padding: 0.45rem 1rem;
-            font-size: 0.8rem;
-            white-space: nowrap;
-        }
+    /* Cover input */
+    .cover-input-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .cover-prefix {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text3);
+      flex-shrink: 0;
+    }
+    .cover-input {
+      flex: 1;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 16px;
+      color: var(--text1);
+      font-size: 1.15rem;
+      font-weight: 700;
+      text-align: right;
+      transition: border-color .2s;
+    }
+    .cover-input:focus {
+      border-color: var(--amber);
+      background: var(--amber-glow2);
+    }
+    .cover-hint {
+      font-size: 0.75rem;
+      color: var(--text3);
+      margin-top: 8px;
+    }
 
-        hr { border-color: #3f3462; margin: 0.8rem 0;}
+    /* ─── Divisão Tab ─────────────────────────────── */
+    .summary-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .summary-total-hero {
+      background: linear-gradient(135deg, #1C1610 0%, #211A0E 100%);
+      border-bottom: 1px solid rgba(245,158,11,0.15);
+      padding: 20px 20px 16px;
+      text-align: center;
+    }
+    .summary-total-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--amber-dk);
+      margin-bottom: 6px;
+    }
+    .summary-total-val {
+      font-size: 2.8rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      background: linear-gradient(135deg, var(--amber), var(--amber-lt));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+    .summary-ppessoa {
+      font-size: 0.85rem;
+      color: var(--text3);
+      margin-top: 6px;
+    }
+    .summary-ppessoa strong {
+      color: var(--text2);
+    }
+    .summary-breakdown {
+      padding: 4px 0;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border2);
+    }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-row-label {
+      font-size: 0.88rem;
+      color: var(--text2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .summary-row-val {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text1);
+      font-variant-numeric: tabular-nums;
+    }
+    .summary-row-val.highlight { color: var(--amber); }
 
-        /* Resumo de consumo com itens detalhados */
-        .resumo-consumo-itens {
-            background: #0d0a1c;
-            border-radius: 1.3rem;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border: 1px solid #453a64;
-        }
-        .resumo-item-linha {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #2a2445;
-            color: #e5dbff;
-            font-size: 0.9rem;
-        }
-        .resumo-item-nome {
-            font-weight: 500;
-        }
-        .resumo-item-valor {
-            font-family: monospace;
-            color: #ffda9e;
-            font-weight: 600;
-        }
-        .resumo-total-linha {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 0.8rem;
-            padding-top: 0.5rem;
-            font-weight: 700;
-            color: #ffeaac;
-            border-top: 1px solid #4a3d6e;
-        }
+    /* Pessoa cards */
+    .pessoas-section { margin-bottom: 12px; }
+    .pessoas-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 4px;
+      margin-bottom: 10px;
+    }
+    .pessoas-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text3);
+    }
+    .pessoa-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .pessoa-avatar {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--amber-glow), rgba(245,158,11,0.25));
+      border: 1.5px solid rgba(245,158,11,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .pessoa-nome-input {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text1);
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 4px 0;
+      border-bottom: 1.5px solid transparent;
+      transition: border-color .2s;
+      min-width: 0;
+    }
+    .pessoa-nome-input:focus {
+      border-bottom-color: var(--amber);
+    }
+    .pessoa-nome-input::placeholder { color: var(--text3); font-weight: 400; }
+    .pessoa-val-badge {
+      font-size: 0.92rem;
+      font-weight: 800;
+      color: var(--amber);
+      background: var(--amber-glow2);
+      border: 1px solid rgba(245,158,11,0.18);
+      padding: 6px 12px;
+      border-radius: 10px;
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
 
-        .resumo-box {
-            background: #0d0a1c;
-            border-radius: 1.3rem;
-            padding: 1.2rem;
-            margin-top: 0.3rem;
-            border: 1px solid #453a64;
-        }
-        .resumo-linha {
-            display: flex;
-            justify-content: space-between;
-            margin: 0.7rem 0;
-            font-size: 1rem;
-            color: #f0e9ff;
-            font-weight: 500;
-        }
-        .resumo-linha span:first-child {
-            color: #cdc2f0;
-        }
-        .resumo-linha span:last-child {
-            color: #ffeaac;
-            font-weight: 600;
-        }
-        .total-grande {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #FFC857;
-            letter-spacing: -0.5px;
-        }
+    /* Share button */
+    .share-btn {
+      width: 100%;
+      padding: 16px;
+      border-radius: var(--radius);
+      background: var(--amber-glow);
+      border: 1.5px solid rgba(245,158,11,0.3);
+      color: var(--amber);
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background .15s, transform .1s;
+      touch-action: manipulation;
+      letter-spacing: .3px;
+    }
+    .share-btn:active {
+      transform: scale(0.97);
+      background: rgba(245,158,11,0.2);
+    }
+    .share-btn svg { width: 18px; height: 18px; }
 
-        /* Lista de pessoas com nomes */
-        .pessoas-container {
-            margin-top: 1rem;
-        }
-        .pessoa-nome-item {
-            background: #1b1633;
-            margin: 0.5rem 0;
-            padding: 0.65rem 1rem;
-            border-radius: 1.2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-        .pessoa-info {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            flex: 2;
-            min-width: 150px;
-        }
-        .pessoa-nome-input {
-            background: #0c0920;
-            border: 1px solid #5e4d86;
-            padding: 0.4rem 0.8rem;
-            border-radius: 1.5rem;
-            color: #ffecb3;
-            font-size: 0.9rem;
-            flex: 1;
-            min-width: 100px;
-            outline: none;
-        }
-        .pessoa-valor {
-            font-family: monospace;
-            font-weight: 700;
-            color: #ffcf7a;
-            background: #0e0b1a;
-            padding: 0.3rem 0.8rem;
-            border-radius: 2rem;
-            font-size: 0.9rem;
-        }
-        .add-pessoa-btn {
-            background: #2d6a4f;
-            padding: 0.4rem 1rem;
-            font-size: 0.75rem;
-            margin-top: 0.5rem;
-        }
-        .footer-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-            margin-top: 1.2rem;
-            flex-wrap: wrap;
-        }
-        .save-toast {
-            text-align: right;
-            font-size: 0.7rem;
-            margin-top: 8px;
-            color: #d8c285;
-            min-height: 24px;
-        }
-        @media (max-width: 600px) {
-            body { padding: 0.8rem; }
-            .app-container { padding: 1rem; }
-            .config-row { flex-direction: column; align-items: stretch; }
-            .config-label { min-width: auto; }
-            .pessoa-info { flex-direction: column; align-items: stretch; }
-        }
-        .detalhe-extra {
-            font-size: 0.75rem;
-            margin-top: 10px;
-            color: #b9a9e6;
-            background: #100e21;
-            padding: 0.5rem;
-            border-radius: 1rem;
-            text-align: center;
-        }
-        .section-subtitle {
-            font-size: 0.8rem;
-            color: #cbbfec;
-            margin-bottom: 0.5rem;
-        }
-    </style>
+    /* ─── FAB ────────────────────────────────────── */
+    #fab {
+      position: fixed;
+      bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 16px);
+      right: max(16px, env(safe-area-inset-right));
+      width: 56px; height: 56px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, var(--amber-dk), var(--amber));
+      color: #000;
+      font-size: 1.6rem;
+      font-weight: 300;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(245,158,11,0.4), 0 2px 8px rgba(0,0,0,0.4);
+      z-index: 50;
+      transition: transform .2s var(--trans), opacity .2s, box-shadow .2s;
+      touch-action: manipulation;
+    }
+    #fab:active { transform: scale(0.9); }
+    #fab.hidden { transform: scale(0); opacity: 0; pointer-events: none; }
+
+    /* ─── Bottom Navigation ───────────────────────── */
+    .bottom-nav {
+      height: calc(var(--nav-h) + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
+      display: flex;
+      align-items: center;
+      background: rgba(24,24,27,0.98);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 20;
+    }
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      height: var(--nav-h);
+      color: var(--text3);
+      transition: color .2s;
+      touch-action: manipulation;
+      padding: 0;
+    }
+    .nav-item.active { color: var(--amber); }
+    .nav-icon {
+      font-size: 22px;
+      transition: transform .2s var(--trans);
+    }
+    .nav-item.active .nav-icon { transform: translateY(-1px) scale(1.1); }
+    .nav-label {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+    .nav-badge {
+      position: absolute;
+      top: 10px;
+      right: calc(50% - 14px);
+      background: var(--amber);
+      color: #000;
+      font-size: 0.6rem;
+      font-weight: 800;
+      min-width: 16px;
+      height: 16px;
+      border-radius: 99px;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0 4px;
+      opacity: 0;
+      transform: scale(0);
+      transition: opacity .2s, transform .2s var(--trans);
+    }
+    .nav-badge.visible { opacity: 1; transform: scale(1); }
+
+    /* ─── Bottom Sheet ────────────────────────────── */
+    .sheet-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+    .sheet-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .bottom-sheet {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--surface);
+      border-radius: 24px 24px 0 0;
+      border-top: 1px solid var(--border);
+      z-index: 101;
+      padding: 0 20px calc(24px + env(safe-area-inset-bottom));
+      transform: translateY(110%);
+      transition: transform .35s var(--trans);
+      will-change: transform;
+    }
+    .bottom-sheet.open { transform: translateY(0); }
+
+    .sheet-handle {
+      width: 36px; height: 4px;
+      background: var(--border);
+      border-radius: 99px;
+      margin: 12px auto 20px;
+    }
+    .sheet-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text1);
+      margin-bottom: 20px;
+    }
+    .sheet-field { margin-bottom: 14px; }
+    .sheet-field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--text3);
+      margin-bottom: 8px;
+    }
+    .sheet-input {
+      width: 100%;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      color: var(--text1);
+      font-size: 1rem;
+      font-weight: 500;
+      transition: border-color .2s, background .2s;
+    }
+    .sheet-input:focus {
+      border-color: var(--amber);
+      background: var(--amber-glow2);
+    }
+    .sheet-input::placeholder { color: var(--text3); font-weight: 400; }
+    .sheet-input.value-input {
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: .5px;
+    }
+
+    .sheet-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .sheet-btn {
+      flex: 1;
+      padding: 15px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+      transition: transform .1s, opacity .15s;
+      touch-action: manipulation;
+    }
+    .sheet-btn:active { transform: scale(0.96); }
+    .sheet-btn.confirm {
+      background: linear-gradient(135deg, var(--amber-dk), var(--amber));
+      color: #000;
+    }
+    .sheet-btn.cancel {
+      background: var(--card2);
+      color: var(--text2);
+    }
+    .sheet-btn.danger-btn {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid rgba(239,68,68,0.2);
+    }
+
+    /* Reset confirm sheet */
+    .confirm-sheet-text {
+      text-align: center;
+      padding: 8px 0 16px;
+    }
+    .confirm-sheet-icon { font-size: 3rem; margin-bottom: 12px; }
+    .confirm-sheet-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text1);
+      margin-bottom: 6px;
+    }
+    .confirm-sheet-sub {
+      font-size: 0.85rem;
+      color: var(--text3);
+      line-height: 1.5;
+    }
+
+    /* ─── Toast ──────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: calc(var(--nav-h) + env(safe-area-inset-bottom) + 80px);
+      left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 10px 20px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text1);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s, transform .25s var(--trans);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      max-width: calc(100vw - 40px);
+    }
+    #toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+    #toast.has-action { padding-right: 12px; }
+    .toast-undo {
+      background: var(--amber);
+      color: #000;
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 99px;
+      flex-shrink: 0;
+    }
+
+    /* ─── Misc ───────────────────────────────────── */
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text3);
+      margin-bottom: 12px;
+      padding: 6px 10px;
+      background: var(--card);
+      border: 1px solid var(--border2);
+      border-radius: 99px;
+    }
+    .divider {
+      height: 1px;
+      background: var(--border2);
+      margin: 4px 0;
+    }
+    .info-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(96,165,250,0.08);
+      border: 1px solid rgba(96,165,250,0.15);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      color: #93C5FD;
+      margin-top: 8px;
+    }
+    .pessoas-empty-hint {
+      text-align: center;
+      padding: 20px;
+      color: var(--text3);
+      font-size: 0.85rem;
+    }
+
+    /* ─── Scrollbar ──────────────────────────────── */
+    .tab-pane::-webkit-scrollbar { width: 0; }
+
+    /* ─── Loading shimmer ─────────────────────────── */
+    @keyframes shimmer {
+      from { background-position: -200% center; }
+      to   { background-position: 200% center; }
+    }
+  </style>
 </head>
 <body>
-<div class="app-container" id="appRoot">
-    <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 0.5rem;">
-        <h1>🍻 Sua Conta <small>Consumação</small></h1>
-        <button id="resetStorageBtn" class="secondary small" style="background:#2a2346;">🗑️ reset</button>
-    </div>
-    <div class="sub">Consumo + Gorjeta/cover • Divisão de Conta</div>
 
-    <!-- Card de itens consumidos -->
-    <div class="card">
-        <div class="card-title">📋 Itens consumidos</div>
-        <ul id="consumoList" class="consumo-list">
-            <li style="text-align:center; color:#b5a5df; padding:1rem;">✨ Nenhum item — adicione bebidas ou porções</li>
-        </ul>
-        <div class="add-form">
-            <input type="text" id="itemNome" placeholder="Item (ex: Heineken, Porção)" autocomplete="off">
-            <input type="number" id="itemValor" placeholder="R$ 0,00" step="any">
-            <button id="addItemBtn" class="primary">➕ Adicionar</button>
-        </div>
+<div id="app">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-brand">
+      <div class="header-icon">🍺</div>
+      <div class="header-title">Conta <span>do Bar</span></div>
     </div>
-
-    <!-- Card de ajustes: gorjeta, cover -->
-    <div class="card">
-        <div class="card-title">⚙️ Configurações da conta</div>
-        <div class="config-grid">
-            <div class="config-row">
-                <div class="config-label">💸 Gorjeta (%)</div>
-                <div class="config-input-wrapper">
-                    <input type="number" id="gorjetaPercent" value="0" step="any" min="0" max="50" placeholder="0">
-                </div>
-                <button id="setGorjeta10" class="btn-10pct">➕ 10% rápido</button>
-            </div>
-            <div class="config-row">
-                <div class="config-label">🎫 Cover / Couvert (R$)</div>
-                <div class="config-input-wrapper">
-                    <input type="number" id="coverValor" value="0" step="any" min="0" placeholder="0,00">
-                </div>
-            </div>
-        </div>
-        <div style="font-size:0.7rem; color:#b8a6e0; margin-top: 12px; text-align:center;">* Gorjeta é calculada sobre subtotal + cover</div>
+    <div class="header-actions">
+      <span id="headerToast"></span>
+      <button class="icon-btn" id="resetBtn" title="Resetar tudo" aria-label="Resetar tudo">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.51"/></svg>
+      </button>
     </div>
+  </header>
 
-    <!-- RESUMO DETALHADO DO CONSUMO: lista de itens com nomes e valores -->
-    <div class="card" style="background: #201c38;">
-        <div class="card-title">🧾 Resumo detalhado do consumo</div>
-        <div id="resumoItensContainer" class="resumo-consumo-itens">
-            <div style="color:#cbbfec; text-align:center; padding:0.5rem;">Carregando itens...</div>
+  <!-- Tab Content -->
+  <div class="tab-content">
+
+    <!-- ── Tab 0: CONTA ── -->
+    <div class="tab-pane active" id="tab-conta">
+      <div id="conta-list-card" class="card">
+        <div class="card-header" style="padding-bottom:4px">
+          <span class="card-title">Consumo</span>
+          <button id="limparBtn" style="font-size:0.75rem;font-weight:700;color:var(--text3);padding:4px 10px;background:var(--card2);border:1px solid var(--border);border-radius:8px;touch-action:manipulation;">Limpar</button>
         </div>
-        
-        <!-- Totais e gorjeta/cover -->
-        <div class="resumo-box">
-            <div class="resumo-linha">
-                <span>🥂 Subtotal (itens):</span>
-                <span id="subtotalValor">R$ 0,00</span>
-            </div>
-            <div class="resumo-linha">
-                <span>🎫 Cover / Couvert:</span>
-                <span id="coverDisplay">R$ 0,00</span>
-            </div>
-            <div class="resumo-linha">
-                <span>💸 Gorjeta (<span id="gorjetaPercentDisplay">0</span>%):</span>
-                <span id="gorjetaValor">R$ 0,00</span>
-            </div>
-            <hr>
-            <div class="resumo-linha" style="margin-top: 0.3rem;">
-                <span style="font-size: 1.1rem; font-weight: 700;">💰 TOTAL GERAL:</span>
-                <span class="total-grande" id="totalGeral">R$ 0,00</span>
-            </div>
+        <div class="card-body" style="padding-top:8px;padding-bottom:8px;">
+          <div id="itemsEmptyState" class="empty-state" style="display:none;">
+            <div class="empty-icon">🍻</div>
+            <div class="empty-title">Mesa vazia por enquanto</div>
+            <div class="empty-sub">Toque em <strong style="color:var(--amber)">+</strong> para adicionar bebidas e porções</div>
+          </div>
+          <div class="items-list" id="itemsList"></div>
         </div>
+        <div id="listTotalRow" class="list-total-row" style="display:none">
+          <span class="list-total-label">Subtotal</span>
+          <span class="list-total-val" id="subtotalBadge">R$ 0,00</span>
+        </div>
+      </div>
     </div>
 
-    <!-- Card de pessoas com nomes editáveis -->
-    <div class="card">
-        <div class="card-title">👥 Pessoas na conta</div>
-        <div class="section-subtitle">Digite os nomes e veja o valor por pessoa</div>
-        <div id="pessoasListContainer">
-            <div style="color:#b8a6e0; text-align:center; padding:1rem;">Defina o número de pessoas abaixo</div>
+    <!-- ── Tab 1: AJUSTES ── -->
+    <div class="tab-pane" id="tab-ajustes">
+
+      <!-- Gorjeta -->
+      <div class="config-card" style="margin-bottom:12px">
+        <div class="config-label-row">
+          <span class="config-label"><span class="label-icon">💸</span> Gorjeta</span>
+          <span class="config-val-badge" id="gorjetaBadge">0%</span>
         </div>
-        <div class="config-row" style="margin-top: 0.8rem; background: #1a162e;">
-            <div class="config-label">👥 Quantidade:</div>
-            <div class="config-input-wrapper">
-                <input type="number" id="numPessoas" value="1" min="1" max="50" step="1">
-            </div>
-            <button id="atualizarPessoasBtn" class="secondary small">🔄 Atualizar nomes</button>
+        <div class="gorjeta-presets" id="gorjetaPresets">
+          <button class="gorjeta-preset-btn active" data-val="0">0%</button>
+          <button class="gorjeta-preset-btn" data-val="5">5%</button>
+          <button class="gorjeta-preset-btn" data-val="10">10%</button>
+          <button class="gorjeta-preset-btn" data-val="15">15%</button>
+          <button class="gorjeta-preset-btn" data-val="20">20%</button>
         </div>
-        <div id="detalhePorPessoaExtra" class="detalhe-extra"></div>
-        
-        <div class="footer-actions">
-            <button id="salvarSnapshotBtn" class="secondary">💾 Salvar estado</button>
-            <button id="limparConsumoBtn" class="danger small">🗑️ Limpar itens</button>
+        <div class="gorjeta-custom-row">
+          <label for="gorjetaCustom">Personalizado:</label>
+          <input class="gorjeta-custom-input" type="number" id="gorjetaCustom" min="0" max="50" step="1" placeholder="%" inputmode="numeric">
         </div>
-        <div id="saveToast" class="save-toast"></div>
+        <div class="info-pill" style="margin-top:10px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          Calculada sobre subtotal + cover
+        </div>
+      </div>
+
+      <!-- Cover -->
+      <div class="config-card" style="margin-bottom:12px">
+        <div class="config-label-row">
+          <span class="config-label"><span class="label-icon">🎫</span> Cover / Couvert</span>
+          <span class="config-val-badge" id="coverBadge">R$ 0</span>
+        </div>
+        <div class="cover-input-row">
+          <span class="cover-prefix">R$</span>
+          <input class="cover-input" type="number" id="coverInput" min="0" step="0.50" placeholder="0,00" inputmode="decimal">
+        </div>
+        <div class="cover-hint">Valor cobrado por pessoa na entrada</div>
+      </div>
+
+      <!-- Pessoas -->
+      <div class="config-card">
+        <div class="config-label-row">
+          <span class="config-label"><span class="label-icon">👥</span> Pessoas</span>
+          <span class="config-val-badge" id="pessoasBadge">1 pessoa</span>
+        </div>
+        <div class="stepper">
+          <button class="stepper-btn" id="pessoasMinus">−</button>
+          <div class="stepper-sep"></div>
+          <span class="stepper-val" id="pessoasVal">1</span>
+          <div class="stepper-sep"></div>
+          <button class="stepper-btn" id="pessoasPlus">+</button>
+        </div>
+        <div class="info-pill" style="margin-top:10px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+          Edite os nomes na aba Divisão
+        </div>
+      </div>
+
     </div>
+
+    <!-- ── Tab 2: DIVISÃO ── -->
+    <div class="tab-pane" id="tab-divisao">
+
+      <!-- Summary hero card -->
+      <div class="summary-card">
+        <div class="summary-total-hero">
+          <div class="summary-total-label">Total Geral</div>
+          <div class="summary-total-val" id="totalGeralDisplay">R$ 0,00</div>
+          <div class="summary-ppessoa" id="ppessoaDisplay"></div>
+        </div>
+        <div class="summary-breakdown">
+          <div class="summary-row">
+            <span class="summary-row-label">🥂 Subtotal dos itens</span>
+            <span class="summary-row-val" id="dSubtotal">R$ 0,00</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-row-label">🎫 Cover (<span id="dCoverQtd">0</span> pes.)</span>
+            <span class="summary-row-val" id="dCover">R$ 0,00</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-row-label">💸 Gorjeta (<span id="dGorjetaPct">0</span>%)</span>
+            <span class="summary-row-val highlight" id="dGorjeta">R$ 0,00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pessoas divisão -->
+      <div class="pessoas-section">
+        <div class="pessoas-header">
+          <span class="pessoas-title">Quem paga quanto</span>
+        </div>
+        <div id="pessoasDivisaoList">
+          <div class="pessoas-empty-hint">Configure as pessoas na aba Ajustes</div>
+        </div>
+      </div>
+
+      <!-- Share -->
+      <button class="share-btn" id="shareBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Compartilhar Divisão
+      </button>
+
+    </div>
+  </div><!-- /tab-content -->
+
+  <!-- FAB -->
+  <button id="fab" aria-label="Adicionar item">+</button>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="0">
+      <span class="nav-icon">🍺</span>
+      <span class="nav-label">Conta</span>
+      <span class="nav-badge" id="navBadge0"></span>
+    </button>
+    <button class="nav-item" data-tab="1">
+      <span class="nav-icon">⚙️</span>
+      <span class="nav-label">Ajustes</span>
+    </button>
+    <button class="nav-item" data-tab="2">
+      <span class="nav-icon">💰</span>
+      <span class="nav-label">Divisão</span>
+    </button>
+  </nav>
+</div><!-- /app -->
+
+<!-- Sheet Overlay -->
+<div class="sheet-overlay" id="sheetOverlay"></div>
+
+<!-- Add/Edit Item Sheet -->
+<div class="bottom-sheet" id="itemSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title" id="itemSheetTitle">Adicionar Item</div>
+  <input type="hidden" id="editItemId">
+  <div class="sheet-field">
+    <label for="sheetNome">Nome do item</label>
+    <input class="sheet-input" type="text" id="sheetNome" placeholder="Ex: Heineken, Caipirinha..." autocomplete="off" autocorrect="off" spellcheck="false">
+  </div>
+  <div class="sheet-field">
+    <label for="sheetValor">Valor (R$)</label>
+    <input class="sheet-input value-input" type="number" id="sheetValor" placeholder="0,00" step="0.01" min="0" inputmode="decimal">
+  </div>
+  <div class="sheet-actions">
+    <button class="sheet-btn cancel" id="itemSheetCancel">Cancelar</button>
+    <button class="sheet-btn confirm" id="itemSheetConfirm">Confirmar</button>
+  </div>
+</div>
+
+<!-- Reset Confirm Sheet -->
+<div class="bottom-sheet" id="resetSheet">
+  <div class="sheet-handle"></div>
+  <div class="confirm-sheet-text">
+    <div class="confirm-sheet-icon">🧹</div>
+    <div class="confirm-sheet-title">Resetar tudo?</div>
+    <div class="confirm-sheet-sub">Todos os itens, configurações e nomes serão apagados. Essa ação não pode ser desfeita.</div>
+  </div>
+  <div class="sheet-actions">
+    <button class="sheet-btn cancel" id="resetSheetCancel">Cancelar</button>
+    <button class="sheet-btn danger-btn" id="resetSheetConfirm">Sim, resetar</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast">
+  <span id="toastMsg"></span>
 </div>
 
 <script>
-    // ---------- Modelo de dados ----------
-    let consumoItems = [];      // { nome, valor }
-    let pessoas = [];           // array de objetos { nome, valorParcela? calculado dinamicamente }
-    let gorjetaPercent = 0;
-    let coverValor = 0;
-    let numPessoas = 1;
+/* ─── State ──────────────────────────────────────── */
+let state = {
+  items: [],     // [{id, nome, valor}]
+  gorjeta: 0,    // %
+  cover: 0,      // R$ por pessoa
+  numPessoas: 1,
+  pessoas: [],   // [{id, nome}]
+  activeTab: 0
+};
 
-    // DOM elements
-    const consumoListEl = document.getElementById('consumoList');
-    const resumoItensContainer = document.getElementById('resumoItensContainer');
-    const subtotalSpan = document.getElementById('subtotalValor');
-    const coverDisplaySpan = document.getElementById('coverDisplay');
-    const gorjetaPercentDisplay = document.getElementById('gorjetaPercentDisplay');
-    const gorjetaValorSpan = document.getElementById('gorjetaValor');
-    const totalGeralSpan = document.getElementById('totalGeral');
-    const pessoasListContainer = document.getElementById('pessoasListContainer');
-    const detalheExtra = document.getElementById('detalhePorPessoaExtra');
+let nextId = 1;
+let undoItem = null;
+let undoTimer = null;
+let toastTimer = null;
+let swipeState = {};
 
-    // inputs
-    const gorjetaInput = document.getElementById('gorjetaPercent');
-    const coverInput = document.getElementById('coverValor');
-    const numPessoasInput = document.getElementById('numPessoas');
-    const atualizarPessoasBtn = document.getElementById('atualizarPessoasBtn');
+/* ─── DOM refs ───────────────────────────────────── */
+const $ = id => document.getElementById(id);
+const tabPanes    = document.querySelectorAll('.tab-pane');
+const navItems    = document.querySelectorAll('.nav-item');
+const fab         = $('fab');
+const itemSheet   = $('itemSheet');
+const resetSheet  = $('resetSheet');
+const overlay     = $('sheetOverlay');
+const toast       = $('toast');
+const toastMsg    = $('toastMsg');
 
-    // buttons
-    const addBtn = document.getElementById('addItemBtn');
-    const itemNomeInput = document.getElementById('itemNome');
-    const itemValorInput = document.getElementById('itemValor');
-    const resetStorageBtn = document.getElementById('resetStorageBtn');
-    const setGorjeta10Btn = document.getElementById('setGorjeta10');
-    const salvarSnapshotBtn = document.getElementById('salvarSnapshotBtn');
-    const limparConsumoBtn = document.getElementById('limparConsumoBtn');
-    const saveToastDiv = document.getElementById('saveToast');
+/* ─── Utilities ──────────────────────────────────── */
+function fmt(val) {
+  return 'R$\u00a0' + Number(val).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function uid() { return nextId++; }
+function lerValor(s) {
+  let n = parseFloat(String(s).replace(',', '.'));
+  return isNaN(n) || n < 0 ? null : n;
+}
 
-    // Helper: format money
-    function formatMoney(value) {
-        return 'R$ ' + value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
+/* ─── Toast ──────────────────────────────────────── */
+function showToast(msg, undoFn) {
+  clearTimeout(toastTimer);
+  toastMsg.textContent = msg;
+  // Remove undo if exists
+  const existingUndo = toast.querySelector('.toast-undo');
+  if (existingUndo) existingUndo.remove();
+  if (undoFn) {
+    const btn = document.createElement('button');
+    btn.className = 'toast-undo';
+    btn.textContent = 'DESFAZER';
+    btn.onclick = () => { undoFn(); hideToast(); };
+    toast.appendChild(btn);
+  }
+  toast.classList.add('visible');
+  toastTimer = setTimeout(hideToast, undoFn ? 4000 : 2200);
+}
+function hideToast() {
+  toast.classList.remove('visible');
+  clearTimeout(toastTimer);
+}
+function showHeaderToast(msg) {
+  const el = $('headerToast');
+  el.textContent = msg;
+  el.classList.add('visible');
+  setTimeout(() => el.classList.remove('visible'), 2000);
+}
 
-    // Inicializar array de pessoas com nomes padrão
-    function inicializarPessoas(count) {
-        const novasPessoas = [];
-        for (let i = 0; i < count; i++) {
-            if (i < pessoas.length && pessoas[i]) {
-                novasPessoas.push({ nome: pessoas[i].nome || `Pessoa ${i+1}` });
-            } else {
-                novasPessoas.push({ nome: `Pessoa ${i+1}` });
-            }
-        }
-        pessoas = novasPessoas;
-    }
+/* ─── Calculations ───────────────────────────────── */
+function calc() {
+  const subtotal = state.items.reduce((a, i) => a + i.valor, 0);
+  const coverTotal = state.cover * state.numPessoas;
+  const base = subtotal + coverTotal;
+  const gorjetaVal = base * (state.gorjeta / 100);
+  const total = base + gorjetaVal;
+  const porPessoa = state.numPessoas > 0 ? total / state.numPessoas : 0;
+  return { subtotal, coverTotal, gorjetaVal, total, porPessoa };
+}
 
-    // Calcular tudo e atualizar resumo de itens, totais e divisão
-    function calcularAtualizarTudo() {
-        // Subtotal
-        let subtotal = consumoItems.reduce((acc, item) => acc + (item.valor || 0), 0);
-        let cover = coverValor;
-        let baseGorjeta = subtotal + cover;
-        let gorjetaCalculada = (gorjetaPercent / 100) * baseGorjeta;
-        let totalFinal = baseGorjeta + gorjetaCalculada;
-        let porPessoa = numPessoas > 0 ? totalFinal / numPessoas : 0;
+/* ─── Tabs ───────────────────────────────────────── */
+function setTab(idx) {
+  state.activeTab = idx;
+  tabPanes.forEach((p, i) => p.classList.toggle('active', i === idx));
+  navItems.forEach((n, i) => n.classList.toggle('active', i === idx));
+  // FAB: only on conta tab
+  fab.classList.toggle('hidden', idx !== 0);
+  if (idx === 2) renderDivisao();
+}
 
-        // Atualizar textos dos totais
-        subtotalSpan.innerText = formatMoney(subtotal);
-        coverDisplaySpan.innerText = formatMoney(cover);
-        gorjetaPercentDisplay.innerText = gorjetaPercent;
-        gorjetaValorSpan.innerText = formatMoney(gorjetaCalculada);
-        totalGeralSpan.innerText = formatMoney(totalFinal);
+/* ─── Render Items ───────────────────────────────── */
+function renderItems() {
+  const list = $('itemsList');
+  const empty = $('itemsEmptyState');
+  const totalRow = $('listTotalRow');
 
-        // ========== RESUMO DETALHADO DOS ITENS ==========
-        if (consumoItems.length === 0) {
-            resumoItensContainer.innerHTML = '<div style="color:#cbbfec; text-align:center; padding:0.8rem;">📭 Nenhum item adicionado ainda</div>';
-        } else {
-            let itensHtml = '';
-            consumoItems.forEach((item, idx) => {
-                itensHtml += `
-                    <div class="resumo-item-linha">
-                        <span class="resumo-item-nome">${escapeHtml(item.nome)}</span>
-                        <span class="resumo-item-valor">${formatMoney(item.valor)}</span>
-                    </div>
-                `;
-            });
-            itensHtml += `<div class="resumo-total-linha"><span>📊 Subtotal dos itens</span><span>${formatMoney(subtotal)}</span></div>`;
-            resumoItensContainer.innerHTML = itensHtml;
-        }
+  if (state.items.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'flex';
+    totalRow.style.display = 'none';
+    $('subtotalBadge').textContent = 'R$ 0,00';
+    // Update badge
+    const badge = $('navBadge0');
+    badge.textContent = '0';
+    badge.classList.remove('visible');
+    return;
+  }
 
-        // Atualizar lista de pessoas com nomes e valores
-        if (numPessoas !== pessoas.length) {
-            inicializarPessoas(numPessoas);
-        }
-        
-        let pessoasHtml = '';
-        for (let i = 0; i < pessoas.length; i++) {
-            const valorIndividual = porPessoa;
-            pessoasHtml += `
-                <div class="pessoa-nome-item" data-idx="${i}">
-                    <div class="pessoa-info">
-                        <span style="color:#ffdfb3;">👤</span>
-                        <input type="text" class="pessoa-nome-input" data-idx="${i}" value="${escapeHtml(pessoas[i].nome)}" placeholder="Nome">
-                        <span class="pessoa-valor">${formatMoney(valorIndividual)}</span>
-                    </div>
-                </div>
-            `;
-        }
-        pessoasListContainer.innerHTML = pessoasHtml;
-        
-        // Adicionar eventos para edição de nomes
-        document.querySelectorAll('.pessoa-nome-input').forEach(input => {
-            input.addEventListener('change', (e) => {
-                const idx = parseInt(input.dataset.idx);
-                if (!isNaN(idx) && pessoas[idx]) {
-                    pessoas[idx].nome = input.value.trim() || `Pessoa ${idx+1}`;
-                    salvarLocalStorage();
-                    calcularAtualizarTudo(); // re-renderiza mantendo nomes
-                }
-            });
-        });
-        
-        detalheExtra.innerText = `💰 Cada pessoa paga ${formatMoney(porPessoa)} (inclui gorjeta de ${gorjetaPercent}% e cover de ${formatMoney(cover)}).`;
-        
-        salvarLocalStorage();
-    }
+  empty.style.display = 'none';
+  totalRow.style.display = 'flex';
 
-    // Renderizar lista de consumo (com edição/remoção)
-    function renderizarConsumo() {
-        if (!consumoListEl) return;
-        if (consumoItems.length === 0) {
-            consumoListEl.innerHTML = '<li style="text-align:center; color:#c7b9ec; padding:1rem;">🍺 Nenhum item — clique em adicionar</li>';
-            calcularAtualizarTudo();
-            return;
-        }
+  list.innerHTML = state.items.map(item => `
+    <div class="item-wrapper" data-id="${item.id}">
+      <div class="item-delete-bg">🗑️</div>
+      <div class="item-card" data-id="${item.id}">
+        <div class="item-dot"></div>
+        <span class="item-nome">${esc(item.nome)}</span>
+        <span class="item-valor">${fmt(item.valor)}</span>
+        <span class="item-edit-icon">›</span>
+      </div>
+    </div>
+  `).join('');
 
-        let html = '';
-        consumoItems.forEach((item, idx) => {
-            const nomeSeguro = escapeHtml(item.nome || 'Item');
-            html += `
-                <li class="consumo-item">
-                    <span class="item-nome">${nomeSeguro}</span>
-                    <span class="item-valor">${formatMoney(item.valor)}</span>
-                    <div class="item-actions">
-                        <button class="secondary small edit-item" data-idx="${idx}">✏️ Editar</button>
-                        <button class="danger small delete-item" data-idx="${idx}">🗑️</button>
-                    </div>
-                </li>
-            `;
-        });
-        consumoListEl.innerHTML = html;
-
-        document.querySelectorAll('.edit-item').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const idx = parseInt(btn.dataset.idx);
-                if (isNaN(idx)) return;
-                const item = consumoItems[idx];
-                const novoNome = prompt('Editar nome do item:', item.nome);
-                if (novoNome !== null && novoNome.trim() !== '') item.nome = novoNome.trim();
-                let novoValor = prompt('Editar valor (R$):', item.valor);
-                if (novoValor !== null) {
-                    let parsed = parseFloat(novoValor.replace(',', '.'));
-                    if (!isNaN(parsed) && parsed >= 0) item.valor = parsed;
-                }
-                renderizarConsumo();
-                calcularAtualizarTudo();
-            });
-        });
-
-        document.querySelectorAll('.delete-item').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const idx = parseInt(btn.dataset.idx);
-                if (!isNaN(idx)) {
-                    consumoItems.splice(idx, 1);
-                    renderizarConsumo();
-                    calcularAtualizarTudo();
-                }
-            });
-        });
-        calcularAtualizarTudo();
-    }
-
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
-
-    function adicionarItem() {
-        let nome = itemNomeInput.value.trim();
-        if (nome === "") nome = "Item consumido";
-        let valorRaw = itemValorInput.value.trim();
-        let valorNum = parseFloat(valorRaw.replace(',', '.'));
-        if (isNaN(valorNum) || valorNum <= 0) {
-            alert("Digite um valor válido (ex: 24.50 ou 15)");
-            return;
-        }
-        consumoItems.push({ nome: nome, valor: valorNum });
-        itemNomeInput.value = "";
-        itemValorInput.value = "";
-        renderizarConsumo();
-    }
-
-    function salvarLocalStorage() {
-        const state = {
-            consumoItems: consumoItems,
-            gorjetaPercent: gorjetaPercent,
-            coverValor: coverValor,
-            numPessoas: numPessoas,
-            pessoas: pessoas
-        };
-        localStorage.setItem('barTabState', JSON.stringify(state));
-        if (saveToastDiv) {
-            saveToastDiv.innerText = '✓ Dados salvos';
-            setTimeout(() => { if (saveToastDiv) saveToastDiv.innerText = ''; }, 1500);
-        }
-    }
-
-    function carregarLocalStorage() {
-        const saved = localStorage.getItem('barTabState');
-        if (!saved) return false;
-        try {
-            const state = JSON.parse(saved);
-            if (state.consumoItems && Array.isArray(state.consumoItems)) {
-                consumoItems = state.consumoItems.filter(item => item && typeof item.nome === 'string' && typeof item.valor === 'number');
-            }
-            if (typeof state.gorjetaPercent === 'number') gorjetaPercent = Math.min(50, Math.max(0, state.gorjetaPercent));
-            if (typeof state.coverValor === 'number') coverValor = Math.max(0, state.coverValor);
-            if (typeof state.numPessoas === 'number' && state.numPessoas >= 1) numPessoas = Math.floor(state.numPessoas);
-            if (state.pessoas && Array.isArray(state.pessoas)) {
-                pessoas = state.pessoas.map(p => ({ nome: p.nome || `Pessoa` }));
-            } else {
-                inicializarPessoas(numPessoas);
-            }
-            gorjetaInput.value = gorjetaPercent;
-            coverInput.value = coverValor;
-            numPessoasInput.value = numPessoas;
-            return true;
-        } catch(e) { console.warn(e); return false; }
-    }
-
-    function resetarTudo() {
-        if (confirm("Resetar todos os dados? Isso apagará consumo, gorjeta, cover e pessoas.")) {
-            consumoItems = [];
-            gorjetaPercent = 0;
-            coverValor = 0;
-            numPessoas = 1;
-            inicializarPessoas(1);
-            gorjetaInput.value = 0;
-            coverInput.value = 0;
-            numPessoasInput.value = 1;
-            renderizarConsumo();
-            calcularAtualizarTudo();
-            if (saveToastDiv) {
-                saveToastDiv.innerText = '🧹 Reset completo';
-                setTimeout(() => { if(saveToastDiv) saveToastDiv.innerText = ''; }, 2000);
-            }
-        }
-    }
-
-    function sincronizarInputs() {
-        let novaGorjeta = parseFloat(gorjetaInput.value);
-        if (isNaN(novaGorjeta)) novaGorjeta = 0;
-        novaGorjeta = Math.min(50, Math.max(0, novaGorjeta));
-        gorjetaPercent = novaGorjeta;
-        gorjetaInput.value = novaGorjeta;
-
-        let novoCover = parseFloat(coverInput.value);
-        if (isNaN(novoCover)) novoCover = 0;
-        novoCover = Math.max(0, novoCover);
-        coverValor = novoCover;
-        coverInput.value = novoCover;
-
-        let novasPessoas = parseInt(numPessoasInput.value);
-        if (isNaN(novasPessoas) || novasPessoas < 1) novasPessoas = 1;
-        if (novasPessoas > 50) novasPessoas = 50;
-        if (novasPessoas !== numPessoas) {
-            numPessoas = novasPessoas;
-            inicializarPessoas(numPessoas);
-        }
-        numPessoasInput.value = numPessoas;
-        calcularAtualizarTudo();
-    }
-
-    // Eventos
-    addBtn.addEventListener('click', adicionarItem);
-    itemValorInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') adicionarItem(); });
-    itemNomeInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') adicionarItem(); });
-    resetStorageBtn.addEventListener('click', resetarTudo);
-    setGorjeta10Btn.addEventListener('click', () => {
-        gorjetaPercent = 10;
-        gorjetaInput.value = 10;
-        sincronizarInputs();
+  // Swipe to delete
+  list.querySelectorAll('.item-card').forEach(card => {
+    setupSwipe(card);
+    card.addEventListener('click', e => {
+      if (swipeState[card.dataset.id]?.swiped) {
+        // second tap on swiped: delete
+        deleteItem(parseInt(card.dataset.id));
+        return;
+      }
+      openEditSheet(parseInt(card.dataset.id));
     });
-    gorjetaInput.addEventListener('change', sincronizarInputs);
-    coverInput.addEventListener('change', sincronizarInputs);
-    numPessoasInput.addEventListener('change', sincronizarInputs);
-    atualizarPessoasBtn.addEventListener('click', () => {
-        let novaQtde = parseInt(numPessoasInput.value);
-        if (isNaN(novaQtde) || novaQtde < 1) novaQtde = 1;
-        numPessoas = novaQtde;
-        inicializarPessoas(numPessoas);
-        numPessoasInput.value = numPessoas;
-        calcularAtualizarTudo();
-    });
-    salvarSnapshotBtn.addEventListener('click', () => {
-        salvarLocalStorage();
-        saveToastDiv.innerText = '✅ Estado salvo manualmente!';
-        setTimeout(() => { if(saveToastDiv) saveToastDiv.innerText = ''; }, 1800);
-    });
-    limparConsumoBtn.addEventListener('click', () => {
-        if(confirm("Limpar todos os itens do consumo?")) {
-            consumoItems = [];
-            renderizarConsumo();
-            calcularAtualizarTudo();
-        }
-    });
+  });
 
-    function init() {
-        const loaded = carregarLocalStorage();
-        if (!loaded) {
-            consumoItems = [
-                { nome: "Heineken (2 unidades)", valor: 28.00 },
-                { nome: "Porção de Batata frita", valor: 34.90 },
-                { nome: "Caipirinha de limão", valor: 18.50 }
-            ];
-            gorjetaPercent = 10;
-            coverValor = 6.0;
-            numPessoas = 3;
-            inicializarPessoas(3);
-            pessoas[0].nome = "Ana";
-            pessoas[1].nome = "Carlos";
-            pessoas[2].nome = "Beatriz";
-            gorjetaInput.value = 10;
-            coverInput.value = 6;
-            numPessoasInput.value = 3;
-        }
-        sincronizarInputs();
-        renderizarConsumo();
-    }
-    init();
+  const { subtotal } = calc();
+  $('subtotalBadge').textContent = fmt(subtotal);
+  const badge = $('navBadge0');
+  badge.textContent = state.items.length;
+  badge.classList.toggle('visible', state.items.length > 0);
+}
 
-    // PWA Service Worker básico
-    if ('serviceWorker' in navigator) {
-        const swCode = `self.addEventListener('fetch', event => { event.respondWith(fetch(event.request)); });`;
-        const blob = new Blob([swCode], {type: 'application/javascript'});
-        const url = URL.createObjectURL(blob);
-        navigator.serviceWorker.register(url).catch(e => console.log("sw opcional", e));
+/* ─── Swipe to Delete ────────────────────────────── */
+function setupSwipe(card) {
+  const id = card.dataset.id;
+  swipeState[id] = { startX: 0, currentX: 0, swiped: false };
+  const s = swipeState[id];
+
+  card.addEventListener('touchstart', e => {
+    s.startX = e.touches[0].clientX;
+    s.startY = e.touches[0].clientY;
+    s.moved = false;
+  }, {passive: true});
+
+  card.addEventListener('touchmove', e => {
+    const dx = e.touches[0].clientX - s.startX;
+    const dy = e.touches[0].clientY - s.startY;
+    if (!s.moved && Math.abs(dy) > Math.abs(dx)) return; // vertical scroll priority
+    s.moved = true;
+    if (dx < 0) {
+      const tx = Math.max(dx, -80);
+      card.style.transform = `translateX(${tx}px)`;
+      card.style.transition = 'none';
+    } else if (s.swiped) {
+      const tx = Math.min(0, -80 + dx);
+      card.style.transform = `translateX(${tx}px)`;
+      card.style.transition = 'none';
     }
+  }, {passive: true});
+
+  card.addEventListener('touchend', e => {
+    card.style.transition = '';
+    const dx = e.changedTouches[0].clientX - s.startX;
+    if (!s.moved) return;
+    if (!s.swiped && dx < -50) {
+      // snap to revealed
+      s.swiped = true;
+      card.style.transform = 'translateX(-80px)';
+      card.classList.add('swiped');
+    } else if (s.swiped && dx > 30) {
+      s.swiped = false;
+      card.style.transform = '';
+      card.classList.remove('swiped');
+    } else if (dx < -70) {
+      // full swipe: delete
+      deleteItem(parseInt(id));
+    } else if (s.swiped) {
+      card.style.transform = 'translateX(-80px)';
+    } else {
+      card.style.transform = '';
+    }
+  }, {passive: true});
+}
+
+/* ─── Add / Edit / Delete ────────────────────────── */
+function addItem(nome, valor) {
+  const item = { id: uid(), nome, valor };
+  state.items.push(item);
+  save();
+  renderItems();
+  if (state.activeTab === 2) renderDivisao();
+  // Animate new item
+  setTimeout(() => {
+    const card = document.querySelector(`.item-card[data-id="${item.id}"]`);
+    if (card) card.classList.add('adding');
+  }, 50);
+}
+
+function editItem(id, nome, valor) {
+  const item = state.items.find(i => i.id === id);
+  if (!item) return;
+  item.nome = nome;
+  item.valor = valor;
+  save();
+  renderItems();
+  if (state.activeTab === 2) renderDivisao();
+  showToast('✏️ Item atualizado');
+}
+
+function deleteItem(id) {
+  const idx = state.items.findIndex(i => i.id === id);
+  if (idx === -1) return;
+  const removed = state.items[idx];
+  // Animate out
+  const card = document.querySelector(`.item-card[data-id="${id}"]`);
+  if (card) {
+    card.classList.add('removing');
+    setTimeout(() => {
+      state.items.splice(idx, 1);
+      save();
+      renderItems();
+      if (state.activeTab === 2) renderDivisao();
+    }, 220);
+  } else {
+    state.items.splice(idx, 1);
+    save();
+    renderItems();
+  }
+  showToast('🗑️ Item removido', () => {
+    state.items.splice(idx, 0, removed);
+    save();
+    renderItems();
+    if (state.activeTab === 2) renderDivisao();
+  });
+}
+
+/* ─── Item Sheet ─────────────────────────────────── */
+function openAddSheet() {
+  $('itemSheetTitle').textContent = 'Adicionar Item';
+  $('editItemId').value = '';
+  $('sheetNome').value = '';
+  $('sheetValor').value = '';
+  openSheet(itemSheet);
+  setTimeout(() => $('sheetNome').focus(), 350);
+}
+
+function openEditSheet(id) {
+  const item = state.items.find(i => i.id === id);
+  if (!item) return;
+  $('itemSheetTitle').textContent = 'Editar Item';
+  $('editItemId').value = id;
+  $('sheetNome').value = item.nome;
+  $('sheetValor').value = item.valor;
+  openSheet(itemSheet);
+}
+
+function confirmItemSheet() {
+  const nome = $('sheetNome').value.trim() || 'Item consumido';
+  const valor = lerValor($('sheetValor').value);
+  if (valor === null || valor <= 0) {
+    $('sheetValor').focus();
+    $('sheetValor').style.borderColor = 'var(--red)';
+    setTimeout(() => $('sheetValor').style.borderColor = '', 1200);
+    return;
+  }
+  const editId = $('editItemId').value;
+  if (editId) {
+    editItem(parseInt(editId), nome, valor);
+  } else {
+    addItem(nome, valor);
+    showToast('✅ ' + nome + ' adicionado');
+  }
+  closeSheet(itemSheet);
+}
+
+/* ─── Config Renders ─────────────────────────────── */
+function renderConfig() {
+  // Gorjeta
+  $('gorjetaBadge').textContent = state.gorjeta + '%';
+  $('gorjetaCustom').value = state.gorjeta || '';
+  document.querySelectorAll('.gorjeta-preset-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.val) === state.gorjeta);
+  });
+
+  // Cover
+  const coverDisplay = state.cover > 0 ? fmt(state.cover) + '/pes.' : 'R$ 0';
+  $('coverBadge').textContent = coverDisplay;
+  $('coverInput').value = state.cover || '';
+
+  // Pessoas
+  $('pessoasVal').textContent = state.numPessoas;
+  $('pessoasBadge').textContent = state.numPessoas + (state.numPessoas === 1 ? ' pessoa' : ' pessoas');
+}
+
+/* ─── Divisão Render ─────────────────────────────── */
+function renderDivisao() {
+  const { subtotal, coverTotal, gorjetaVal, total, porPessoa } = calc();
+
+  $('totalGeralDisplay').textContent = fmt(total);
+  $('ppessoaDisplay').innerHTML = state.numPessoas > 1
+    ? `<strong>${fmt(porPessoa)}</strong> por pessoa (÷${state.numPessoas})`
+    : '';
+  $('dSubtotal').textContent = fmt(subtotal);
+  $('dCoverQtd').textContent = state.numPessoas;
+  $('dCover').textContent = fmt(coverTotal);
+  $('dGorjetaPct').textContent = state.gorjeta;
+  $('dGorjeta').textContent = fmt(gorjetaVal);
+
+  // Sync pessoas array
+  while (state.pessoas.length < state.numPessoas) {
+    state.pessoas.push({ id: uid(), nome: 'Pessoa ' + (state.pessoas.length + 1) });
+  }
+  state.pessoas = state.pessoas.slice(0, state.numPessoas);
+
+  const list = $('pessoasDivisaoList');
+  list.innerHTML = state.pessoas.map((p, i) => `
+    <div class="pessoa-card">
+      <div class="pessoa-avatar">${['🧑','👤','👨','👩','🧔','👦','👧','🧓'][i % 8]}</div>
+      <input class="pessoa-nome-input" type="text"
+        data-id="${p.id}"
+        value="${esc(p.nome)}"
+        placeholder="Pessoa ${i+1}"
+        autocomplete="off" autocorrect="off" spellcheck="false">
+      <span class="pessoa-val-badge">${fmt(porPessoa)}</span>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.pessoa-nome-input').forEach(input => {
+    input.addEventListener('change', () => {
+      const pid = parseInt(input.dataset.id);
+      const p = state.pessoas.find(x => x.id === pid);
+      if (p) {
+        p.nome = input.value.trim() || 'Pessoa';
+        save();
+      }
+    });
+  });
+}
+
+/* ─── Sheet Management ───────────────────────────── */
+function openSheet(sheet) {
+  overlay.classList.add('open');
+  sheet.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeSheet(sheet) {
+  overlay.classList.remove('open');
+  sheet.classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeAllSheets() {
+  closeSheet(itemSheet);
+  closeSheet(resetSheet);
+}
+
+/* ─── Persist ────────────────────────────────────── */
+function save() {
+  try {
+    localStorage.setItem('barTab_v2', JSON.stringify({
+      items: state.items,
+      gorjeta: state.gorjeta,
+      cover: state.cover,
+      numPessoas: state.numPessoas,
+      pessoas: state.pessoas,
+      nextId
+    }));
+  } catch(e) {}
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem('barTab_v2');
+    if (!raw) return false;
+    const d = JSON.parse(raw);
+    if (d.items && Array.isArray(d.items)) state.items = d.items.filter(i => i && typeof i.nome === 'string' && typeof i.valor === 'number');
+    if (typeof d.gorjeta === 'number') state.gorjeta = Math.min(50, Math.max(0, d.gorjeta));
+    if (typeof d.cover === 'number') state.cover = Math.max(0, d.cover);
+    if (typeof d.numPessoas === 'number' && d.numPessoas >= 1) state.numPessoas = Math.min(50, Math.floor(d.numPessoas));
+    if (d.pessoas && Array.isArray(d.pessoas)) state.pessoas = d.pessoas;
+    if (typeof d.nextId === 'number') nextId = d.nextId;
+    return true;
+  } catch(e) { return false; }
+}
+
+function reset() {
+  state.items = [];
+  state.gorjeta = 0;
+  state.cover = 0;
+  state.numPessoas = 3;
+  state.pessoas = [
+    { id: uid(), nome: 'Ana' },
+    { id: uid(), nome: 'Bruno' },
+    { id: uid(), nome: 'Carol' }
+  ];
+  save();
+  renderItems();
+  renderConfig();
+  if (state.activeTab === 2) renderDivisao();
+  showToast('🧹 Dados resetados');
+}
+
+/* ─── Share ──────────────────────────────────────── */
+function share() {
+  const { subtotal, coverTotal, gorjetaVal, total, porPessoa } = calc();
+  let lines = ['🍺 *Conta do Bar*\n'];
+  if (state.items.length) {
+    lines.push('*Itens:*');
+    state.items.forEach(i => lines.push(`  • ${i.nome}: ${fmt(i.valor)}`));
+    lines.push('');
+  }
+  lines.push(`Subtotal: ${fmt(subtotal)}`);
+  if (coverTotal > 0) lines.push(`Cover (${state.numPessoas}x R$${state.cover}): ${fmt(coverTotal)}`);
+  if (gorjetaVal > 0) lines.push(`Gorjeta (${state.gorjeta}%): ${fmt(gorjetaVal)}`);
+  lines.push(`\n💰 *Total: ${fmt(total)}*`);
+  if (state.numPessoas > 1) {
+    lines.push(`\n*Por pessoa (÷${state.numPessoas}):*`);
+    state.pessoas.slice(0, state.numPessoas).forEach(p => {
+      lines.push(`  👤 ${p.nome}: ${fmt(porPessoa)}`);
+    });
+  }
+  const text = lines.join('\n');
+  if (navigator.share) {
+    navigator.share({ title: 'Conta do Bar', text }).catch(() => {});
+  } else {
+    navigator.clipboard?.writeText(text).then(() => showToast('📋 Copiado para área de transferência'));
+  }
+}
+
+/* ─── Event Listeners ────────────────────────────── */
+// Tab nav
+navItems.forEach(btn => {
+  btn.addEventListener('click', () => {
+    setTab(parseInt(btn.dataset.tab));
+    if (parseInt(btn.dataset.tab) === 1) renderConfig();
+  });
+});
+
+// FAB
+fab.addEventListener('click', openAddSheet);
+
+// Item sheet
+$('itemSheetCancel').addEventListener('click', () => closeSheet(itemSheet));
+$('itemSheetConfirm').addEventListener('click', confirmItemSheet);
+$('sheetValor').addEventListener('keydown', e => { if (e.key === 'Enter') confirmItemSheet(); });
+$('sheetNome').addEventListener('keydown', e => { if (e.key === 'Enter') $('sheetValor').focus(); });
+
+// Reset
+$('resetBtn').addEventListener('click', () => openSheet(resetSheet));
+$('resetSheetCancel').addEventListener('click', () => closeSheet(resetSheet));
+$('resetSheetConfirm').addEventListener('click', () => { closeSheet(resetSheet); reset(); });
+
+// Limpar itens
+$('limparBtn').addEventListener('click', () => {
+  if (state.items.length === 0) return;
+  const copy = [...state.items];
+  state.items = [];
+  save();
+  renderItems();
+  if (state.activeTab === 2) renderDivisao();
+  showToast('🗑️ Itens limpos', () => {
+    state.items = copy;
+    save();
+    renderItems();
+  });
+});
+
+// Overlay close
+overlay.addEventListener('click', closeAllSheets);
+
+// Gorjeta presets
+document.getElementById('gorjetaPresets').addEventListener('click', e => {
+  const btn = e.target.closest('.gorjeta-preset-btn');
+  if (!btn) return;
+  state.gorjeta = parseInt(btn.dataset.val);
+  save();
+  renderConfig();
+  if (state.activeTab === 2) renderDivisao();
+});
+
+// Gorjeta custom
+$('gorjetaCustom').addEventListener('input', () => {
+  let v = parseInt($('gorjetaCustom').value);
+  if (isNaN(v)) v = 0;
+  v = Math.min(50, Math.max(0, v));
+  state.gorjeta = v;
+  save();
+  renderConfig();
+  if (state.activeTab === 2) renderDivisao();
+});
+
+// Cover
+$('coverInput').addEventListener('input', () => {
+  let v = lerValor($('coverInput').value);
+  state.cover = v !== null ? v : 0;
+  save();
+  renderConfig();
+  if (state.activeTab === 2) renderDivisao();
+});
+
+// Pessoas stepper
+$('pessoasMinus').addEventListener('click', () => {
+  if (state.numPessoas <= 1) return;
+  state.numPessoas--;
+  save();
+  renderConfig();
+  if (state.activeTab === 2) renderDivisao();
+});
+$('pessoasPlus').addEventListener('click', () => {
+  if (state.numPessoas >= 50) return;
+  state.numPessoas++;
+  save();
+  renderConfig();
+  if (state.activeTab === 2) renderDivisao();
+});
+
+// Share
+$('shareBtn').addEventListener('click', share);
+
+/* ─── Init ───────────────────────────────────────── */
+function init() {
+  const loaded = load();
+  if (!loaded) {
+    // Demo data
+    state.items = [
+      { id: uid(), nome: 'Heineken (2un)', valor: 28.00 },
+      { id: uid(), nome: 'Porção de Batata', valor: 34.90 },
+      { id: uid(), nome: 'Caipirinha Limão', valor: 18.50 }
+    ];
+    state.gorjeta = 10;
+    state.cover = 6.00;
+    state.numPessoas = 3;
+    state.pessoas = [
+      { id: uid(), nome: 'Ana' },
+      { id: uid(), nome: 'Bruno' },
+      { id: uid(), nome: 'Carol' }
+    ];
+    save();
+  }
+  renderItems();
+  renderConfig();
+}
+
+init();
+
+/* ─── Service Worker ─────────────────────────────── */
+if ('serviceWorker' in navigator) {
+  const sw = `
+    const CACHE = 'bar-tab-v1';
+    self.addEventListener('install', e => e.waitUntil(caches.open(CACHE)));
+    self.addEventListener('fetch', e => {
+      e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+    });
+  `;
+  const blob = new Blob([sw], {type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+}
 </script>
 </body>
 </html>
