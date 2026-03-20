@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Sua Conta - consumação e Divisão de Conta</title>
+    <meta name="theme-color" content="#1e1a2f">
+    <link rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23b96f30'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='white' font-weight='bold'%3E🍻%3C/text%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23b96f30'/%3E%3Ctext x='50' y='70' font-size='60' text-anchor='middle' fill='white'%3E🍻%3C/text%3E%3C/svg%3E">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0f0c1f 0%, #1a142f 100%);
+            min-height: 100vh;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .app-container {
+            max-width: 750px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(30, 26, 47, 0.88);
+            backdrop-filter: blur(2px);
+            border-radius: 2rem;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 215, 150, 0.2);
+            overflow: hidden;
+            padding: 1.5rem 1.2rem 2rem;
+        }
+
+        h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #FFD966, #FFB347);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h1 small {
+            font-size: 0.75rem;
+            background: none;
+            color: #b9a9e6;
+            font-weight: normal;
+        }
+
+        .sub {
+            color: #cbc3e6;
+            margin-bottom: 1.5rem;
+            border-left: 3px solid #ffb347;
+            padding-left: 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .card {
+            background: #26213b;
+            border-radius: 1.5rem;
+            padding: 1.2rem;
+            margin-bottom: 1.3rem;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: #ffdd99;
+            margin-bottom: 1rem;
+            font-size: 1.15rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px dashed #4a3f6e;
+            padding-bottom: 0.5rem;
+        }
+
+        .consumo-list {
+            list-style: none;
+            margin: 0.5rem 0 0.8rem;
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .consumo-item {
+            background: #1e1a2f;
+            margin: 0.5rem 0;
+            padding: 0.7rem 1rem;
+            border-radius: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            border: 1px solid #4a3d6e;
+        }
+
+        .item-nome {
+            font-weight: 500;
+            flex: 2;
+            min-width: 110px;
+            word-break: break-word;
+            color: #f5edff;
+        }
+
+        .item-valor {
+            font-family: monospace;
+            font-weight: 700;
+            background: #0e0b1a;
+            padding: 0.25rem 0.8rem;
+            border-radius: 2rem;
+            color: #ffda9e;
+            font-size: 0.9rem;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        button {
+            background: #3a2e58;
+            border: none;
+            padding: 0.45rem 1rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.1s linear;
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        button.primary {
+            background: #b96f30;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        button.primary:active { background: #9b591f; transform: scale(0.97);}
+        button.secondary { background: #2f284b; }
+        button.danger { background: #a03e3e; }
+        button.small { padding: 0.3rem 0.8rem; font-size: 0.7rem; }
+        button.success { background: #2d6a4f; }
+
+        .add-form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .add-form input {
+            flex: 2;
+            min-width: 120px;
+            background: #110e1e;
+            border: 1px solid #4a3f6a;
+            padding: 0.7rem 1rem;
+            border-radius: 2rem;
+            color: #ffffff;
+            outline: none;
+            font-size: 0.9rem;
+        }
+        .add-form input:focus { border-color: #ffb347; }
+        .add-form input::placeholder { color: #7a6b9e; }
+
+        .config-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .config-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.8rem;
+            background: #1a162e;
+            padding: 0.7rem 1rem;
+            border-radius: 1.2rem;
+        }
+        .config-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            color: #ffdfb3;
+            min-width: 110px;
+        }
+        .config-input-wrapper {
+            flex: 1;
+            min-width: 140px;
+        }
+        .config-input-wrapper input {
+            width: 100%;
+            background: #0c0920;
+            border: 1px solid #5e4d86;
+            padding: 0.6rem 1rem;
+            border-radius: 1.8rem;
+            color: #ffecb3;
+            font-weight: 500;
+            font-size: 1rem;
+            text-align: center;
+            outline: none;
+        }
+        .config-input-wrapper input:focus {
+            border-color: #ffaa44;
+            box-shadow: 0 0 0 2px rgba(255, 180, 70, 0.3);
+        }
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        .btn-10pct {
+            background: #b96f30;
+            padding: 0.45rem 1rem;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        hr { border-color: #3f3462; margin: 0.8rem 0;}
+
+        /* Resumo de consumo com itens detalhados */
+        .resumo-consumo-itens {
+            background: #0d0a1c;
+            border-radius: 1.3rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #453a64;
+        }
+        .resumo-item-linha {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #2a2445;
+            color: #e5dbff;
+            font-size: 0.9rem;
+        }
+        .resumo-item-nome {
+            font-weight: 500;
+        }
+        .resumo-item-valor {
+            font-family: monospace;
+            color: #ffda9e;
+            font-weight: 600;
+        }
+        .resumo-total-linha {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.8rem;
+            padding-top: 0.5rem;
+            font-weight: 700;
+            color: #ffeaac;
+            border-top: 1px solid #4a3d6e;
+        }
+
+        .resumo-box {
+            background: #0d0a1c;
+            border-radius: 1.3rem;
+            padding: 1.2rem;
+            margin-top: 0.3rem;
+            border: 1px solid #453a64;
+        }
+        .resumo-linha {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.7rem 0;
+            font-size: 1rem;
+            color: #f0e9ff;
+            font-weight: 500;
+        }
+        .resumo-linha span:first-child {
+            color: #cdc2f0;
+        }
+        .resumo-linha span:last-child {
+            color: #ffeaac;
+            font-weight: 600;
+        }
+        .total-grande {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #FFC857;
+            letter-spacing: -0.5px;
+        }
+
+        /* Lista de pessoas com nomes */
+        .pessoas-container {
+            margin-top: 1rem;
+        }
+        .pessoa-nome-item {
+            background: #1b1633;
+            margin: 0.5rem 0;
+            padding: 0.65rem 1rem;
+            border-radius: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .pessoa-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            flex: 2;
+            min-width: 150px;
+        }
+        .pessoa-nome-input {
+            background: #0c0920;
+            border: 1px solid #5e4d86;
+            padding: 0.4rem 0.8rem;
+            border-radius: 1.5rem;
+            color: #ffecb3;
+            font-size: 0.9rem;
+            flex: 1;
+            min-width: 100px;
+            outline: none;
+        }
+        .pessoa-valor {
+            font-family: monospace;
+            font-weight: 700;
+            color: #ffcf7a;
+            background: #0e0b1a;
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            font-size: 0.9rem;
+        }
+        .add-pessoa-btn {
+            background: #2d6a4f;
+            padding: 0.4rem 1rem;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+        }
+        .footer-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 1.2rem;
+            flex-wrap: wrap;
+        }
+        .save-toast {
+            text-align: right;
+            font-size: 0.7rem;
+            margin-top: 8px;
+            color: #d8c285;
+            min-height: 24px;
+        }
+        @media (max-width: 600px) {
+            body { padding: 0.8rem; }
+            .app-container { padding: 1rem; }
+            .config-row { flex-direction: column; align-items: stretch; }
+            .config-label { min-width: auto; }
+            .pessoa-info { flex-direction: column; align-items: stretch; }
+        }
+        .detalhe-extra {
+            font-size: 0.75rem;
+            margin-top: 10px;
+            color: #b9a9e6;
+            background: #100e21;
+            padding: 0.5rem;
+            border-radius: 1rem;
+            text-align: center;
+        }
+        .section-subtitle {
+            font-size: 0.8rem;
+            color: #cbbfec;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container" id="appRoot">
+    <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 0.5rem;">
+        <h1>🍻 Sua Conta <small>Consumação</small></h1>
+        <button id="resetStorageBtn" class="secondary small" style="background:#2a2346;">🗑️ reset</button>
+    </div>
+    <div class="sub">Consumo + Gorjeta/cover • Divisão de Conta</div>
+
+    <!-- Card de itens consumidos -->
+    <div class="card">
+        <div class="card-title">📋 Itens consumidos</div>
+        <ul id="consumoList" class="consumo-list">
+            <li style="text-align:center; color:#b5a5df; padding:1rem;">✨ Nenhum item — adicione bebidas ou porções</li>
+        </ul>
+        <div class="add-form">
+            <input type="text" id="itemNome" placeholder="Item (ex: Heineken, Porção)" autocomplete="off">
+            <input type="number" id="itemValor" placeholder="R$ 0,00" step="any">
+            <button id="addItemBtn" class="primary">➕ Adicionar</button>
+        </div>
+    </div>
+
+    <!-- Card de ajustes: gorjeta, cover -->
+    <div class="card">
+        <div class="card-title">⚙️ Configurações da conta</div>
+        <div class="config-grid">
+            <div class="config-row">
+                <div class="config-label">💸 Gorjeta (%)</div>
+                <div class="config-input-wrapper">
+                    <input type="number" id="gorjetaPercent" value="0" step="any" min="0" max="50" placeholder="0">
+                </div>
+                <button id="setGorjeta10" class="btn-10pct">➕ 10% rápido</button>
+            </div>
+            <div class="config-row">
+                <div class="config-label">🎫 Cover / Couvert (R$)</div>
+                <div class="config-input-wrapper">
+                    <input type="number" id="coverValor" value="0" step="any" min="0" placeholder="0,00">
+                </div>
+            </div>
+        </div>
+        <div style="font-size:0.7rem; color:#b8a6e0; margin-top: 12px; text-align:center;">* Gorjeta é calculada sobre subtotal + cover</div>
+    </div>
+
+    <!-- RESUMO DETALHADO DO CONSUMO: lista de itens com nomes e valores -->
+    <div class="card" style="background: #201c38;">
+        <div class="card-title">🧾 Resumo detalhado do consumo</div>
+        <div id="resumoItensContainer" class="resumo-consumo-itens">
+            <div style="color:#cbbfec; text-align:center; padding:0.5rem;">Carregando itens...</div>
+        </div>
+        
+        <!-- Totais e gorjeta/cover -->
+        <div class="resumo-box">
+            <div class="resumo-linha">
+                <span>🥂 Subtotal (itens):</span>
+                <span id="subtotalValor">R$ 0,00</span>
+            </div>
+            <div class="resumo-linha">
+                <span>🎫 Cover / Couvert:</span>
+                <span id="coverDisplay">R$ 0,00</span>
+            </div>
+            <div class="resumo-linha">
+                <span>💸 Gorjeta (<span id="gorjetaPercentDisplay">0</span>%):</span>
+                <span id="gorjetaValor">R$ 0,00</span>
+            </div>
+            <hr>
+            <div class="resumo-linha" style="margin-top: 0.3rem;">
+                <span style="font-size: 1.1rem; font-weight: 700;">💰 TOTAL GERAL:</span>
+                <span class="total-grande" id="totalGeral">R$ 0,00</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Card de pessoas com nomes editáveis -->
+    <div class="card">
+        <div class="card-title">👥 Pessoas na conta</div>
+        <div class="section-subtitle">Digite os nomes e veja o valor por pessoa</div>
+        <div id="pessoasListContainer">
+            <div style="color:#b8a6e0; text-align:center; padding:1rem;">Defina o número de pessoas abaixo</div>
+        </div>
+        <div class="config-row" style="margin-top: 0.8rem; background: #1a162e;">
+            <div class="config-label">👥 Quantidade:</div>
+            <div class="config-input-wrapper">
+                <input type="number" id="numPessoas" value="1" min="1" max="50" step="1">
+            </div>
+            <button id="atualizarPessoasBtn" class="secondary small">🔄 Atualizar nomes</button>
+        </div>
+        <div id="detalhePorPessoaExtra" class="detalhe-extra"></div>
+        
+        <div class="footer-actions">
+            <button id="salvarSnapshotBtn" class="secondary">💾 Salvar estado</button>
+            <button id="limparConsumoBtn" class="danger small">🗑️ Limpar itens</button>
+        </div>
+        <div id="saveToast" class="save-toast"></div>
+    </div>
+</div>
+
+<script>
+    // ---------- Modelo de dados ----------
+    let consumoItems = [];      // { nome, valor }
+    let pessoas = [];           // array de objetos { nome, valorParcela? calculado dinamicamente }
+    let gorjetaPercent = 0;
+    let coverValor = 0;
+    let numPessoas = 1;
+
+    // DOM elements
+    const consumoListEl = document.getElementById('consumoList');
+    const resumoItensContainer = document.getElementById('resumoItensContainer');
+    const subtotalSpan = document.getElementById('subtotalValor');
+    const coverDisplaySpan = document.getElementById('coverDisplay');
+    const gorjetaPercentDisplay = document.getElementById('gorjetaPercentDisplay');
+    const gorjetaValorSpan = document.getElementById('gorjetaValor');
+    const totalGeralSpan = document.getElementById('totalGeral');
+    const pessoasListContainer = document.getElementById('pessoasListContainer');
+    const detalheExtra = document.getElementById('detalhePorPessoaExtra');
+
+    // inputs
+    const gorjetaInput = document.getElementById('gorjetaPercent');
+    const coverInput = document.getElementById('coverValor');
+    const numPessoasInput = document.getElementById('numPessoas');
+    const atualizarPessoasBtn = document.getElementById('atualizarPessoasBtn');
+
+    // buttons
+    const addBtn = document.getElementById('addItemBtn');
+    const itemNomeInput = document.getElementById('itemNome');
+    const itemValorInput = document.getElementById('itemValor');
+    const resetStorageBtn = document.getElementById('resetStorageBtn');
+    const setGorjeta10Btn = document.getElementById('setGorjeta10');
+    const salvarSnapshotBtn = document.getElementById('salvarSnapshotBtn');
+    const limparConsumoBtn = document.getElementById('limparConsumoBtn');
+    const saveToastDiv = document.getElementById('saveToast');
+
+    // Helper: format money
+    function formatMoney(value) {
+        return 'R$ ' + value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Inicializar array de pessoas com nomes padrão
+    function inicializarPessoas(count) {
+        const novasPessoas = [];
+        for (let i = 0; i < count; i++) {
+            if (i < pessoas.length && pessoas[i]) {
+                novasPessoas.push({ nome: pessoas[i].nome || `Pessoa ${i+1}` });
+            } else {
+                novasPessoas.push({ nome: `Pessoa ${i+1}` });
+            }
+        }
+        pessoas = novasPessoas;
+    }
+
+    // Calcular tudo e atualizar resumo de itens, totais e divisão
+    function calcularAtualizarTudo() {
+        // Subtotal
+        let subtotal = consumoItems.reduce((acc, item) => acc + (item.valor || 0), 0);
+        let cover = coverValor;
+        let baseGorjeta = subtotal + cover;
+        let gorjetaCalculada = (gorjetaPercent / 100) * baseGorjeta;
+        let totalFinal = baseGorjeta + gorjetaCalculada;
+        let porPessoa = numPessoas > 0 ? totalFinal / numPessoas : 0;
+
+        // Atualizar textos dos totais
+        subtotalSpan.innerText = formatMoney(subtotal);
+        coverDisplaySpan.innerText = formatMoney(cover);
+        gorjetaPercentDisplay.innerText = gorjetaPercent;
+        gorjetaValorSpan.innerText = formatMoney(gorjetaCalculada);
+        totalGeralSpan.innerText = formatMoney(totalFinal);
+
+        // ========== RESUMO DETALHADO DOS ITENS ==========
+        if (consumoItems.length === 0) {
+            resumoItensContainer.innerHTML = '<div style="color:#cbbfec; text-align:center; padding:0.8rem;">📭 Nenhum item adicionado ainda</div>';
+        } else {
+            let itensHtml = '';
+            consumoItems.forEach((item, idx) => {
+                itensHtml += `
+                    <div class="resumo-item-linha">
+                        <span class="resumo-item-nome">${escapeHtml(item.nome)}</span>
+                        <span class="resumo-item-valor">${formatMoney(item.valor)}</span>
+                    </div>
+                `;
+            });
+            itensHtml += `<div class="resumo-total-linha"><span>📊 Subtotal dos itens</span><span>${formatMoney(subtotal)}</span></div>`;
+            resumoItensContainer.innerHTML = itensHtml;
+        }
+
+        // Atualizar lista de pessoas com nomes e valores
+        if (numPessoas !== pessoas.length) {
+            inicializarPessoas(numPessoas);
+        }
+        
+        let pessoasHtml = '';
+        for (let i = 0; i < pessoas.length; i++) {
+            const valorIndividual = porPessoa;
+            pessoasHtml += `
+                <div class="pessoa-nome-item" data-idx="${i}">
+                    <div class="pessoa-info">
+                        <span style="color:#ffdfb3;">👤</span>
+                        <input type="text" class="pessoa-nome-input" data-idx="${i}" value="${escapeHtml(pessoas[i].nome)}" placeholder="Nome">
+                        <span class="pessoa-valor">${formatMoney(valorIndividual)}</span>
+                    </div>
+                </div>
+            `;
+        }
+        pessoasListContainer.innerHTML = pessoasHtml;
+        
+        // Adicionar eventos para edição de nomes
+        document.querySelectorAll('.pessoa-nome-input').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const idx = parseInt(input.dataset.idx);
+                if (!isNaN(idx) && pessoas[idx]) {
+                    pessoas[idx].nome = input.value.trim() || `Pessoa ${idx+1}`;
+                    salvarLocalStorage();
+                    calcularAtualizarTudo(); // re-renderiza mantendo nomes
+                }
+            });
+        });
+        
+        detalheExtra.innerText = `💰 Cada pessoa paga ${formatMoney(porPessoa)} (inclui gorjeta de ${gorjetaPercent}% e cover de ${formatMoney(cover)}).`;
+        
+        salvarLocalStorage();
+    }
+
+    // Renderizar lista de consumo (com edição/remoção)
+    function renderizarConsumo() {
+        if (!consumoListEl) return;
+        if (consumoItems.length === 0) {
+            consumoListEl.innerHTML = '<li style="text-align:center; color:#c7b9ec; padding:1rem;">🍺 Nenhum item — clique em adicionar</li>';
+            calcularAtualizarTudo();
+            return;
+        }
+
+        let html = '';
+        consumoItems.forEach((item, idx) => {
+            const nomeSeguro = escapeHtml(item.nome || 'Item');
+            html += `
+                <li class="consumo-item">
+                    <span class="item-nome">${nomeSeguro}</span>
+                    <span class="item-valor">${formatMoney(item.valor)}</span>
+                    <div class="item-actions">
+                        <button class="secondary small edit-item" data-idx="${idx}">✏️ Editar</button>
+                        <button class="danger small delete-item" data-idx="${idx}">🗑️</button>
+                    </div>
+                </li>
+            `;
+        });
+        consumoListEl.innerHTML = html;
+
+        document.querySelectorAll('.edit-item').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(btn.dataset.idx);
+                if (isNaN(idx)) return;
+                const item = consumoItems[idx];
+                const novoNome = prompt('Editar nome do item:', item.nome);
+                if (novoNome !== null && novoNome.trim() !== '') item.nome = novoNome.trim();
+                let novoValor = prompt('Editar valor (R$):', item.valor);
+                if (novoValor !== null) {
+                    let parsed = parseFloat(novoValor.replace(',', '.'));
+                    if (!isNaN(parsed) && parsed >= 0) item.valor = parsed;
+                }
+                renderizarConsumo();
+                calcularAtualizarTudo();
+            });
+        });
+
+        document.querySelectorAll('.delete-item').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(btn.dataset.idx);
+                if (!isNaN(idx)) {
+                    consumoItems.splice(idx, 1);
+                    renderizarConsumo();
+                    calcularAtualizarTudo();
+                }
+            });
+        });
+        calcularAtualizarTudo();
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function adicionarItem() {
+        let nome = itemNomeInput.value.trim();
+        if (nome === "") nome = "Item consumido";
+        let valorRaw = itemValorInput.value.trim();
+        let valorNum = parseFloat(valorRaw.replace(',', '.'));
+        if (isNaN(valorNum) || valorNum <= 0) {
+            alert("Digite um valor válido (ex: 24.50 ou 15)");
+            return;
+        }
+        consumoItems.push({ nome: nome, valor: valorNum });
+        itemNomeInput.value = "";
+        itemValorInput.value = "";
+        renderizarConsumo();
+    }
+
+    function salvarLocalStorage() {
+        const state = {
+            consumoItems: consumoItems,
+            gorjetaPercent: gorjetaPercent,
+            coverValor: coverValor,
+            numPessoas: numPessoas,
+            pessoas: pessoas
+        };
+        localStorage.setItem('barTabState', JSON.stringify(state));
+        if (saveToastDiv) {
+            saveToastDiv.innerText = '✓ Dados salvos';
+            setTimeout(() => { if (saveToastDiv) saveToastDiv.innerText = ''; }, 1500);
+        }
+    }
+
+    function carregarLocalStorage() {
+        const saved = localStorage.getItem('barTabState');
+        if (!saved) return false;
+        try {
+            const state = JSON.parse(saved);
+            if (state.consumoItems && Array.isArray(state.consumoItems)) {
+                consumoItems = state.consumoItems.filter(item => item && typeof item.nome === 'string' && typeof item.valor === 'number');
+            }
+            if (typeof state.gorjetaPercent === 'number') gorjetaPercent = Math.min(50, Math.max(0, state.gorjetaPercent));
+            if (typeof state.coverValor === 'number') coverValor = Math.max(0, state.coverValor);
+            if (typeof state.numPessoas === 'number' && state.numPessoas >= 1) numPessoas = Math.floor(state.numPessoas);
+            if (state.pessoas && Array.isArray(state.pessoas)) {
+                pessoas = state.pessoas.map(p => ({ nome: p.nome || `Pessoa` }));
+            } else {
+                inicializarPessoas(numPessoas);
+            }
+            gorjetaInput.value = gorjetaPercent;
+            coverInput.value = coverValor;
+            numPessoasInput.value = numPessoas;
+            return true;
+        } catch(e) { console.warn(e); return false; }
+    }
+
+    function resetarTudo() {
+        if (confirm("Resetar todos os dados? Isso apagará consumo, gorjeta, cover e pessoas.")) {
+            consumoItems = [];
+            gorjetaPercent = 0;
+            coverValor = 0;
+            numPessoas = 1;
+            inicializarPessoas(1);
+            gorjetaInput.value = 0;
+            coverInput.value = 0;
+            numPessoasInput.value = 1;
+            renderizarConsumo();
+            calcularAtualizarTudo();
+            if (saveToastDiv) {
+                saveToastDiv.innerText = '🧹 Reset completo';
+                setTimeout(() => { if(saveToastDiv) saveToastDiv.innerText = ''; }, 2000);
+            }
+        }
+    }
+
+    function sincronizarInputs() {
+        let novaGorjeta = parseFloat(gorjetaInput.value);
+        if (isNaN(novaGorjeta)) novaGorjeta = 0;
+        novaGorjeta = Math.min(50, Math.max(0, novaGorjeta));
+        gorjetaPercent = novaGorjeta;
+        gorjetaInput.value = novaGorjeta;
+
+        let novoCover = parseFloat(coverInput.value);
+        if (isNaN(novoCover)) novoCover = 0;
+        novoCover = Math.max(0, novoCover);
+        coverValor = novoCover;
+        coverInput.value = novoCover;
+
+        let novasPessoas = parseInt(numPessoasInput.value);
+        if (isNaN(novasPessoas) || novasPessoas < 1) novasPessoas = 1;
+        if (novasPessoas > 50) novasPessoas = 50;
+        if (novasPessoas !== numPessoas) {
+            numPessoas = novasPessoas;
+            inicializarPessoas(numPessoas);
+        }
+        numPessoasInput.value = numPessoas;
+        calcularAtualizarTudo();
+    }
+
+    // Eventos
+    addBtn.addEventListener('click', adicionarItem);
+    itemValorInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') adicionarItem(); });
+    itemNomeInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') adicionarItem(); });
+    resetStorageBtn.addEventListener('click', resetarTudo);
+    setGorjeta10Btn.addEventListener('click', () => {
+        gorjetaPercent = 10;
+        gorjetaInput.value = 10;
+        sincronizarInputs();
+    });
+    gorjetaInput.addEventListener('change', sincronizarInputs);
+    coverInput.addEventListener('change', sincronizarInputs);
+    numPessoasInput.addEventListener('change', sincronizarInputs);
+    atualizarPessoasBtn.addEventListener('click', () => {
+        let novaQtde = parseInt(numPessoasInput.value);
+        if (isNaN(novaQtde) || novaQtde < 1) novaQtde = 1;
+        numPessoas = novaQtde;
+        inicializarPessoas(numPessoas);
+        numPessoasInput.value = numPessoas;
+        calcularAtualizarTudo();
+    });
+    salvarSnapshotBtn.addEventListener('click', () => {
+        salvarLocalStorage();
+        saveToastDiv.innerText = '✅ Estado salvo manualmente!';
+        setTimeout(() => { if(saveToastDiv) saveToastDiv.innerText = ''; }, 1800);
+    });
+    limparConsumoBtn.addEventListener('click', () => {
+        if(confirm("Limpar todos os itens do consumo?")) {
+            consumoItems = [];
+            renderizarConsumo();
+            calcularAtualizarTudo();
+        }
+    });
+
+    function init() {
+        const loaded = carregarLocalStorage();
+        if (!loaded) {
+            consumoItems = [
+                { nome: "Heineken (2 unidades)", valor: 28.00 },
+                { nome: "Porção de Batata frita", valor: 34.90 },
+                { nome: "Caipirinha de limão", valor: 18.50 }
+            ];
+            gorjetaPercent = 10;
+            coverValor = 6.0;
+            numPessoas = 3;
+            inicializarPessoas(3);
+            pessoas[0].nome = "Ana";
+            pessoas[1].nome = "Carlos";
+            pessoas[2].nome = "Beatriz";
+            gorjetaInput.value = 10;
+            coverInput.value = 6;
+            numPessoasInput.value = 3;
+        }
+        sincronizarInputs();
+        renderizarConsumo();
+    }
+    init();
+
+    // PWA Service Worker básico
+    if ('serviceWorker' in navigator) {
+        const swCode = `self.addEventListener('fetch', event => { event.respondWith(fetch(event.request)); });`;
+        const blob = new Blob([swCode], {type: 'application/javascript'});
+        const url = URL.createObjectURL(blob);
+        navigator.serviceWorker.register(url).catch(e => console.log("sw opcional", e));
+    }
+</script>
+</body>
+</html>
