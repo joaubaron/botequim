@@ -796,12 +796,17 @@
     function confirmClearItems() {
         if (consumption.length > 0) {
             const total = calculateTotal();
+            const couvertVal = parseFloat(document.getElementById('in-couvert').value) || 0;
+            const hasTipVal = document.getElementById('in-tip').checked;
+            const subtotalVal = consumption.reduce((sum, i) => sum + (i.qty * i.price), 0);
             history.unshift({
                 date: new Date().toLocaleString(),
                 bar: currentBarName || 'Bar',
                 items: [...consumption],
                 total: total,
-                itemsCount: consumption.reduce((sum, i) => sum + i.qty, 0)
+                itemsCount: consumption.reduce((sum, i) => sum + i.qty, 0),
+                couvert: couvertVal,
+                tip: hasTipVal ? subtotalVal * 0.10 : 0
             });
             if (history.length > 20) history.pop();
             localStorage.setItem('botequim_history', JSON.stringify(history));
