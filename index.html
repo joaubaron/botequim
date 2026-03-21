@@ -278,7 +278,7 @@
     <span class="bg-gradient-to-r from-orange-500 to-orange-300 bg-clip-text text-transparent pr-1">Botequim</span>
     <img src="icon.png" alt="Logo" class="h-12 w-12 ml-8 object-contain">
 </h1>
-        <p class="text-xs text-gray-400 mt-1">Gerencie sua conta 🍻</p>
+        <p id="header-subtitle" class="text-xs text-gray-400 mt-1">Gerencie sua conta 🍻</p>
     </div>
     <div class="flex gap-2">
         <div class="text-2xl cursor-pointer" onclick="showHistory()">
@@ -485,23 +485,7 @@
 </div>
 
 <!-- Modal Restaurar Histórico -->
-<div id="restore-modal" class="modal">
-    <div class="modal-content" style="width:320px">
-        <div class="flex flex-col items-center text-center gap-4 py-2">
-            <div class="w-14 h-14 rounded-full bg-blue-500/15 flex items-center justify-center">
-                <i class="fas fa-history text-blue-400 text-2xl"></i>
-            </div>
-            <div>
-                <div class="text-base font-bold text-white mb-1">Restaurar conta?</div>
-                <div class="text-sm text-gray-400">A conta atual será substituída pelos itens deste histórico.</div>
-            </div>
-            <div class="flex gap-3 w-full mt-1">
-                <button onclick="closeModal('restore-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">Cancelar</button>
-                <button id="restore-confirm-btn" class="flex-1 py-3 rounded-xl text-sm font-bold bg-blue-500/80 text-white"><i class="fas fa-history mr-1"></i> Restaurar</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <!-- Modal Limpar Histórico -->
 <div id="clear-history-modal" class="modal">
@@ -522,6 +506,29 @@
     </div>
 </div>
 
+<!-- Modal Nome do Bar -->
+<div id="barname-modal" class="modal">
+    <div class="modal-content" style="width:340px">
+        <div class="flex flex-col items-center text-center gap-4 py-2">
+            <div class="w-14 h-14 rounded-full bg-orange-500/15 flex items-center justify-center">
+                <span class="text-3xl">🍺</span>
+            </div>
+            <div>
+                <div class="text-base font-bold text-white mb-1">Onde você está?</div>
+                <div class="text-sm text-gray-400">Digite o nome do bar ou restaurante para identificar essa conta no histórico.</div>
+            </div>
+            <input id="bar-name-input" type="text" placeholder="Ex: Boteco do Zé" maxlength="40"
+                class="w-full p-3 rounded-xl text-sm text-center"
+                onkeypress="if(event.key==='Enter') confirmBarName()">
+            <div class="flex gap-3 w-full mt-1">
+                <button onclick="confirmBarName()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+                    <i class="fas fa-check mr-1"></i> Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     let consumption = JSON.parse(localStorage.getItem('botequim_baron')) || [];
     let history = JSON.parse(localStorage.getItem('botequim_history')) || [];
@@ -533,19 +540,30 @@
         });
     });
 
-    function updateBarName() {
-        const barName = document.getElementById('bar-name').value;
-        localStorage.setItem('botequim_bar_name', barName);
-        const titulo = document.getElementById('resumo-titulo');
-        titulo.innerHTML = barName ? `<i class="fas fa-receipt"></i> Resumo detalhado - ${barName}` : '<i class="fas fa-receipt"></i> Resumo detalhado';
+    let currentBarName = localStorage.getItem('botequim_bar_name') || '';
+
+    function openBarNameModal() {
+        const input = document.getElementById('bar-name-input');
+        input.value = currentBarName;
+        document.getElementById('barname-modal').classList.add('active');
+        setTimeout(() => input.focus(), 100);
     }
 
-    function loadBarName() {
-        const savedBar = localStorage.getItem('botequim_bar_name');
-        if (savedBar) {
-            document.getElementById('bar-name').value = savedBar;
-            updateBarName();
-        }
+    function confirmBarName() {
+        const val = document.getElementById('bar-name-input').value.trim();
+        currentBarName = val || 'Bar';
+        localStorage.setItem('botequim_bar_name', currentBarName);
+        updateResumoTitulo();
+        closeModal('barname-modal');
+    }
+
+    function updateResumoTitulo() {
+        const titulo = document.getElementById('resumo-titulo');
+        titulo.innerHTML = currentBarName
+            ? `<i class="fas fa-receipt"></i> Resumo detalhado — ${currentBarName}`
+            : '<i class="fas fa-receipt"></i> Resumo detalhado';
+        const sub = document.getElementById('header-subtitle');
+        if (sub) sub.textContent = currentBarName ? '📍 ' + currentBarName : 'Gerencie sua conta 🍻';
     }
 
     function updateStats() {
@@ -646,7 +664,7 @@
         document.getElementById('res-tip').innerHTML = `R$ ${tipValue.toFixed(2)}`;
         document.getElementById('grand-total').innerHTML = `R$ ${finalTotal.toFixed(2)}`;
         
-        const progressPercent = Math.min((finalTotal / 200) * 100, 100);
+        const progressPercent = finalTotal > 0 ? (subtotalItems / finalTotal) * 100 : 0;
         document.getElementById('progress-fill').style.width = `${progressPercent}%`;
 
         localStorage.setItem('botequim_baron', JSON.stringify(consumption));
@@ -735,7 +753,7 @@
             const total = calculateTotal();
             history.unshift({
                 date: new Date().toLocaleString(),
-                bar: 'Bar',
+                bar: currentBarName || 'Bar',
                 items: [...consumption],
                 total: total,
                 itemsCount: consumption.reduce((sum, i) => sum + i.qty, 0)
@@ -748,6 +766,7 @@
         document.getElementById('in-couvert').value = 0;
         closeModal('clear-modal');
         updateCalculos();
+        openBarNameModal();
     }
     
     function calculateTotal() {
@@ -791,32 +810,31 @@
             historyList.innerHTML = '<div class="text-center text-gray-500 py-4">Nenhum histórico ainda</div>';
         } else {
             historyList.innerHTML = history.map((h, idx) => `
-                <div class="history-item" onclick="restoreHistory(${idx})">
-                    <div class="flex justify-between">
-                        <span class="font-bold text-orange-500">${escapeHtml(h.bar)}</span>
-                        <span class="text-xs text-gray-400">${h.date}</span>
+                <div class="history-item" style="cursor:default">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-orange-500">${escapeHtml(h.bar)}</span>
+                                <span class="text-xs text-gray-400">${h.date}</span>
+                            </div>
+                            <div class="text-xs mt-1 text-gray-300">${h.itemsCount} itens | Total: R$ ${h.total.toFixed(2)}</div>
+                            <div class="text-xs text-gray-500 truncate mt-1">${h.items.map(i => i.qty + 'x ' + i.name).join(', ')}</div>
+                        </div>
+                        <button onclick="deleteHistoryItem(${idx})" class="ml-2 mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500/40 transition-colors" title="Apagar este registro">
+                            <i class="fas fa-trash-alt text-xs"></i>
+                        </button>
                     </div>
-                    <div class="text-xs mt-1">${h.itemsCount} itens | Total: R$ ${h.total.toFixed(2)}</div>
-                    <div class="text-xs text-gray-500 truncate">${h.items.map(i => `${i.qty}x ${i.name}`).join(', ')}</div>
                 </div>
             `).join('');
         }
         
         modal.classList.add('active');
     }
-    
-    function restoreHistory(idx) {
-        const modal = document.getElementById('restore-modal');
-        modal.classList.add('active');
-        document.getElementById('restore-confirm-btn').onclick = function() {
-            const hist = history[idx];
-            consumption = JSON.parse(JSON.stringify(hist.items));
-            document.getElementById('in-couvert').value = 0;
-            editingIndex = null;
-            updateCalculos();
-            closeModal('restore-modal');
-            closeModal('history-modal');
-        };
+
+    function deleteHistoryItem(idx) {
+        history.splice(idx, 1);
+        localStorage.setItem('botequim_history', JSON.stringify(history));
+        showHistory();
     }
     
     function clearHistory() {
@@ -833,33 +851,57 @@
     function showStats() {
         const modal = document.getElementById('stats-modal');
         const statsContent = document.getElementById('stats-content');
-        
-        const totalGasto = history.reduce((sum, h) => sum + h.total, 0);
-        const totalVisitas = history.length;
-        const mediaPorVisita = totalVisitas > 0 ? totalGasto / totalVisitas : 0;
-        const itemMaisPedido = getMostOrderedItemAllTime();
-        
+
+        if (consumption.length === 0) {
+            statsContent.innerHTML = `<div class="text-center text-gray-500 py-4">Nenhum item na consumação atual</div>`;
+            modal.classList.add('active');
+            return;
+        }
+
+        const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
+        const hasTip = document.getElementById('in-tip').checked;
+        const subtotal = consumption.reduce((sum, i) => sum + (i.qty * i.price), 0);
+        const tip = hasTip ? subtotal * 0.10 : 0;
+        const total = subtotal + couvert + tip;
+        const totalQty = consumption.reduce((sum, i) => sum + i.qty, 0);
+        const avgPerItem = subtotal / totalQty;
+
+        const itemCounts = {};
+        consumption.forEach(i => { itemCounts[i.name] = (itemCounts[i.name] || 0) + i.qty; });
+        const mostOrdered = Object.keys(itemCounts).reduce((a, b) => itemCounts[a] > itemCounts[b] ? a : b, '-');
+
+        const topItems = Object.entries(itemCounts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 3)
+            .map(([name, qty]) => `<div class="flex justify-between text-xs py-1 border-b border-white/5"><span>${name}</span><span class="text-orange-400 font-bold">${qty}x</span></div>`)
+            .join('');
+
         statsContent.innerHTML = `
             <div class="stat-card">
-                <div class="text-2xl text-orange-500">💰 R$ ${totalGasto.toFixed(2)}</div>
-                <div class="text-xs text-gray-400">Total gasto (histórico)</div>
+                <div class="text-2xl text-orange-500">💰 R$ ${total.toFixed(2)}</div>
+                <div class="text-xs text-gray-400">Total desta consumação</div>
             </div>
             <div class="stat-card">
-                <div class="text-2xl text-orange-500">${totalVisitas}</div>
-                <div class="text-xs text-gray-400">Visitas registradas</div>
+                <div class="text-2xl text-orange-500">${totalQty}</div>
+                <div class="text-xs text-gray-400">Itens consumidos</div>
             </div>
             <div class="stat-card">
-                <div class="text-2xl text-orange-500">R$ ${mediaPorVisita.toFixed(2)}</div>
-                <div class="text-xs text-gray-400">Média por visita</div>
+                <div class="text-2xl text-orange-500">R$ ${avgPerItem.toFixed(2)}</div>
+                <div class="text-xs text-gray-400">Preço médio por item</div>
             </div>
             <div class="stat-card">
-                <div class="text-lg text-orange-500 font-bold">${itemMaisPedido || '-'}</div>
-                <div class="text-xs text-gray-400">Item mais pedido (histórico)</div>
+                <div class="text-lg text-orange-500 font-bold">${mostOrdered}</div>
+                <div class="text-xs text-gray-400">Mais pedido agora</div>
+            </div>
+            <div class="col-span-2 bg-black/20 rounded-xl p-3 mt-1">
+                <div class="text-xs text-gray-500 uppercase tracking-wider mb-2 font-bold">Top itens desta conta</div>
+                ${topItems}
             </div>
         `;
         
         modal.classList.add('active');
     }
+
     
     function getMostOrderedItemAllTime() {
         const allItems = {};
@@ -882,7 +924,8 @@
         }
     };
     
-    loadBarName();
+    updateResumoTitulo();
+    if (!currentBarName) openBarNameModal();
     updateCalculos();
     
     setInterval(() => {
