@@ -559,7 +559,7 @@
             <img src="icon.png" alt="Logo" class="h-16 w-16 object-contain">
             <div>
             </div>
-            <input id="bar-name-input" type="text" placeholder="Digite o nome do bar ou restaurante." maxlength="40"
+            <input id="bar-name-input" type="text" placeholder="Digite o nome do bar ou restaurante" maxlength="40"
                 class="w-full p-3 rounded-xl text-sm text-center"
                 onkeypress="if(event.key==='Enter') confirmBarName()">
             <div class="flex gap-3 w-full mt-1">
@@ -633,7 +633,7 @@
             document.getElementById('bar-name-input').placeholder = 'Digite o nome do bar!';
             setTimeout(() => {
                 document.getElementById('bar-name-input').style.borderColor = '';
-                document.getElementById('bar-name-input').placeholder = 'Ex: Botequim Blumenau';
+                document.getElementById('bar-name-input').placeholder = 'Digite o nome do bar ou restaurante';
             }, 2000);
             return;
         }
