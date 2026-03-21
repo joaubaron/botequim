@@ -700,12 +700,12 @@
         document.getElementById('res-tip').innerHTML = `R$ ${tipValue.toFixed(2)}`;
         document.getElementById('grand-total').innerHTML = `R$ ${finalTotal.toFixed(2)}`;
         
-        // Barra mostra proporção consumo/total. Escala dinâmica em R$50
-        const progressPercent = finalTotal > 0 ? (subtotalItems / finalTotal) * 100 : 0;
+        // Escala dinâmica: próximo múltiplo de 50 acima do total
+        const scaleMax = finalTotal > 0 ? Math.ceil(finalTotal / 50) * 50 : 50;
+        // Barra mostra onde o total se posiciona na escala
+        const progressPercent = finalTotal > 0 ? (finalTotal / scaleMax) * 100 : 0;
         document.getElementById('progress-fill').style.width = `${progressPercent}%`;
 
-        // Escala dinâmica: arredonda pra próximo múltiplo de 50 acima do total
-        const scaleMax = finalTotal > 0 ? Math.ceil(finalTotal / 50) * 50 : 200;
         const s = document.getElementById('progress-scale');
         if (s) {
             const marks = [0, scaleMax*0.25, scaleMax*0.5, scaleMax*0.75, scaleMax];
