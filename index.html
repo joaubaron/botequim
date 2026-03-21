@@ -358,6 +358,14 @@
     <div class="progress-bar mt-3">
         <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
     </div>
+    <div id="progress-scale" class="flex justify-between mt-1 px-0" style="font-size:9px; color: rgba(255,152,0,0.45);">
+        <span>R$0</span>
+        <span id="scale-50">R$50</span>
+        <span id="scale-100">R$100</span>
+        <span id="scale-150">R$150</span>
+        <span id="scale-200">R$200</span>
+        <span id="scale-max"></span>
+    </div>
 </div>
 
 
@@ -692,8 +700,17 @@
         document.getElementById('res-tip').innerHTML = `R$ ${tipValue.toFixed(2)}`;
         document.getElementById('grand-total').innerHTML = `R$ ${finalTotal.toFixed(2)}`;
         
+        // Barra mostra proporção consumo/total. Escala dinâmica em R$50
         const progressPercent = finalTotal > 0 ? (subtotalItems / finalTotal) * 100 : 0;
         document.getElementById('progress-fill').style.width = `${progressPercent}%`;
+
+        // Escala dinâmica: arredonda pra próximo múltiplo de 50 acima do total
+        const scaleMax = finalTotal > 0 ? Math.ceil(finalTotal / 50) * 50 : 200;
+        const s = document.getElementById('progress-scale');
+        if (s) {
+            const marks = [0, scaleMax*0.25, scaleMax*0.5, scaleMax*0.75, scaleMax];
+            s.innerHTML = marks.map(v => `<span>R$${Math.round(v)}</span>`).join('');
+        }
 
         localStorage.setItem('botequim_baron', JSON.stringify(consumption));
         updateStats();
@@ -882,7 +899,10 @@
 
         document.getElementById('detail-items').innerHTML = h.items.map(i => `
             <div class="flex justify-between text-sm py-1 border-b border-white/5">
-                <span><span class="text-orange-400 font-bold">${i.qty}x</span> ${escapeHtml(i.name)}</span>
+                <div>
+                    <span><span class="text-orange-400 font-bold">${i.qty}x</span> ${escapeHtml(i.name)}</span>
+                    ${i.qty > 1 ? `<div class="text-xs text-gray-500">un: R$ ${i.price.toFixed(2)}</div>` : ''}
+                </div>
                 <span class="text-white font-semibold">R$ ${(i.qty * i.price).toFixed(2)}</span>
             </div>
         `).join('');
@@ -973,7 +993,7 @@
     }
     
     window.onclick = function(event) {
-        if (event.target.classList.contains('modal')) {
+        if (event.target.classList.contains('modal') && event.target.id !== 'barname-modal') {
             event.target.classList.remove('active');
         }
     };
