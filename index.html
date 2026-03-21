@@ -513,6 +513,29 @@
     </div>
 </div>
 
+<!-- Modal Confirmar Apagar Item do Histórico -->
+<div id="delete-history-item-modal" class="modal">
+    <div class="modal-content" style="width:320px">
+        <div class="flex flex-col items-center text-center gap-4 py-2">
+            <div class="w-14 h-14 rounded-full bg-red-500/15 flex items-center justify-center">
+                <i class="fas fa-trash-alt text-red-400 text-2xl"></i>
+            </div>
+            <div>
+                <div class="text-base font-bold text-white mb-1">Apagar registro?</div>
+                <div class="text-sm text-gray-400">O registro de <span id="delete-history-item-name" class="text-orange-400 font-semibold"></span> será removido permanentemente do histórico.</div>
+            </div>
+            <div class="flex gap-3 w-full mt-1">
+                <button onclick="closeModal('delete-history-item-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+                    Cancelar
+                </button>
+                <button id="delete-history-item-confirm-btn" class="flex-1 py-3 rounded-xl text-sm font-bold bg-red-500/80 text-white">
+                    <i class="fas fa-trash-alt mr-1"></i> Apagar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Nome do Bar -->
 <div id="barname-modal" class="modal">
     <div class="modal-content" style="width:340px">
@@ -897,9 +920,15 @@
     }
 
     function deleteHistoryItem(idx) {
-        sessionHistory.splice(idx, 1);
-        localStorage.setItem('botequim_history', JSON.stringify(sessionHistory));
-        showHistory();
+        const h = sessionHistory[idx];
+        document.getElementById('delete-history-item-name').textContent = h.bar || 'este bar';
+        document.getElementById('delete-history-item-modal').classList.add('active');
+        document.getElementById('delete-history-item-confirm-btn').onclick = function() {
+            sessionHistory.splice(idx, 1);
+            localStorage.setItem('botequim_history', JSON.stringify(sessionHistory));
+            closeModal('delete-history-item-modal');
+            showHistory();
+        };
     }
 
     let currentDetailIdx = null;
