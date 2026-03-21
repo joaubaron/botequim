@@ -561,6 +561,9 @@
                 <span class="font-bold"><i class="fas fa-coins"></i> TOTAL:</span>
                 <span id="detail-total" class="text-xl font-black text-orange-500"></span>
             </div>
+            <button onclick="shareHistoryWhatsApp()" class="w-full mt-4 py-3 rounded-xl font-bold flex items-center justify-center gap-2" style="background:linear-gradient(135deg,#25D366,#128C7E); color:white;">
+                <i class="fab fa-whatsapp text-lg"></i> Compartilhar no WhatsApp
+            </button>
         </div>
     </div>
 </div>
@@ -899,7 +902,31 @@
         showHistory();
     }
 
+    let currentDetailIdx = null;
+
+    function shareHistoryWhatsApp() {
+        const h = sessionHistory[currentDetailIdx];
+        if (!h) return;
+        const subtotal = h.items.reduce((sum, i) => sum + (i.qty * i.price), 0);
+        const couvert = h.couvert || 0;
+        const tip = h.tip || 0;
+
+        let txt = '🍺 *Conta do Botequim*\n';
+        txt += `📍 ${h.bar} — ${h.date}\n\n`;
+        h.items.forEach(i => {
+            txt += `• ${i.qty}x ${i.name}\n`;
+            if (i.qty > 1) txt += `  Unidade: R$ ${i.price.toFixed(2)}\n`;
+            txt += `  R$ ${(i.qty * i.price).toFixed(2)}\n\n`;
+        });
+        if (couvert > 0) txt += `🎵 Couvert: R$ ${couvert.toFixed(2)}\n`;
+        if (tip > 0) txt += `🤝 Gorjeta (10%): R$ ${tip.toFixed(2)}\n\n`;
+        txt += `💰 *TOTAL: R$ ${h.total.toFixed(2)}*`;
+
+        window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+    }
+
     function showHistoryDetail(idx) {
+        currentDetailIdx = idx;
         const h = sessionHistory[idx];
         const subtotal = h.items.reduce((sum, i) => sum + (i.qty * i.price), 0);
         const couvert = h.couvert || 0;
