@@ -567,7 +567,7 @@
 
 <script>
     let consumption = JSON.parse(localStorage.getItem('botequim_baron')) || [];
-    let history = JSON.parse(localStorage.getItem('botequim_history')) || [];
+    let sessionHistory = JSON.parse(localStorage.getItem('botequim_history')) || [];
     let editingIndex = null;
 
     document.querySelectorAll('.enter-submit').forEach(input => {
@@ -587,7 +587,16 @@
 
     function confirmBarName() {
         const val = document.getElementById('bar-name-input').value.trim();
-        currentBarName = val || 'Bar';
+        if (!val) {
+            document.getElementById('bar-name-input').style.borderColor = '#f44336';
+            document.getElementById('bar-name-input').placeholder = 'Digite o nome do bar!';
+            setTimeout(() => {
+                document.getElementById('bar-name-input').style.borderColor = '';
+                document.getElementById('bar-name-input').placeholder = 'Ex: Boteco do Zé';
+            }, 2000);
+            return;
+        }
+        currentBarName = val;
         localStorage.setItem('botequim_bar_name', currentBarName);
         updateResumoTitulo();
         closeModal('barname-modal');
@@ -715,7 +724,7 @@
         localStorage.setItem('botequim_baron', JSON.stringify(consumption));
         updateStats();
         
-        if (!editingIndex && list.lastChild) {
+        if (editingIndex === null && list.lastChild) {
             list.lastChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
     }
@@ -732,7 +741,7 @@
         const priceEl = document.getElementById('in-price');
 
         const name = nameEl.value.trim();
-        const qty = parseFloat(qtyEl.value) || 1;
+        const qty = parseInt(qtyEl.value) || 1;
         const price = parseFloat(priceEl.value) || 0;
 
         if (name && price > 0) {
@@ -799,17 +808,17 @@
             const couvertVal = parseFloat(document.getElementById('in-couvert').value) || 0;
             const hasTipVal = document.getElementById('in-tip').checked;
             const subtotalVal = consumption.reduce((sum, i) => sum + (i.qty * i.price), 0);
-            history.unshift({
+            sessionHistory.unshift({
                 date: new Date().toLocaleString(),
                 bar: currentBarName || 'Bar',
-                items: [...consumption],
+                items: JSON.parse(JSON.stringify(consumption)),
                 total: total,
                 itemsCount: consumption.reduce((sum, i) => sum + i.qty, 0),
                 couvert: couvertVal,
                 tip: hasTipVal ? subtotalVal * 0.10 : 0
             });
-            if (history.length > 20) history.pop();
-            localStorage.setItem('botequim_history', JSON.stringify(history));
+            if (sessionHistory.length > 20) sessionHistory.pop();
+            localStorage.setItem('botequim_history', JSON.stringify(sessionHistory));
         }
         consumption = [];
         editingIndex = null;
@@ -858,10 +867,10 @@
         const modal = document.getElementById('history-modal');
         const historyList = document.getElementById('history-list');
         
-        if (history.length === 0) {
+        if (sessionHistory.length === 0) {
             historyList.innerHTML = '<div class="text-center text-gray-500 py-4">Nenhum histórico ainda</div>';
         } else {
-            historyList.innerHTML = history.map((h, idx) => `
+            historyList.innerHTML = sessionHistory.map((h, idx) => `
                 <div class="history-item" onclick="showHistoryDetail(${idx})">
                     <div class="flex justify-between items-start">
                         <div class="flex-1 min-w-0">
@@ -884,13 +893,13 @@
     }
 
     function deleteHistoryItem(idx) {
-        history.splice(idx, 1);
-        localStorage.setItem('botequim_history', JSON.stringify(history));
+        sessionHistory.splice(idx, 1);
+        localStorage.setItem('botequim_history', JSON.stringify(sessionHistory));
         showHistory();
     }
 
     function showHistoryDetail(idx) {
-        const h = history[idx];
+        const h = sessionHistory[idx];
         const subtotal = h.items.reduce((sum, i) => sum + (i.qty * i.price), 0);
         const couvert = h.couvert || 0;
         const tip = h.tip || 0;
@@ -921,77 +930,14 @@
     }
 
     function confirmClearHistory() {
-        history = [];
+        sessionHistory = [];
         localStorage.removeItem('botequim_history');
         closeModal('clear-history-modal');
         closeModal('history-modal');
     }
     
-    function showStats() {
-        const modal = document.getElementById('stats-modal');
-        const statsContent = document.getElementById('stats-content');
-
-        if (consumption.length === 0) {
-            statsContent.innerHTML = `<div class="text-center text-gray-500 py-4">Nenhum item na consumação atual</div>`;
-            modal.classList.add('active');
-            return;
-        }
-
-        const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
-        const hasTip = document.getElementById('in-tip').checked;
-        const subtotal = consumption.reduce((sum, i) => sum + (i.qty * i.price), 0);
-        const tip = hasTip ? subtotal * 0.10 : 0;
-        const total = subtotal + couvert + tip;
-        const totalQty = consumption.reduce((sum, i) => sum + i.qty, 0);
-        const avgPerItem = subtotal / totalQty;
-
-        const itemCounts = {};
-        consumption.forEach(i => { itemCounts[i.name] = (itemCounts[i.name] || 0) + i.qty; });
-        const mostOrdered = Object.keys(itemCounts).reduce((a, b) => itemCounts[a] > itemCounts[b] ? a : b, '-');
-
-        const topItems = Object.entries(itemCounts)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 3)
-            .map(([name, qty]) => `<div class="flex justify-between text-xs py-1 border-b border-white/5"><span>${name}</span><span class="text-orange-400 font-bold">${qty}x</span></div>`)
-            .join('');
-
-        statsContent.innerHTML = `
-            <div class="stat-card">
-                <div class="text-2xl text-orange-500">💰 R$ ${total.toFixed(2)}</div>
-                <div class="text-xs text-gray-400">Total desta consumação</div>
-            </div>
-            <div class="stat-card">
-                <div class="text-2xl text-orange-500">${totalQty}</div>
-                <div class="text-xs text-gray-400">Itens consumidos</div>
-            </div>
-            <div class="stat-card">
-                <div class="text-2xl text-orange-500">R$ ${avgPerItem.toFixed(2)}</div>
-                <div class="text-xs text-gray-400">Preço médio por item</div>
-            </div>
-            <div class="stat-card">
-                <div class="text-lg text-orange-500 font-bold">${mostOrdered}</div>
-                <div class="text-xs text-gray-400">Mais pedido agora</div>
-            </div>
-            <div class="col-span-2 bg-black/20 rounded-xl p-3 mt-1">
-                <div class="text-xs text-gray-500 uppercase tracking-wider mb-2 font-bold">Top itens desta conta</div>
-                ${topItems}
-            </div>
-        `;
-        
-        modal.classList.add('active');
-    }
 
     
-    function getMostOrderedItemAllTime() {
-        const allItems = {};
-        history.forEach(h => {
-            h.items.forEach(item => {
-                allItems[item.name] = (allItems[item.name] || 0) + item.qty;
-            });
-        });
-        if (Object.keys(allItems).length === 0) return '-';
-        return Object.keys(allItems).reduce((a, b) => allItems[a] > allItems[b] ? a : b, '');
-    }
     
     function closeModal(modalId) {
         document.getElementById(modalId).classList.remove('active');
@@ -1007,9 +953,7 @@
     if (!currentBarName) openBarNameModal();
     updateCalculos();
     
-    setInterval(() => {
-        if (consumption.length > 0) updateStats();
-    }, 1000);
+
 </script>
 </body>
 </html>
