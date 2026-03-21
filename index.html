@@ -679,7 +679,7 @@
             subtotalItems += totalRow;
             
             const unitPriceDisplay = item.qty > 1 
-                ? `<div class="text-sm text-gray-400">un: R$ ${item.price.toFixed(2)}</div>` 
+                ? `<div class="text-sm text-gray-400">unidade: R$ ${item.price.toFixed(2)}</div>` 
                 : '';
                 
             list.innerHTML += `
@@ -945,7 +945,7 @@
             <div class="flex justify-between text-sm py-1 border-b border-white/5">
                 <div>
                     <span><span class="text-orange-400 font-bold">${i.qty}x</span> ${escapeHtml(i.name)}</span>
-                    ${i.qty > 1 ? `<div class="text-xs text-gray-500">un: R$ ${i.price.toFixed(2)}</div>` : ''}
+                    ${i.qty > 1 ? `<div class="text-xs text-gray-500">unidade: R$ ${i.price.toFixed(2)}</div>` : ''}
                 </div>
                 <span class="text-white font-semibold">R$ ${(i.qty * i.price).toFixed(2)}</span>
             </div>
