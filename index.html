@@ -791,6 +791,8 @@
         }
         consumption = [];
         editingIndex = null;
+        currentBarName = '';
+        localStorage.removeItem('botequim_bar_name');
         document.getElementById('in-couvert').value = 0;
         closeModal('clear-modal');
         updateCalculos();
