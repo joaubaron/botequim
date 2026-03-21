@@ -284,9 +284,7 @@
         <div class="text-2xl cursor-pointer" onclick="showHistory()">
             <i class="fas fa-history"></i>
         </div>
-        <div class="text-2xl cursor-pointer" onclick="showStats()">
-            <i class="fas fa-chart-line"></i>
-        </div>
+
     </div>
 </header>
 
@@ -524,6 +522,36 @@
                 <button onclick="confirmBarName()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
                     <i class="fas fa-check mr-1"></i> Confirmar
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detalhe Histórico -->
+<div id="history-detail-modal" class="modal">
+    <div class="modal-content" style="width:360px">
+        <div class="flex justify-between items-center mb-4">
+            <h3 id="detail-bar-name" class="text-lg font-bold text-orange-500"></h3>
+            <button onclick="closeModal('history-detail-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
+        </div>
+        <div id="detail-date" class="text-xs text-gray-400 mb-4"></div>
+        <div id="detail-items" class="space-y-1 mb-4 max-h-60 overflow-y-auto"></div>
+        <div class="border-t border-gray-700/50 pt-3 space-y-1">
+            <div class="flex justify-between text-sm text-gray-300">
+                <span><i class="fas fa-shopping-cart"></i> Consumo:</span>
+                <span id="detail-subtotal"></span>
+            </div>
+            <div class="flex justify-between text-sm text-gray-300">
+                <span><i class="fas fa-music"></i> Couvert:</span>
+                <span id="detail-couvert"></span>
+            </div>
+            <div class="flex justify-between text-sm text-gray-300">
+                <span><i class="fas fa-heart"></i> Gorjeta:</span>
+                <span id="detail-tip"></span>
+            </div>
+            <div class="flex justify-between items-center pt-2 border-t border-gray-700/50 mt-2">
+                <span class="font-bold"><i class="fas fa-coins"></i> TOTAL:</span>
+                <span id="detail-total" class="text-xl font-black text-orange-500"></span>
             </div>
         </div>
     </div>
@@ -810,7 +838,7 @@
             historyList.innerHTML = '<div class="text-center text-gray-500 py-4">Nenhum histórico ainda</div>';
         } else {
             historyList.innerHTML = history.map((h, idx) => `
-                <div class="history-item" style="cursor:default">
+                <div class="history-item" onclick="showHistoryDetail(${idx})">
                     <div class="flex justify-between items-start">
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2">
@@ -820,7 +848,7 @@
                             <div class="text-xs mt-1 text-gray-300">${h.itemsCount} itens | Total: R$ ${h.total.toFixed(2)}</div>
                             <div class="text-xs text-gray-500 truncate mt-1">${h.items.map(i => i.qty + 'x ' + i.name).join(', ')}</div>
                         </div>
-                        <button onclick="deleteHistoryItem(${idx})" class="ml-2 mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500/40 transition-colors" title="Apagar este registro">
+                        <button onclick="event.stopPropagation(); deleteHistoryItem(${idx})" class="ml-2 mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500/40 transition-colors" title="Apagar este registro">
                             <i class="fas fa-trash-alt text-xs"></i>
                         </button>
                     </div>
@@ -835,6 +863,30 @@
         history.splice(idx, 1);
         localStorage.setItem('botequim_history', JSON.stringify(history));
         showHistory();
+    }
+
+    function showHistoryDetail(idx) {
+        const h = history[idx];
+        const subtotal = h.items.reduce((sum, i) => sum + (i.qty * i.price), 0);
+        const couvert = h.couvert || 0;
+        const tip = h.tip || 0;
+
+        document.getElementById('detail-bar-name').textContent = h.bar;
+        document.getElementById('detail-date').textContent = h.date;
+        document.getElementById('detail-subtotal').textContent = 'R$ ' + subtotal.toFixed(2);
+        document.getElementById('detail-couvert').textContent = 'R$ ' + couvert.toFixed(2);
+        document.getElementById('detail-tip').textContent = 'R$ ' + tip.toFixed(2);
+        document.getElementById('detail-total').textContent = 'R$ ' + h.total.toFixed(2);
+
+        document.getElementById('detail-items').innerHTML = h.items.map(i => `
+            <div class="flex justify-between text-sm py-1 border-b border-white/5">
+                <span><span class="text-orange-400 font-bold">${i.qty}x</span> ${escapeHtml(i.name)}</span>
+                <span class="text-white font-semibold">R$ ${(i.qty * i.price).toFixed(2)}</span>
+            </div>
+        `).join('');
+
+        closeModal('history-modal');
+        document.getElementById('history-detail-modal').classList.add('active');
     }
     
     function clearHistory() {
