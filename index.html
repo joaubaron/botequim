@@ -318,7 +318,7 @@
             <div class="flex items-center gap-2 flex-1">
                 <i class="fas fa-music text-orange-500"></i>
                 <span class="text-gray-400 text-sm">Couvert: R$</span>
-                <input id="in-couvert" type="number" inputmode="decimal" value="0" onchange="updateCalculos()" class="w-16 p-1 rounded text-center font-bold text-sm">
+                <input id="in-couvert" type="number" inputmode="decimal" value="0" onchange="updateCalculos()" onkeypress="if(event.key==='Enter') this.blur()" class="w-16 p-1 rounded text-center font-bold text-sm">
             </div>
             <div class="flex items-center gap-3">
                 <span class="text-gray-400 text-sm">
@@ -402,16 +402,16 @@
         <div class="space-y-4">
             <div>
                 <label class="text-xs text-gray-500 uppercase tracking-wider font-bold block mb-1">Nome</label>
-                <input id="modal-edit-name" type="text" class="w-full p-3 rounded-xl text-sm" placeholder="Nome do item">
+                <input id="modal-edit-name" type="text" class="w-full p-3 rounded-xl text-sm" placeholder="Nome do item" onkeypress="if(event.key==='Enter') saveModalEdit()">
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
                     <label class="text-xs text-gray-500 uppercase tracking-wider font-bold block mb-1">Preço unitário</label>
-                    <input id="modal-edit-price" type="number" step="0.01" inputmode="decimal" class="w-full p-3 rounded-xl text-sm text-center" placeholder="R$">
+                    <input id="modal-edit-price" type="number" step="0.01" inputmode="decimal" class="w-full p-3 rounded-xl text-sm text-center" placeholder="R$" onkeypress="if(event.key==='Enter') saveModalEdit()">
                 </div>
                 <div>
                     <label class="text-xs text-gray-500 uppercase tracking-wider font-bold block mb-1">Quantidade</label>
-                    <input id="modal-edit-qty" type="number" inputmode="numeric" class="w-full p-3 rounded-xl text-sm text-center" placeholder="Qt">
+                    <input id="modal-edit-qty" type="number" inputmode="numeric" class="w-full p-3 rounded-xl text-sm text-center" placeholder="Qt" onkeypress="if(event.key==='Enter') saveModalEdit()">
                 </div>
             </div>
         </div>
