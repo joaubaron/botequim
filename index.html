@@ -234,8 +234,24 @@
         }
         
         #barname-modal .modal-content {
-            background: #243447;
-        }
+    position: relative;
+    overflow: hidden;
+}
+
+#barname-modal .modal-content::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('bar-bg.webp') center/cover no-repeat;
+    filter: blur(8px);
+    transform: scale(1.1); /* evita borda branca do blur */
+    z-index: 0;
+}
+
+#barname-modal .modal-content > * {
+    position: relative;
+    z-index: 1;
+}
 
         .modal-content {
             background: #1e1e2e;
