@@ -5,7 +5,8 @@ const ASSETS = [
     './manifest.json',
     './manequim-modal.png',
     './manequim-pwa.png
-    './icon.png',
+    './icon.png'
+    './icon512.png',
     './bar-bg.webp',
     'https://cdn.tailwindcss.com',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
