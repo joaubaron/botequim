@@ -1,10 +1,10 @@
-const CACHE_NAME = 'botequim-v10004';
+const CACHE_NAME = 'botequim-v10005';
 const ASSETS = [
     './',
     './index.html',
     './manifest.json',
     './manequim-modal.png',
-    './manequim-pwa.png
+    './manequim-pwa.png,
     './icon.png'
     './icon512.png',
     './bar-bg.webp',
