@@ -890,7 +890,7 @@
         const tip = hasTip ? subtotal * 0.10 : 0;
         const total = subtotal + couvert + tip;
 
-        let txt = '🍺 *Conta do Botequim*\n\n';
+        let txt = `🍺 *Conta — ${currentBarName || 'Botequim'}*\n\n`;
         consumption.forEach(i => {
             txt += `• ${i.qty}x ${i.name}\n`;
             if (i.qty > 1) txt += `Unidade: R$ ${i.price.toFixed(2)}\n`;
@@ -954,7 +954,7 @@
         const couvert = h.couvert || 0;
         const tip = h.tip || 0;
 
-        let txt = '🍺 *Conta do Botequim*\n';
+        let txt = `🍺 *Conta — ${h.bar || 'Botequim'}*\n`;
         txt += `📍 ${h.bar} — ${h.date}\n\n`;
         h.items.forEach(i => {
             txt += `• ${i.qty}x ${i.name}\n`;
