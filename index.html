@@ -783,6 +783,10 @@
     }
 
     function addItem() {
+        if (!currentBarName) {
+            openBarNameModal();
+            return;
+        }
         const nameEl = document.getElementById('in-name');
         const qtyEl = document.getElementById('in-qty');
         const priceEl = document.getElementById('in-price');
