@@ -325,26 +325,33 @@
         
         <div id="items-list" class="space-y-0 mb-6 max-h-96 overflow-y-auto"></div>
 
-        <div class="grid grid-cols-12 gap-2 mb-6">
-            <input id="in-name" type="text" placeholder="Item (ex: Cerveja)" class="col-span-5 text-sm p-2 rounded enter-submit">
-            <input id="in-qty" type="number" inputmode="numeric" placeholder="Qt" class="col-span-2 text-sm p-2 rounded text-center enter-submit">
-            <input id="in-price" type="number" inputmode="decimal" step="0.01" placeholder="R$" class="col-span-3 text-sm p-2 rounded text-center enter-submit">
-            <button onclick="addItem()" class="col-span-2 btn-accent rounded font-bold text-xl">
-                <i class="fas fa-plus"></i>
-            </button>
+        <div id="no-bar-placeholder" onclick="openBarNameModal()" class="hidden cursor-pointer text-center py-6 rounded-xl border border-dashed border-orange-500/40 mb-6">
+            <i class="fas fa-store text-orange-500 text-2xl mb-2 block"></i>
+            <span class="text-orange-400 font-semibold text-sm">Digite o nome do bar para começar</span>
         </div>
 
-        <div class="flex items-center justify-between p-3 bg-[#2d2d35] rounded-lg">
-            <div class="flex items-center gap-2 flex-1">
-                <i class="fas fa-music text-orange-500"></i>
-                <span class="text-gray-400 text-sm">Couvert: R$</span>
-                <input id="in-couvert" type="number" inputmode="decimal" value="0" onchange="updateCalculos()" onkeypress="if(event.key==='Enter') this.blur()" class="w-16 p-1 rounded text-center font-bold text-sm">
+        <div id="input-area">
+            <div class="grid grid-cols-12 gap-2 mb-6">
+                <input id="in-name" type="text" placeholder="Item (ex: Cerveja)" class="col-span-5 text-sm p-2 rounded enter-submit">
+                <input id="in-qty" type="number" inputmode="numeric" placeholder="Qt" class="col-span-2 text-sm p-2 rounded text-center enter-submit">
+                <input id="in-price" type="number" inputmode="decimal" step="0.01" placeholder="R$" class="col-span-3 text-sm p-2 rounded text-center enter-submit">
+                <button onclick="addItem()" class="col-span-2 btn-accent rounded font-bold text-xl">
+                    <i class="fas fa-plus"></i>
+                </button>
             </div>
-            <div class="flex items-center gap-3">
-                <span class="text-gray-400 text-sm">
-                    <i class="fas fa-hand-holding-heart"></i> 10%:
-                </span>
-                <input id="in-tip" type="checkbox" checked onchange="updateCalculos()">
+
+            <div class="flex items-center justify-between p-3 bg-[#2d2d35] rounded-lg">
+                <div class="flex items-center gap-2 flex-1">
+                    <i class="fas fa-music text-orange-500"></i>
+                    <span class="text-gray-400 text-sm">Couvert: R$</span>
+                    <input id="in-couvert" type="number" inputmode="decimal" value="0" onchange="updateCalculos()" onkeypress="if(event.key==='Enter') this.blur()" class="w-16 p-1 rounded text-center font-bold text-sm">
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-gray-400 text-sm">
+                        <i class="fas fa-hand-holding-heart"></i> 10%:
+                    </span>
+                    <input id="in-tip" type="checkbox" checked onchange="updateCalculos()">
+                </div>
             </div>
         </div>
         
@@ -656,6 +663,13 @@
             : '<i class="fas fa-receipt"></i> Resumo detalhado';
         const sub = document.getElementById('header-subtitle');
         if (sub) sub.textContent = currentBarName ? '📍 ' + currentBarName : 'Gerencie sua conta 🪪';
+        toggleInputArea();
+    }
+
+    function toggleInputArea() {
+        const hasBar = !!currentBarName;
+        document.getElementById('input-area').style.display = hasBar ? '' : 'none';
+        document.getElementById('no-bar-placeholder').classList.toggle('hidden', hasBar);
     }
 
     function updateStats() {
@@ -784,7 +798,9 @@
 
     function addItem() {
         if (!currentBarName) {
-            openBarNameModal();
+            if (!document.getElementById('barname-modal').classList.contains('active')) {
+                openBarNameModal();
+            }
             return;
         }
         const nameEl = document.getElementById('in-name');
