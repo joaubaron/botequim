@@ -338,12 +338,19 @@
 
         <div id="input-area">
             <div class="grid grid-cols-12 gap-2 mb-6">
-                <input id="in-name" type="text" placeholder="Item (ex: Cerveja)" class="col-span-5 text-sm p-2 rounded enter-submit">
-                <input id="in-qty" type="number" inputmode="numeric" placeholder="Qt" class="col-span-2 text-sm p-2 rounded text-center enter-submit">
-                <input id="in-price" type="number" inputmode="decimal" step="0.01" placeholder="R$" class="col-span-3 text-sm p-2 rounded text-center enter-submit">
-                <button onclick="addItem()" class="col-span-2 btn-accent rounded font-bold text-xl">
-                    <i class="fas fa-plus"></i>
-                </button>
+                <input id="in-name" type="text" placeholder="Item (ex: Cerveja)"
+       class="text-sm p-2 rounded enter-submit w-[190px]">
+
+<input id="in-qty" type="number" inputmode="numeric" placeholder="Qt"
+       class="text-sm p-2 rounded text-center enter-submit w-[50px]">
+
+<input id="in-price" type="number" inputmode="decimal" step="0.01" placeholder="R$"
+       class="text-sm p-2 rounded text-center enter-submit w-[100px]">
+
+<button onclick="addItem()"
+        class="btn-accent rounded font-bold text-xl w-[40px]">
+  <i class="fas fa-plus"></i>
+</button>
             </div>
 
             <div class="flex items-center justify-between p-3 bg-[#2d2d35] rounded-lg">
