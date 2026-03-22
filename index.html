@@ -671,29 +671,6 @@
         document.getElementById('no-bar-placeholder').classList.toggle('hidden', hasBar);
     }
 
-    function updateStats() {
-        if (consumption.length === 0) {
-            document.getElementById('item-count').innerText = '0';
-            document.getElementById('avg-price').innerText = 'R$0';
-            document.getElementById('most-ordered').innerText = '-';
-            return;
-        }
-        
-        const totalItems = consumption.reduce((sum, item) => sum + item.qty, 0);
-        const totalValue = consumption.reduce((sum, item) => sum + (item.qty * item.price), 0);
-        const avgPrice = totalValue / totalItems;
-        
-        const itemCounts = {};
-        consumption.forEach(item => {
-            itemCounts[item.name] = (itemCounts[item.name] || 0) + item.qty;
-        });
-        let mostOrdered = Object.keys(itemCounts).reduce((a, b) => itemCounts[a] > itemCounts[b] ? a : b, '');
-        
-        document.getElementById('item-count').innerText = totalItems;
-        document.getElementById('avg-price').innerText = `R$${avgPrice.toFixed(2)}`;
-        document.getElementById('most-ordered').innerText = mostOrdered.length > 10 ? mostOrdered.substring(0, 10) + '...' : mostOrdered;
-    }
-
     function startEdit(idx) {
         editingIndex = idx;
         const item = consumption[idx];
@@ -782,7 +759,6 @@
         }
 
         localStorage.setItem('botequim_baron', JSON.stringify(consumption));
-        updateStats();
         
         if (editingIndex === null && list.lastChild) {
             list.lastChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
