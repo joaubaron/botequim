@@ -536,6 +536,7 @@
                 <i class="fas fa-trash-alt text-red-400 text-2xl"></i>
             </div>
             <div>
+                <div class="text-base font-bold text-white mb-1">Apagar registro?</div>
                 <div class="text-sm text-gray-400">O registro de <span id="delete-history-item-name" class="text-orange-400 font-semibold"></span> será removido permanentemente do histórico.</div>
             </div>
             <div class="flex gap-3 w-full mt-1">
@@ -617,7 +618,10 @@
 
     let currentBarName = localStorage.getItem('botequim_bar_name') || '';
 
-    function openBarNameModal() {
+    let openedFromClear = false;
+
+    function openBarNameModal(fromClear) {
+        openedFromClear = !!fromClear;
         const input = document.getElementById('bar-name-input');
         input.value = currentBarName;
         document.getElementById('barname-modal').classList.add('active');
@@ -639,6 +643,10 @@
         localStorage.setItem('botequim_bar_name', currentBarName);
         updateResumoTitulo();
         closeModal('barname-modal');
+        if (openedFromClear) {
+            openedFromClear = false;
+            document.getElementById('clear-modal').classList.add('active');
+        }
     }
 
     function updateResumoTitulo() {
@@ -838,6 +846,10 @@
     }
 
     function clearItems() {
+        if (!currentBarName) {
+            openBarNameModal(true);
+            return;
+        }
         document.getElementById('clear-modal').classList.add('active');
     }
 
@@ -849,7 +861,7 @@
             const subtotalVal = consumption.reduce((sum, i) => sum + (i.qty * i.price), 0);
             sessionHistory.unshift({
                 date: new Date().toLocaleString(),
-                bar: currentBarName || 'Bar',
+                bar: currentBarName,
                 items: JSON.parse(JSON.stringify(consumption)),
                 total: total,
                 itemsCount: consumption.reduce((sum, i) => sum + i.qty, 0),
