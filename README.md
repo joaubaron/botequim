@@ -1,4 +1,4 @@
-# 🍺 Botequim — Gestão de Conta de Bar / Bar Tab Manager
+# 🍺 Botequim — Gestão de Conta de Bar
 
 🇧🇷 [Português](#português) | 🇺🇸 [English](#english)
 
