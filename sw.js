@@ -1,11 +1,11 @@
-const CACHE_NAME = 'botequim-v10008';
+const CACHE_NAME = 'botequim-v10009';
 const ASSETS = [
     './',
     './index.html',
     './manifest.json',
-    './manequim-modal.png',
-    './manequim-pwa.png,
-    './icon.png'
+    './botequim-modal.png',
+    './botequim-pwa.png',
+    './icon.png',
     './icon512.png',
     './bar-bg.webp',
     'https://cdn.tailwindcss.com',
@@ -27,7 +27,6 @@ self.addEventListener('activate', e => {
     );
     self.clients.claim();
 });
-
 self.addEventListener('fetch', e => {
     e.respondWith(
         caches.match(e.request).then(cached => cached || fetch(e.request).catch(() => caches.match('./index.html')))
