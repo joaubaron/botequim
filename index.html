@@ -627,13 +627,12 @@
 
     let openedFromClear = false;
 
-    function openBarNameModal(fromClear) {
-        openedFromClear = !!fromClear;
-        const input = document.getElementById('bar-name-input');
-        input.value = currentBarName;
-        document.getElementById('barname-modal').classList.add('active');
-        setTimeout(() => input.focus(), 100);
-    }
+  function openBarNameModal(fromClear) {
+    openedFromClear = !!fromClear;
+    const input = document.getElementById('bar-name-input');
+    input.value = currentBarName;
+    document.getElementById('barname-modal').classList.add('active');
+}
 
     function confirmBarName() {
         const val = document.getElementById('bar-name-input').value.trim();
