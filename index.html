@@ -306,7 +306,7 @@
 </div>
     <div class="flex gap-2 self-start">
         <div class="text-2xl cursor-pointer" onclick="showHistory()">
-            <i class="fas fa-chart-line" style="position:relative; top:15px;"></i>
+            <i class="fas fa-chart-line" style="position:relative; top:11px;"></i>
         </div>
 
     </div>
@@ -622,7 +622,7 @@
             <h3 class="text-lg font-bold text-yellow-400"><i class="fas fa-users mr-2"></i>Racha</h3>
             <button onclick="closeModal('racha-pessoas-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
         </div>
-        <p class="text-xs text-gray-400 mb-3">Quem mais vai rachar a conta com você?</p>
+        <p class="text-xs text-gray-400 mb-3">Quem mais vai rachar a conta com Você?</p>
         <div class="flex gap-2 mb-3">
             <input id="racha-new-person" type="text" placeholder="Nome da pessoa" maxlength="20"
                 class="flex-1 p-2 rounded-xl text-sm"
@@ -704,7 +704,7 @@
 <script>
     // ---- RACHA ----
     let rachaPessoas = []; // ex: ['Você', 'João']
-    let rachaAtribuicoes = []; // por item: { owner: 'voce' } ou { split: {voce:1, João:1} }
+    let rachaAtribuicoes = []; // por item: { owner: 'Você' } ou { split: {Você:1, João:1} }
     let rachaSplitItemIdx = null;
     let rachaSplitValues = {};
 
@@ -718,20 +718,20 @@
             return;
         }
         rachaPessoas = ['Você'];
-        rachaAtribuicoes = consumption.map(() => ({ owner: 'voce' }));
+        rachaAtribuicoes = consumption.map(() => ({ owner: 'Você' }));
         renderRachaPessoas();
         openModal('racha-pessoas-modal');
     }
 
-    function renderRachaPessoas() {
-        const list = document.getElementById('racha-pessoas-list');
-        list.innerHTML = rachaPessoas.map((p, i) => `
-            <div class="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2">
-                <span class="text-sm font-semibold ${i === 0 ? 'text-orange-400' : 'text-white'}">${escapeHtml(p)}${i === 0 ? ' <span class="text-xs text-gray-500"></span>' : ''}</span>
-                ${i > 0 ? `<button onclick="rachaRemovePerson(${i})" class="text-red-400 text-xs ml-2"><i class="fas fa-times"></i></button>` : ''}
-            </div>
-        `).join('');
-    }
+   function renderRachaPessoas() {
+    const list = document.getElementById('racha-pessoas-list');
+    list.innerHTML = rachaPessoas.map((p, i) => `
+        <div class="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2">
+            <span class="text-sm font-semibold ${i === 0 ? 'text-orange-400' : 'text-white'}">${escapeHtml(p)}</span>
+            ${i > 0 ? `<button onclick="rachaRemovePerson(${i})" class="text-red-400 text-xs ml-2"><i class="fas fa-times"></i></button>` : ''}
+        </div>
+    `).join('');
+}
 
     function rachaAddPerson() {
         const input = document.getElementById('racha-new-person');
@@ -749,12 +749,14 @@
     function rachaRemovePerson(idx) {
         const removed = rachaPessoas[idx];
         rachaPessoas.splice(idx, 1);
-            rachaAtribuicoes = rachaAtribuicoes.map(a => {
-            if (a.owner === removed) return { owner: 'voce' };
+        // reassign items owned by removed person to Você
+        rachaAtribuicoes = rachaAtribuicoes.map(a => {
+            if (a.owner === removed) return { owner: 'Você' };
             if (a.split) {
                 const newSplit = {};
                 rachaPessoas.forEach(p => { newSplit[p] = a.split[p] || 0; });
-                newSplit['voce'] = (newSplit['voce'] || 0) + (a.split[removed] || 0);
+                // redistribute removed person's qty to Você
+                newSplit['Você'] = (newSplit['Você'] || 0) + (a.split[removed] || 0);
                 return { split: newSplit };
             }
             return a;
@@ -764,7 +766,7 @@
 
     function rachaProximo() {
         if (rachaPessoas.length < 2) {
-            alert('Adicione pelo menos uma pessoa além de voce.');
+            alert('Adicione pelo menos uma pessoa além de Você.');
             return;
         }
         closeModal('racha-pessoas-modal');
@@ -973,7 +975,9 @@
         });
         window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
     }
+</script>
 
+<script>
     let consumption = JSON.parse(localStorage.getItem('botequim_baron')) || [];
     let sessionHistory = JSON.parse(localStorage.getItem('botequim_history')) || [];
     let editingIndex = null;
