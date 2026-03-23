@@ -1,4 +1,4 @@
-const CACHE_NAME = 'botequim-v10007';
+const CACHE_NAME = 'botequim-v10008';
 const ASSETS = [
     './',
     './index.html',
