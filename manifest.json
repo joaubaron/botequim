@@ -3,6 +3,7 @@
   "short_name": "Botequim",
   "start_url": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#243447",
   "theme_color": "#243447",
   "icons": [
