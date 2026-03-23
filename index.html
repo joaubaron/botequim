@@ -703,8 +703,8 @@
 
 <script>
     // ---- RACHA ----
-    let rachaPessoas = []; // ex: ['Baron', 'João']
-    let rachaAtribuicoes = []; // por item: { owner: 'Baron' } ou { split: {Baron:1, João:1} }
+    let rachaPessoas = []; // ex: ['Você', 'João']
+    let rachaAtribuicoes = []; // por item: { owner: 'voce' } ou { split: {voce:1, João:1} }
     let rachaSplitItemIdx = null;
     let rachaSplitValues = {};
 
@@ -717,8 +717,8 @@
             document.getElementById('validation-modal').classList.add('active');
             return;
         }
-        rachaPessoas = ['Baron'];
-        rachaAtribuicoes = consumption.map(() => ({ owner: 'Baron' }));
+        rachaPessoas = ['Você'];
+        rachaAtribuicoes = consumption.map(() => ({ owner: 'voce' }));
         renderRachaPessoas();
         openModal('racha-pessoas-modal');
     }
@@ -727,7 +727,7 @@
         const list = document.getElementById('racha-pessoas-list');
         list.innerHTML = rachaPessoas.map((p, i) => `
             <div class="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2">
-                <span class="text-sm font-semibold ${i === 0 ? 'text-orange-400' : 'text-white'}">${escapeHtml(p)}${i === 0 ? ' <span class="text-xs text-gray-500">(você)</span>' : ''}</span>
+                <span class="text-sm font-semibold ${i === 0 ? 'text-orange-400' : 'text-white'}">${escapeHtml(p)}${i === 0 ? ' <span class="text-xs text-gray-500"></span>' : ''}</span>
                 ${i > 0 ? `<button onclick="rachaRemovePerson(${i})" class="text-red-400 text-xs ml-2"><i class="fas fa-times"></i></button>` : ''}
             </div>
         `).join('');
@@ -749,14 +749,12 @@
     function rachaRemovePerson(idx) {
         const removed = rachaPessoas[idx];
         rachaPessoas.splice(idx, 1);
-        // reassign items owned by removed person to Baron
-        rachaAtribuicoes = rachaAtribuicoes.map(a => {
-            if (a.owner === removed) return { owner: 'Baron' };
+            rachaAtribuicoes = rachaAtribuicoes.map(a => {
+            if (a.owner === removed) return { owner: 'voce' };
             if (a.split) {
                 const newSplit = {};
                 rachaPessoas.forEach(p => { newSplit[p] = a.split[p] || 0; });
-                // redistribute removed person's qty to Baron
-                newSplit['Baron'] = (newSplit['Baron'] || 0) + (a.split[removed] || 0);
+                newSplit['voce'] = (newSplit['voce'] || 0) + (a.split[removed] || 0);
                 return { split: newSplit };
             }
             return a;
@@ -766,7 +764,7 @@
 
     function rachaProximo() {
         if (rachaPessoas.length < 2) {
-            alert('Adicione pelo menos uma pessoa além de Baron.');
+            alert('Adicione pelo menos uma pessoa além de voce.');
             return;
         }
         closeModal('racha-pessoas-modal');
