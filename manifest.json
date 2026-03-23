@@ -1,7 +1,8 @@
 {
   "name": "Botequim - Conta de Bar",
   "short_name": "Botequim",
-  "start_url": "./",
+  "start_url": "/index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#243447",
@@ -15,7 +16,8 @@
     {
       "src": "icon512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
