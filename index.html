@@ -321,11 +321,11 @@
             <button onclick="clearItems()" class="text-red-500 text-xs font-bold border border-red-900/50 px-3 py-2 rounded whitespace-nowrap">
                 <i class="fas fa-trash-alt"></i> Limpar
             </button>
-            <button onclick="shareWhatsApp()" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#25D366,#128C7E);">
-                <i class="fab fa-whatsapp text-white text-base"></i>
-            </button>
             <button onclick="openRachaModal()" class="text-yellow-400 text-xs font-bold border border-yellow-700/50 px-3 py-2 rounded whitespace-nowrap">
                 <i class="fas fa-users"></i> Racha
+            </button>
+            <button onclick="shareWhatsApp()" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#25D366,#128C7E);">
+                <i class="fab fa-whatsapp text-white text-base"></i>
             </button>
         </div>
         
@@ -684,10 +684,14 @@
             <button onclick="closeModal('racha-split-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
         </div>
         <p id="racha-split-desc" class="text-sm text-gray-300 mb-4"></p>
-        <div id="racha-split-inputs" class="space-y-2 mb-4"></div>
-        <div class="flex gap-3">
-            <button onclick="rachaSplitConfirm()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">Confirmar</button>
-            <button onclick="closeModal('racha-split-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">Cancelar</button>
+        <div id="racha-split-inputs" class="space-y-3 mb-4"></div>
+        <div class="flex gap-3 mt-2">
+            <button onclick="rachaSplitConfirm()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+                <i class="fas fa-check mr-1"></i> Confirmar
+            </button>
+            <button onclick="closeModal('racha-split-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+                Cancelar
+            </button>
         </div>
     </div>
 </div>
@@ -697,6 +701,7 @@
     let rachaPessoas = []; // ex: ['Baron', 'João']
     let rachaAtribuicoes = []; // por item: { owner: 'Baron' } ou { split: {Baron:1, João:1} }
     let rachaSplitItemIdx = null;
+    let rachaSplitValues = {};
 
     function openModal(id) {
         document.getElementById(id).classList.add('active');
@@ -808,19 +813,54 @@
         const item = consumption[idx];
         const atr = rachaAtribuicoes[idx];
         document.getElementById('racha-split-desc').textContent = `${item.qty}x ${item.name} — distribua as unidades:`;
+        
+        // Initialize split values
+        rachaSplitValues = {};
+        rachaPessoas.forEach(p => {
+            rachaSplitValues[p] = atr.split ? (atr.split[p] || 0) : (atr.owner === p ? item.qty : 0);
+        });
+        
+        renderSplitInputs(idx);
+        openModal('racha-split-modal');
+    }
+
+    function renderSplitInputs(idx) {
+        const item = consumption[idx];
         const inputs = document.getElementById('racha-split-inputs');
+        const usado = rachaPessoas.reduce((s, p) => s + (rachaSplitValues[p] || 0), 0);
+        const restante = item.qty - usado;
+
         inputs.innerHTML = rachaPessoas.map(p => {
-            const val = atr.split ? (atr.split[p] || 0) : (atr.owner === p ? item.qty : 0);
+            const val = rachaSplitValues[p] || 0;
             return `
-                <div class="flex items-center justify-between">
-                    <span class="text-sm text-white w-28">${escapeHtml(p)}</span>
-                    <input type="number" inputmode="numeric" min="0" max="${item.qty}" value="${val}"
-                        id="racha-split-${p.replace(/\s/g,'_')}"
-                        class="w-20 p-2 rounded-xl text-center text-sm">
+                <div class="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2">
+                    <span class="text-sm font-semibold text-white w-24">${escapeHtml(p)}</span>
+                    <div class="flex items-center gap-3">
+                        <button onclick="rachaSplitChange('${p}', -1, ${idx})"
+                            class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 transition-colors text-lg font-bold">−</button>
+                        <span class="text-white font-bold w-4 text-center">${val}</span>
+                        <button onclick="rachaSplitChange('${p}', 1, ${idx})"
+                            class="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 transition-colors text-lg font-bold">+</button>
+                    </div>
                 </div>
             `;
         }).join('');
-        openModal('racha-split-modal');
+
+        // Show remaining indicator
+        inputs.innerHTML += `<div class="text-xs text-center mt-1 ${restante === 0 ? 'text-green-400' : 'text-yellow-400'}">
+            ${restante === 0 ? '✓ Tudo distribuído' : `Restam ${restante} unidade(s)`}
+        </div>`;
+    }
+
+    function rachaSplitChange(person, delta, idx) {
+        const item = consumption[idx];
+        const atual = rachaSplitValues[person] || 0;
+        const novoVal = atual + delta;
+        if (novoVal < 0) return;
+        const totalOutros = rachaPessoas.reduce((s, p) => s + (p !== person ? (rachaSplitValues[p] || 0) : 0), 0);
+        if (novoVal + totalOutros > item.qty) return; // não deixa ultrapassar
+        rachaSplitValues[person] = novoVal;
+        renderSplitInputs(idx);
     }
 
     function rachaSplitConfirm() {
@@ -829,13 +869,12 @@
         const split = {};
         let total = 0;
         rachaPessoas.forEach(p => {
-            const key = p.replace(/\s/g,'_');
-            const v = parseInt(document.getElementById(`racha-split-${key}`).value) || 0;
-            split[p] = v;
-            total += v;
+            split[p] = rachaSplitValues[p] || 0;
+            total += split[p];
         });
         if (total !== item.qty) {
-            alert(`A soma deve ser ${item.qty} (total do item). Atual: ${total}`);
+            // show inline — não usa alert
+            renderSplitInputs(idx);
             return;
         }
         rachaAtribuicoes[idx] = { split };
