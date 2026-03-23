@@ -324,6 +324,9 @@
             <button onclick="shareWhatsApp()" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#25D366,#128C7E);">
                 <i class="fab fa-whatsapp text-white text-base"></i>
             </button>
+            <button onclick="openRachaModal()" class="text-yellow-400 text-xs font-bold border border-yellow-700/50 px-3 py-2 rounded whitespace-nowrap">
+                <i class="fas fa-users"></i> Racha
+            </button>
         </div>
         
         
@@ -612,8 +615,309 @@
     </div>
 </div>
 
+<!-- Modal Racha - Passo 1: Pessoas -->
+<div id="racha-pessoas-modal" class="modal">
+    <div class="modal-content" style="width:360px">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-yellow-400"><i class="fas fa-users mr-2"></i>Racha</h3>
+            <button onclick="closeModal('racha-pessoas-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
+        </div>
+        <p class="text-xs text-gray-400 mb-3">Baron já está na conta. Adicione quem mais vai rachar:</p>
+        <div class="flex gap-2 mb-3">
+            <input id="racha-new-person" type="text" placeholder="Nome da pessoa" maxlength="20"
+                class="flex-1 p-2 rounded-xl text-sm"
+                onkeypress="if(event.key==='Enter') rachaAddPerson()">
+            <button onclick="rachaAddPerson()" class="btn-accent px-4 rounded-xl text-sm font-bold">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+        <div id="racha-pessoas-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto"></div>
+        <div class="flex gap-3 mt-2">
+            <button onclick="rachaProximo()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+                Montar racha <i class="fas fa-arrow-right ml-1"></i>
+            </button>
+            <button onclick="closeModal('racha-pessoas-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Racha - Passo 2: Atribuir itens -->
+<div id="racha-itens-modal" class="modal">
+    <div class="modal-content" style="width:380px; max-height:85vh;">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-yellow-400"><i class="fas fa-receipt mr-2"></i>Quem pagou o quê?</h3>
+            <button onclick="closeModal('racha-itens-modal'); openModal('racha-pessoas-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
+        </div>
+        <div id="racha-itens-list" class="space-y-3 mb-4 overflow-y-auto" style="max-height:55vh;"></div>
+        <div class="flex gap-3 mt-2">
+            <button onclick="rachaCalcular()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+                <i class="fas fa-calculator mr-1"></i> Calcular
+            </button>
+            <button onclick="closeModal('racha-itens-modal'); openModal('racha-pessoas-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+                Voltar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Racha - Passo 3: Resultado -->
+<div id="racha-resultado-modal" class="modal">
+    <div class="modal-content" style="width:380px">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-bold text-yellow-400"><i class="fas fa-coins mr-2"></i>Resultado do Racha</h3>
+            <button onclick="closeModal('racha-resultado-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
+        </div>
+        <div id="racha-resultado-list" class="space-y-3 mb-4"></div>
+        <button onclick="rachaShareWhatsApp()" class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mx-auto block" style="background:linear-gradient(135deg,#25D366,#128C7E); margin-top:20px;">
+            <i class="fab fa-whatsapp text-white text-xl"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Modal Racha - Split de quantidade -->
+<div id="racha-split-modal" class="modal">
+    <div class="modal-content" style="width:340px; z-index:3000;">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-base font-bold text-yellow-400"><i class="fas fa-cut mr-2"></i>Dividir item</h3>
+            <button onclick="closeModal('racha-split-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
+        </div>
+        <p id="racha-split-desc" class="text-sm text-gray-300 mb-4"></p>
+        <div id="racha-split-inputs" class="space-y-2 mb-4"></div>
+        <div class="flex gap-3">
+            <button onclick="rachaSplitConfirm()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">Confirmar</button>
+            <button onclick="closeModal('racha-split-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">Cancelar</button>
+        </div>
+    </div>
+</div>
+
 <script>
-    let consumption = JSON.parse(localStorage.getItem('botequim_baron')) || [];
+    // ---- RACHA ----
+    let rachaPessoas = []; // ex: ['Baron', 'João']
+    let rachaAtribuicoes = []; // por item: { owner: 'Baron' } ou { split: {Baron:1, João:1} }
+    let rachaSplitItemIdx = null;
+
+    function openModal(id) {
+        document.getElementById(id).classList.add('active');
+    }
+
+    function openRachaModal() {
+        if (consumption.length === 0) {
+            document.getElementById('validation-modal').classList.add('active');
+            return;
+        }
+        rachaPessoas = ['Baron'];
+        rachaAtribuicoes = consumption.map(() => ({ owner: 'Baron' }));
+        renderRachaPessoas();
+        openModal('racha-pessoas-modal');
+    }
+
+    function renderRachaPessoas() {
+        const list = document.getElementById('racha-pessoas-list');
+        list.innerHTML = rachaPessoas.map((p, i) => `
+            <div class="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2">
+                <span class="text-sm font-semibold ${i === 0 ? 'text-orange-400' : 'text-white'}">${escapeHtml(p)}${i === 0 ? ' <span class="text-xs text-gray-500">(você)</span>' : ''}</span>
+                ${i > 0 ? `<button onclick="rachaRemovePerson(${i})" class="text-red-400 text-xs ml-2"><i class="fas fa-times"></i></button>` : ''}
+            </div>
+        `).join('');
+    }
+
+    function rachaAddPerson() {
+        const input = document.getElementById('racha-new-person');
+        const name = input.value.trim();
+        if (!name) return;
+        if (rachaPessoas.find(p => p.toLowerCase() === name.toLowerCase())) {
+            input.value = '';
+            return;
+        }
+        rachaPessoas.push(name);
+        input.value = '';
+        renderRachaPessoas();
+    }
+
+    function rachaRemovePerson(idx) {
+        const removed = rachaPessoas[idx];
+        rachaPessoas.splice(idx, 1);
+        // reassign items owned by removed person to Baron
+        rachaAtribuicoes = rachaAtribuicoes.map(a => {
+            if (a.owner === removed) return { owner: 'Baron' };
+            if (a.split) {
+                const newSplit = {};
+                rachaPessoas.forEach(p => { newSplit[p] = a.split[p] || 0; });
+                // redistribute removed person's qty to Baron
+                newSplit['Baron'] = (newSplit['Baron'] || 0) + (a.split[removed] || 0);
+                return { split: newSplit };
+            }
+            return a;
+        });
+        renderRachaPessoas();
+    }
+
+    function rachaProximo() {
+        if (rachaPessoas.length < 2) {
+            alert('Adicione pelo menos uma pessoa além de Baron.');
+            return;
+        }
+        closeModal('racha-pessoas-modal');
+        renderRachaItens();
+        openModal('racha-itens-modal');
+    }
+
+    function renderRachaItens() {
+        const list = document.getElementById('racha-itens-list');
+        list.innerHTML = consumption.map((item, idx) => {
+            const atr = rachaAtribuicoes[idx];
+            let statusHtml = '';
+            if (atr.split) {
+                const parts = Object.entries(atr.split).filter(([,v]) => v > 0).map(([k,v]) => `${k}:${v}`).join(', ');
+                statusHtml = `<span class="text-xs text-yellow-400">÷ ${parts}</span>`;
+            } else {
+                statusHtml = `<span class="text-xs text-orange-400">${escapeHtml(atr.owner)}</span>`;
+            }
+            const personBtns = rachaPessoas.map(p => `
+                <button onclick="rachaSetOwner(${idx},'${p}')"
+                    class="px-2 py-1 rounded-lg text-xs font-bold border transition-all ${atr.owner === p && !atr.split ? 'border-orange-500 text-orange-400 bg-orange-500/10' : 'border-white/10 text-gray-400'}"
+                >${escapeHtml(p)}</button>
+            `).join('');
+            const splitBtn = item.qty > 1
+                ? `<button onclick="rachaOpenSplit(${idx})" class="px-2 py-1 rounded-lg text-xs font-bold border transition-all ${atr.split ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-400'}"><i class="fas fa-cut"></i> Dividir</button>`
+                : '';
+            return `
+                <div class="bg-white/5 rounded-xl p-3">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="text-sm font-semibold"><span class="text-orange-400">${item.qty}x</span> ${escapeHtml(item.name)}</span>
+                            <div class="text-xs text-gray-500">R$ ${(item.qty * item.price).toFixed(2)}</div>
+                        </div>
+                        <div>${statusHtml}</div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">${personBtns}${splitBtn}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function rachaSetOwner(idx, person) {
+        rachaAtribuicoes[idx] = { owner: person };
+        renderRachaItens();
+    }
+
+    function rachaOpenSplit(idx) {
+        rachaSplitItemIdx = idx;
+        const item = consumption[idx];
+        const atr = rachaAtribuicoes[idx];
+        document.getElementById('racha-split-desc').textContent = `${item.qty}x ${item.name} — distribua as unidades:`;
+        const inputs = document.getElementById('racha-split-inputs');
+        inputs.innerHTML = rachaPessoas.map(p => {
+            const val = atr.split ? (atr.split[p] || 0) : (atr.owner === p ? item.qty : 0);
+            return `
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-white w-28">${escapeHtml(p)}</span>
+                    <input type="number" inputmode="numeric" min="0" max="${item.qty}" value="${val}"
+                        id="racha-split-${p.replace(/\s/g,'_')}"
+                        class="w-20 p-2 rounded-xl text-center text-sm">
+                </div>
+            `;
+        }).join('');
+        openModal('racha-split-modal');
+    }
+
+    function rachaSplitConfirm() {
+        const idx = rachaSplitItemIdx;
+        const item = consumption[idx];
+        const split = {};
+        let total = 0;
+        rachaPessoas.forEach(p => {
+            const key = p.replace(/\s/g,'_');
+            const v = parseInt(document.getElementById(`racha-split-${key}`).value) || 0;
+            split[p] = v;
+            total += v;
+        });
+        if (total !== item.qty) {
+            alert(`A soma deve ser ${item.qty} (total do item). Atual: ${total}`);
+            return;
+        }
+        rachaAtribuicoes[idx] = { split };
+        closeModal('racha-split-modal');
+        renderRachaItens();
+    }
+
+    function rachaCalcular() {
+        const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
+        const hasTip = document.getElementById('in-tip').checked;
+        const totais = {};
+        rachaPessoas.forEach(p => { totais[p] = { consumo: 0, couvert: couvert, gorjeta: 0 }; });
+
+        consumption.forEach((item, idx) => {
+            const atr = rachaAtribuicoes[idx];
+            if (atr.split) {
+                rachaPessoas.forEach(p => {
+                    const qty = atr.split[p] || 0;
+                    totais[p].consumo += qty * item.price;
+                });
+            } else {
+                totais[atr.owner].consumo += item.qty * item.price;
+            }
+        });
+
+        rachaPessoas.forEach(p => {
+            totais[p].gorjeta = hasTip ? totais[p].consumo * 0.10 : 0;
+        });
+
+        const list = document.getElementById('racha-resultado-list');
+        list.innerHTML = rachaPessoas.map(p => {
+            const t = totais[p];
+            const total = t.consumo + t.couvert + t.gorjeta;
+            return `
+                <div class="bg-white/5 rounded-xl p-3">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-orange-400 text-base">${escapeHtml(p)}</span>
+                        <span class="font-black text-white text-lg">R$ ${total.toFixed(2)}</span>
+                    </div>
+                    <div class="text-xs text-gray-400 space-y-1">
+                        <div class="flex justify-between"><span>Consumo</span><span>R$ ${t.consumo.toFixed(2)}</span></div>
+                        ${t.couvert > 0 ? `<div class="flex justify-between"><span>Couvert</span><span>R$ ${t.couvert.toFixed(2)}</span></div>` : ''}
+                        ${t.gorjeta > 0 ? `<div class="flex justify-between"><span>Gorjeta (10%)</span><span>R$ ${t.gorjeta.toFixed(2)}</span></div>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        closeModal('racha-itens-modal');
+        openModal('racha-resultado-modal');
+    }
+
+    function rachaShareWhatsApp() {
+        const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
+        const hasTip = document.getElementById('in-tip').checked;
+        const totais = {};
+        rachaPessoas.forEach(p => { totais[p] = { consumo: 0, couvert: couvert, gorjeta: 0 }; });
+
+        consumption.forEach((item, idx) => {
+            const atr = rachaAtribuicoes[idx];
+            if (atr.split) {
+                rachaPessoas.forEach(p => { totais[p].consumo += (atr.split[p] || 0) * item.price; });
+            } else {
+                totais[atr.owner].consumo += item.qty * item.price;
+            }
+        });
+        rachaPessoas.forEach(p => { totais[p].gorjeta = hasTip ? totais[p].consumo * 0.10 : 0; });
+
+        let txt = `🍺 *Racha — ${currentBarName || 'Botequim'}*\n\n`;
+        rachaPessoas.forEach(p => {
+            const t = totais[p];
+            const total = t.consumo + t.couvert + t.gorjeta;
+            txt += `👤 *${p}*\n`;
+            txt += `  Consumo: R$ ${t.consumo.toFixed(2)}\n`;
+            if (t.couvert > 0) txt += `  Couvert: R$ ${t.couvert.toFixed(2)}\n`;
+            if (t.gorjeta > 0) txt += `  Gorjeta: R$ ${t.gorjeta.toFixed(2)}\n`;
+            txt += `  💰 Total: R$ ${total.toFixed(2)}\n\n`;
+        });
+        window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+    }
+</script>
+
     let sessionHistory = JSON.parse(localStorage.getItem('botequim_history')) || [];
     let editingIndex = null;
 
