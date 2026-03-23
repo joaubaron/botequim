@@ -667,7 +667,12 @@
     <div class="modal-content" style="width:380px">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-bold text-yellow-400"><i class="fas fa-coins mr-2"></i>Resultado do Racha</h3>
-            <button onclick="closeModal('racha-resultado-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
+            <div class="flex gap-2">
+                <button onclick="closeModal('racha-resultado-modal'); openModal('racha-itens-modal'); renderRachaItens()" class="text-xs text-yellow-400 border border-yellow-700/50 px-3 py-1 rounded-lg font-bold">
+                    <i class="fas fa-arrow-left mr-1"></i> Editar
+                </button>
+                <button onclick="closeModal('racha-resultado-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
+            </div>
         </div>
         <div id="racha-resultado-list" class="space-y-3 mb-4"></div>
         <button onclick="rachaShareWhatsApp()" class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 mx-auto block" style="background:linear-gradient(135deg,#25D366,#128C7E); margin-top:20px;">
@@ -931,14 +936,25 @@
         const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
         const hasTip = document.getElementById('in-tip').checked;
         const totais = {};
-        rachaPessoas.forEach(p => { totais[p] = { consumo: 0, couvert: couvert, gorjeta: 0 }; });
+        const itensPor = {};
+        rachaPessoas.forEach(p => {
+            totais[p] = { consumo: 0, couvert: couvert, gorjeta: 0 };
+            itensPor[p] = [];
+        });
 
         consumption.forEach((item, idx) => {
             const atr = rachaAtribuicoes[idx];
             if (atr.split) {
-                rachaPessoas.forEach(p => { totais[p].consumo += (atr.split[p] || 0) * item.price; });
+                rachaPessoas.forEach(p => {
+                    const qty = atr.split[p] || 0;
+                    if (qty > 0) {
+                        totais[p].consumo += qty * item.price;
+                        itensPor[p].push({ name: item.name, qty, price: item.price });
+                    }
+                });
             } else {
                 totais[atr.owner].consumo += item.qty * item.price;
+                itensPor[atr.owner].push({ name: item.name, qty: item.qty, price: item.price });
             }
         });
         rachaPessoas.forEach(p => { totais[p].gorjeta = hasTip ? totais[p].consumo * 0.10 : 0; });
@@ -948,10 +964,14 @@
             const t = totais[p];
             const total = t.consumo + t.couvert + t.gorjeta;
             txt += `👤 *${p}*\n`;
-            txt += `  Consumo: R$ ${t.consumo.toFixed(2)}\n`;
-            if (t.couvert > 0) txt += `  Couvert: R$ ${t.couvert.toFixed(2)}\n`;
-            if (t.gorjeta > 0) txt += `  Gorjeta: R$ ${t.gorjeta.toFixed(2)}\n`;
-            txt += `  💰 Total: R$ ${total.toFixed(2)}\n\n`;
+            itensPor[p].forEach(i => {
+                txt += `  • ${i.qty}x ${i.name}`;
+                if (i.qty > 1) txt += ` (R$ ${i.price.toFixed(2)} un)`;
+                txt += ` — R$ ${(i.qty * i.price).toFixed(2)}\n`;
+            });
+            if (t.couvert > 0) txt += `  🎵 Couvert: R$ ${t.couvert.toFixed(2)}\n`;
+            if (t.gorjeta > 0) txt += `  🤝 Gorjeta (10%): R$ ${t.gorjeta.toFixed(2)}\n`;
+            txt += `  💰 *Total: R$ ${total.toFixed(2)}*\n\n`;
         });
         window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
     }
