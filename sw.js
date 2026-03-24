@@ -8,6 +8,7 @@ const ESSENTIAL_ASSETS = [
     './manifest.json',
     './botequim-modal.png',
     './botequim-pwa.png',
+    './comanda.png',
     './icon.png',
     './icon512.png',
     './bar-bg.webp'
