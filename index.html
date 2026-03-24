@@ -6,6 +6,12 @@
     <title>Botequim - Gestão de Conta</title>
     <meta name="theme-color" content="#243447">
     <meta name="description" content="Gerencie sua conta do bar de forma simples e rápida">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Botequim">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon.png">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -277,6 +283,48 @@
         .tooltip:hover .tooltiptext {
             visibility: visible;
         }
+        /* Adicionar fallback para quando Tailwind não carregar */
+    .offline-fallback {
+        display: none;
+    }
+    
+    /* Indicador de status de conexão */
+    .online-indicator {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #4caf50;
+        z-index: 9999;
+        box-shadow: 0 0 4px rgba(0,0,0,0.3);
+        transition: background-color 0.3s;
+    }
+    
+    .online-indicator.offline {
+        background-color: #f44336;
+    }
+    
+    /* Loading para PWA */
+    .pwa-loading {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #243447;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9998;
+        transition: opacity 0.5s;
+    }
+    
+    .pwa-loading.hide {
+        opacity: 0;
+        pointer-events: none;
+    }
     </style>
 </head>
 <body class="p-4 max-w-md mx-auto relative pb-24">
