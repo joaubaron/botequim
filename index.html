@@ -831,7 +831,7 @@ statusHtml = `<span class="text-xs text-yellow-400">÷ ${parts}</span>`;
 statusHtml = `<span class="text-xs text-orange-400">${escapeHtml(atr.owner)}</span>`;
 }
 const personBtns = rachaPessoas.map(p => `
-<button onclick="rachaSetOwner(${idx},'${p}')"
+<button onclick="rachaSetOwner(${idx},'${escapeHtml(p)}')"
 class="px-2 py-1 rounded-lg text-xs font-bold border transition-all ${atr.owner === p && !atr.split ? 'border-orange-500 text-orange-400 bg-orange-500/10' : 'border-white/10 text-gray-400'}"
 >${escapeHtml(p)}</button>
 `).join('');
@@ -856,7 +856,6 @@ return `
 function rachaSetOwner(idx, person) {
 rachaAtribuicoes[idx] = { owner: person };
 renderRachaItens();
-updateCalculos();
 }
 
 function rachaOpenSplit(idx) {
@@ -887,10 +886,10 @@ return `
 <div class="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2">
 <span class="text-sm font-semibold text-white w-24">${escapeHtml(p)}</span>
 <div class="flex items-center gap-3">
-<button onclick="rachaSplitChange('${p}', -1, ${idx})"
+<button onclick="rachaSplitChange('${escapeHtml(p)}', -1, ${idx})"
 class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 transition-colors text-lg font-bold">−</button>
 <span class="text-white font-bold w-4 text-center">${val}</span>
-<button onclick="rachaSplitChange('${p}', 1, ${idx})"
+<button onclick="rachaSplitChange('${escapeHtml(p)}', 1, ${idx})"
 class="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 transition-colors text-lg font-bold">+</button>
 </div>
 </div>
@@ -1583,7 +1582,7 @@ ${linhas}`;
 rachaHistHtml = `
 <hr class="comanda-dotted">
 <div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700;color:#b35a00">
-<span>MINHA PARTE</span><span>R$ ${total.toFixed(2)}</span>
+<span>MINHA PARTE</span><span>R$ ${h.total.toFixed(2)}</span>
 </div>`;
 }
 
