@@ -1327,7 +1327,6 @@ function quickAddExample() {
         return;
     }
     
-    // Criar o modal de exemplos se não existir
     let examplesModal = document.getElementById('examples-modal');
     if (!examplesModal) {
         examplesModal = document.createElement('div');
@@ -1336,7 +1335,9 @@ function quickAddExample() {
         examplesModal.innerHTML = `
             <div class="modal-content" style="width:340px; max-height:80vh;">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold text-orange-500"><i class="fas fa-list mr-2"></i>Itens do Cardápio</h3>
+                    <h3 class="text-lg font-bold text-orange-500">
+                        <i class="fas fa-list mr-2"></i>Itens do Cardápio
+                    </h3>
                     <button onclick="closeModal('examples-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
                 </div>
                 <div id="examples-list" class="space-y-2 max-h-96 overflow-y-auto"></div>
@@ -1345,10 +1346,9 @@ function quickAddExample() {
         document.body.appendChild(examplesModal);
     }
     
-    // Preencher a lista de exemplos
     const examplesList = document.getElementById('examples-list');
     examplesList.innerHTML = examples.map((ex, idx) => `
-        <div onclick="addExampleItem(event, ${idx})"
+        <div onclick="addExampleItem(${idx})"
              class="bg-white/5 rounded-xl p-3 cursor-pointer hover:bg-white/10 transition-all"
              style="border-left: 3px solid #ff9800;">
             <div class="flex justify-between items-center">
@@ -1363,22 +1363,19 @@ function quickAddExample() {
 }
 
 // Função para adicionar o item selecionado
-function addExampleItem(event, idx) {
-    event.stopPropagation(); // 👈 ADICIONA ISSO
-
+function addExampleItem(idx) {
     const item = examples[idx];
+
     document.getElementById('in-name').value = item.name;
     document.getElementById('in-price').value = item.price;
     document.getElementById('in-qty').value = 1;
+
     addItem();
 
-    const examplesModal = document.getElementById('examples-modal');
-    if (examplesModal) {
-        examplesModal.classList.remove('active');
-    }
-}
-    
-    // Opcional: dar um feedback visual
+    // FECHA O MODAL
+    closeModal('examples-modal');
+
+    // feedback
     if (window.navigator && window.navigator.vibrate) {
         window.navigator.vibrate(50);
     }
@@ -1408,8 +1405,8 @@ const examples = [
 ];
 
 function incrementItem(idx) { 
-consumption[idx].qty += 1; 
-updateCalculos(); 
+    consumption[idx].qty += 1; 
+    updateCalculos(); 
 }
 
 function decrementItem(idx) {
