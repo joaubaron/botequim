@@ -8,6 +8,8 @@
 <meta name="description" content="Gerencie sua conta do bar de forma simples e rápida">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -278,7 +280,6 @@ white-space: nowrap;
 visibility: visible;
 }
 /* Estilos do modal comanda */
-@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
 .comanda-wrap {
 font-family: 'Courier Prime', 'Courier New', monospace;
 color: #1a1a1a;
@@ -731,6 +732,28 @@ OK, entendi
 </div>
 </div>
 
+<!-- Modal Confirmar Refazer Racha -->
+<div id="racha-reset-modal" class="modal">
+<div class="modal-content" style="width:320px">
+<div class="flex flex-col items-center text-center gap-4 py-2">
+<div class="w-14 h-14 rounded-full bg-yellow-500/15 flex items-center justify-center">
+<i class="fas fa-users text-yellow-400 text-2xl"></i>
+</div>
+<div>
+<div class="text-sm text-gray-400">Você já tem um racha em andamento.<br><span class="text-orange-400 font-semibold">Deseja refazer do zero?</span></div>
+</div>
+<div class="flex gap-3 w-full mt-1">
+<button onclick="confirmarRefazerRacha()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+<i class="fas fa-redo mr-1"></i> Refazer
+</button>
+<button onclick="closeModal('racha-reset-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+Cancelar
+</button>
+</div>
+</div>
+</div>
+</div>
+
 <!-- Modal Comanda -->
 <div id="comanda-modal" class="modal">
 <div class="modal-content" style="width:340px; max-height:88vh; background:#f5f0e8; border-radius:4px; padding:0; overflow:hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.6);">
@@ -762,9 +785,24 @@ if (consumption.length === 0) {
 document.getElementById('validation-modal').classList.add('active');
 return;
 }
+if (meuTotalRacha !== null) {
+openModal('racha-reset-modal');
+return;
+}
 rachaPessoas = ['Você'];
 rachaAtribuicoes = consumption.map(() => ({ owner: 'Você' }));
 renderRachaPessoas();
+openModal('racha-pessoas-modal');
+}
+
+function confirmarRefazerRacha() {
+meuTotalRacha = null;
+localStorage.removeItem('botequim_meu_total_racha');
+rachaPessoas = ['Você'];
+rachaAtribuicoes = consumption.map(() => ({ owner: 'Você' }));
+renderRachaPessoas();
+closeModal('racha-reset-modal');
+updateCalculos();
 openModal('racha-pessoas-modal');
 }
 
@@ -1007,8 +1045,16 @@ localStorage.removeItem('botequim_meu_total_racha');
 updateCalculos();
 }
 
-let consumption = JSON.parse(localStorage.getItem('botequim_baron')) || [];
-let sessionHistory = JSON.parse(localStorage.getItem('botequim_history')) || [];
+let consumption, sessionHistory;
+try {
+consumption = JSON.parse(localStorage.getItem('botequim_baron')) || [];
+sessionHistory = JSON.parse(localStorage.getItem('botequim_history')) || [];
+} catch(e) {
+consumption = [];
+sessionHistory = [];
+localStorage.removeItem('botequim_baron');
+localStorage.removeItem('botequim_history');
+}
 let editingIndex = null;
 let meuTotalRacha = null;
 const _savedMeuTotal = localStorage.getItem('botequim_meu_total_racha');
@@ -1389,7 +1435,7 @@ document.getElementById('remove-confirm-btn').onclick = function() {
 consumption.splice(idx, 1);
 if (rachaAtribuicoes.length > idx) rachaAtribuicoes.splice(idx, 1);
 if (editingIndex === idx) editingIndex = null;
-else if (editingIndex > idx) editingIndex--;
+else if (editingIndex !== null && editingIndex > idx) editingIndex--;
 closeModal('remove-modal');
 updateCalculos();
 };
