@@ -618,7 +618,7 @@ onkeypress="if(event.key==='Enter') confirmBarName()">
 <span id="detail-total" class="text-xl font-black text-orange-500"></span>
 </div>
 <div class="flex justify-end" style="margin-top: 30px;">
-<button onclick="shareHistoryWhatsApp()" class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#25D366,#128C7E);">
+<button onclick="compartilharComandaImagem()" class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#25D366,#128C7E);">
 <i class="fab fa-whatsapp text-white text-xl"></i>
 </button>
 </div>
@@ -1524,27 +1524,6 @@ showHistory();
 }
 
 let currentDetailIdx = null;
-
-function shareHistoryWhatsApp() {
-const h = sessionHistory[currentDetailIdx];
-if (!h) return;
-const subtotal = h.items.reduce((sum, i) => sum + (i.qty * i.price), 0);
-const couvert = h.couvert || 0;
-const tip = h.tip || 0;
-
-let txt = `🍺 *Conta — ${h.bar || 'Botequim'}*\n`;
-txt += `🏪 ${h.bar} — ${h.date}\n\n`;
-h.items.forEach(i => {
-txt += `• ${i.qty}x ${i.name}\n`;
-if (i.qty > 1) txt += `  Unidade: R$ ${i.price.toFixed(2)}\n`;
-txt += `  R$ ${(i.qty * i.price).toFixed(2)}\n\n`;
-});
-if (couvert > 0) txt += `🎵 Couvert: R$ ${couvert.toFixed(2)}\n`;
-if (tip > 0) txt += `🤝 Gorjeta (10%): R$ ${tip.toFixed(2)}\n\n`;
-txt += `💰 *TOTAL: R$ ${h.total.toFixed(2)}*`;
-
-window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
-}
 
 function showHistoryDetail(idx) {
 currentDetailIdx = idx;
