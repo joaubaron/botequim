@@ -9,6 +9,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { 
@@ -35,7 +36,7 @@
             background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
             color: #000; 
             font-weight: bold;
-            transition: all 0.2s;
+            transition: background 0.2s;
         }
         
         .btn-accent:active {
@@ -155,17 +156,8 @@
         
         /* Scrollbar personalizada */
         ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #1e1e1e;
-            border-radius: 10px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #ff9800;
-            border-radius: 10px;
+            width: 0px;
+            background: transparent;
         }
         
         
@@ -211,7 +203,6 @@
         
         .history-item:hover {
             background: rgba(255,152,0,0.1);
-            transform: translateX(4px);
         }
         
         /* Modal */
@@ -322,10 +313,7 @@
                 <i class="fas fa-trash-alt"></i> Limpar
             </button>
             <button onclick="openRachaModal()" class="text-yellow-400 text-xs font-bold border border-orange-900/50 px-3 py-2 rounded whitespace-nowrap">
-                <i class="fas fa-users"></i> Racha
-            </button>
-            <button onclick="shareWhatsApp()" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#25D366,#128C7E);">
-                <i class="fab fa-whatsapp text-white text-base"></i>
+                <i class="fas fa-users"></i> Dividir comanda
             </button>
         </div>
         
@@ -349,27 +337,25 @@
 </div>
 
             <div class="flex items-center justify-between p-3 bg-[#2d2d35] rounded-lg">
-                <div class="flex items-center gap-2 flex-1">
-                    <i class="fas fa-music text-orange-500"></i>
-                    <span class="text-gray-400 text-sm">Couvert: R$</span>
-                    <input id="in-couvert" type="number" inputmode="decimal" value="0" onchange="updateCalculos()" onkeypress="if(event.key==='Enter') this.blur()" class="w-16 p-1 rounded text-center font-bold text-sm">
-                </div>
-                <div class="flex items-center gap-3">
-                    <span class="text-gray-400 text-sm">
-                        <i class="fas fa-hand-holding-heart"></i> 10%:
-                    </span>
-                    <input id="in-tip" type="checkbox" checked onchange="updateCalculos()">
-                </div>
-            </div>
-        </div>
+    <div class="flex items-center gap-2">
+        <i class="fas fa-music text-orange-500"></i>
+        <span class="text-gray-400 text-sm">Couvert:</span>
+        <input id="in-couvert" type="number" inputmode="decimal" placeholder="R$" onchange="updateCalculos()" onkeypress="if(event.key==='Enter') this.blur()" class="w-16 p-1 rounded text-center text-sm">
+        <span class="text-gray-400 text-sm ml-2"><i class="fas fa-hand-holding-heart"></i> 10%:</span>
+        <input id="in-tip" type="checkbox" checked onchange="updateCalculos()">
+    </div>
+    <div class="text-2xl cursor-pointer flex items-center gap-2" onclick="openComanda()" title="">
+    <span class="text-gray-400 text-sm">Comanda</span> <i class="fas fa-receipt text-gray-400"></i>
+</div>
+</div>
         
     </div>
 </div>
 <div class="border-t border-orange-500/30 my-6"></div>
 
 <div class="card p-2 mt-2">
-    <h2 id="resumo-titulo" class="text-sm font-bold mb-5 text-gray-500 tracking-widest flex items-center gap-2">
-        <i class="fas fa-receipt"></i> Resumo detalhado
+    <h2 id="resumo-titulo" class="text-sm font-bold mb-5 text-gray-500 tracking-widest flex items-center justify-between gap-2">
+        <span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo detalhado</span>
     </h2>
     <div class="space-y-2 border-b border-gray-700/50 pb-4 mb-4">
         <div class="flex justify-between text-sm text-gray-300 py-1">
@@ -388,6 +374,16 @@
     <div class="flex justify-between items-center pt-2">
         <span class="text-xl font-bold"><i class="fas fa-coins"></i> TOTAL:</span>
         <span id="grand-total" class="text-2xl font-black text-orange-500">R$ 0,00</span>
+    </div>
+    <div id="minha-parte-box" class="hidden mt-3 p-3 rounded-xl" style="background: rgba(255,152,0,0.12); border: 1px solid rgba(255,152,0,0.35);">
+        <div class="flex justify-between items-center">
+            <span class="text-sm font-bold text-orange-300"><i class="fas fa-user-check mr-1"></i> Minha parte na conta:</span>
+            <span id="minha-parte-valor" class="text-xl font-black text-orange-400">R$ 0,00</span>
+        </div>
+        <div class="mt-2 flex justify-end gap-4">
+            <button onclick="closeModal('racha-resultado-modal'); renderRachaItens(); openModal('racha-itens-modal')" class="text-xs text-orange-400 underline">Editar racha</button>
+            <button onclick="desfazerRacha()" class="text-xs text-gray-500 underline">Desfazer racha</button>
+        </div>
     </div>
     <div class="progress-bar mt-3">
         <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
@@ -470,7 +466,7 @@
             </div>
             <div>
                 
-                <div class="text-sm text-gray-400">Preencha o <span class="text-orange-400 font-semibold">nome</span> e o <span class="text-orange-400 font-semibold">preço</span> do item antes de compartilhar.</div>
+                <div class="text-sm text-gray-400">Preencha o <span class="text-orange-400 font-semibold">nome</span> e o <span class="text-orange-400 font-semibold">preço </span>antes.</div>
             </div>
             <button onclick="closeModal('validation-modal')" class="w-1/2 py-3 rounded-xl text-sm font-bold btn-accent mx-auto block">
                 OK, entendi
@@ -485,7 +481,7 @@
                 <i class="fas fa-broom text-orange-400 text-2xl"></i>
             </div>
             <div>
-                <div class="text-sm text-gray-400">A conta atual será salva no histórico e a lista de itens será limpa.</div>
+                <div class="text-sm text-gray-400">Essa conta será salva no histórico <br>e a lista de itens será limpa.</div>
             </div>
             <div class="flex gap-3 w-full mt-1">
                 <button onclick="confirmClearItems()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
@@ -505,7 +501,7 @@
             <h3 class="text-xl font-bold text-orange-500"><i class="fas fa-chart-line"></i> Histórico</h3>
             <button onclick="closeModal('history-modal')" class="text-2xl">&times;</button>
         </div>
-        <div id="history-list" class="space-y-2 max-h-96 overflow-y-auto"></div>
+        <div id="history-list" class="space-y-2 max-h-96 overflow-y-auto" style="overflow-x:hidden;"></div>
         <button onclick="clearHistory()" class="mt-3 w-1/2 py-3 rounded-xl text-sm font-bold btn-accent mx-auto block">Limpar Histórico</button>
     </div>
 </div>
@@ -532,7 +528,7 @@
                 <i class="fas fa-trash-alt text-red-400 text-2xl"></i>
             </div>
             <div>
-                <div class="text-sm text-gray-400">Todo o histórico de contas será apagado permanentemente.</div>
+                <div class="text-sm text-gray-400">Todo o histórico de contas será apagado.</div>
             </div>
             <div class="flex gap-3 w-full mt-1">
                 <button onclick="confirmClearHistory()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent"><i class="fas fa-trash-alt mr-1"></i> Limpar</button>
@@ -603,7 +599,7 @@
                 <span id="detail-tip"></span>
             </div>
             <div class="flex justify-between items-center pt-2 border-t border-gray-700/50 mt-2">
-                <span class="font-bold"><i class="fas fa-coins"></i> TOTAL:</span>
+                <span id="detail-total-label" class="font-bold"><i class="fas fa-coins"></i> TOTAL:</span>
                 <span id="detail-total" class="text-xl font-black text-orange-500"></span>
             </div>
             <div class="flex justify-end" style="margin-top: 30px;">
@@ -619,10 +615,10 @@
 <div id="racha-pessoas-modal" class="modal">
     <div class="modal-content" style="width:360px">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-yellow-400"><i class="fas fa-users mr-2"></i>Racha</h3>
+            <h3 class="text-lg font-bold text-yellow-400"><i class="fas fa-users mr-2"></i>Dividir a conta</h3>
             <button onclick="closeModal('racha-pessoas-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
         </div>
-        <p class="text-xs text-gray-400 mb-3">Quem mais vai rachar a conta com Você?</p>
+        <p class="text-xs text-gray-400 mb-3">Quem vai dividir a conta com você?</p>
         <div class="flex gap-2 mb-3">
             <input id="racha-new-person" type="text" placeholder="Nome da pessoa" maxlength="20"
                 class="flex-1 p-2 rounded-xl text-sm"
@@ -647,7 +643,7 @@
 <div id="racha-itens-modal" class="modal">
     <div class="modal-content" style="width:380px; max-height:85vh;">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-yellow-400"><i class="fas fa-receipt mr-2"></i>Quem pagou o quê?</h3>
+            <h3 class="text-lg font-bold text-yellow-400"><i class="fas fa-receipt mr-2"></i>Quem vai pagar o quê?</h3>
             <button onclick="closeModal('racha-itens-modal'); openModal('racha-pessoas-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
         </div>
         <div id="racha-itens-list" class="space-y-3 mb-4 overflow-y-auto" style="max-height:55vh;"></div>
@@ -675,9 +671,9 @@
             </div>
         </div>
         <div id="racha-resultado-list" class="space-y-3 mb-4"></div>
-        <div class="flex justify-end">
-            <button onclick="rachaShareWhatsApp()" class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#25D366,#128C7E);">
-                <i class="fab fa-whatsapp text-white text-xl"></i>
+        <div class="flex gap-3">
+            <button onclick="confirmarMinhaParte()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+                <i class="fas fa-check mr-1"></i> Dividir a conta
             </button>
         </div>
     </div>
@@ -698,6 +694,23 @@
             </button>
             <button onclick="closeModal('racha-split-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
                 Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Alerta Racha - Adicionar pessoa -->
+<div id="racha-alert-modal" class="modal">
+    <div class="modal-content" style="width:320px">
+        <div class="flex flex-col items-center text-center gap-4 py-2">
+            <div class="w-14 h-14 rounded-full bg-yellow-500/15 flex items-center justify-center">
+                <i class="fas fa-user-plus text-yellow-400 text-2xl"></i>
+            </div>
+            <div>
+              <div class="text-sm text-gray-400">Adicione alguém pra dividir a conta.<span class="text-orange-400 font-semibold"></span></div>
+            </div>
+            <button onclick="closeModal('racha-alert-modal')" class="w-1/2 py-3 rounded-xl text-sm font-bold btn-accent mx-auto block">
+                OK, entendi
             </button>
         </div>
     </div>
@@ -768,7 +781,7 @@
 
     function rachaProximo() {
         if (rachaPessoas.length < 2) {
-            alert('Adicione pelo menos uma pessoa além de Você.');
+            document.getElementById('racha-alert-modal').classList.add('active');
             return;
         }
         closeModal('racha-pessoas-modal');
@@ -977,12 +990,43 @@
         });
         window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
     }
+
+    function confirmarMinhaParte() {
+        const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
+        const hasTip = document.getElementById('in-tip').checked;
+        let consumoVoce = 0;
+
+        consumption.forEach((item, idx) => {
+            const atr = rachaAtribuicoes[idx];
+            if (atr.split) {
+                consumoVoce += (atr.split['Você'] || 0) * item.price;
+            } else if (atr.owner === 'Você') {
+                consumoVoce += item.qty * item.price;
+            }
+        });
+
+        const gorjetaVoce = hasTip ? consumoVoce * 0.10 : 0;
+        meuTotalRacha = consumoVoce + couvert + gorjetaVoce;
+
+        localStorage.setItem('botequim_meu_total_racha', meuTotalRacha);
+        closeModal('racha-resultado-modal');
+        updateCalculos();
+    }
+
+    function desfazerRacha() {
+        meuTotalRacha = null;
+        localStorage.removeItem('botequim_meu_total_racha');
+        updateCalculos();
+    }
 </script>
 
 <script>
     let consumption = JSON.parse(localStorage.getItem('botequim_baron')) || [];
     let sessionHistory = JSON.parse(localStorage.getItem('botequim_history')) || [];
     let editingIndex = null;
+    let meuTotalRacha = null;
+    const _savedMeuTotal = localStorage.getItem('botequim_meu_total_racha');
+    if (_savedMeuTotal !== null) meuTotalRacha = parseFloat(_savedMeuTotal);
 
     document.querySelectorAll('.enter-submit').forEach(input => {
         input.addEventListener('keypress', function(e) {
@@ -1018,19 +1062,24 @@
         closeModal('barname-modal');
         if (openedFromClear) {
             openedFromClear = false;
-            document.getElementById('clear-modal').classList.add('active');
+            const newName = currentBarName;
+            confirmClearItems();
+            currentBarName = newName;
+            localStorage.setItem('botequim_bar_name', newName);
+            updateResumoTitulo();
         }
     }
 
-    function updateResumoTitulo() {
-        const titulo = document.getElementById('resumo-titulo');
-        titulo.innerHTML = currentBarName
-            ? `<i class="fas fa-receipt"></i> Resumo detalhado — ${currentBarName}`
-            : '<i class="fas fa-receipt"></i> Resumo detalhado';
-        const sub = document.getElementById('header-subtitle');
-        if (sub) sub.textContent = currentBarName ? '📍 ' + currentBarName : 'Gerencie sua conta 🪪';
-        toggleInputArea();
-    }
+function updateResumoTitulo() {
+    const titulo = document.getElementById('resumo-titulo');
+    const text = currentBarName
+        ? `<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo detalhado — ${currentBarName}</span>`
+        : '<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo detalhado</span>';
+    titulo.innerHTML = text;
+    const sub = document.getElementById('header-subtitle');
+    if (sub) sub.innerHTML = currentBarName ? '📍 ' + currentBarName : 'Gerencie sua conta <i class="fas fa-id-card ml-2"></i>';
+    toggleInputArea();
+}
 
     function toggleInputArea() {
         const hasBar = !!currentBarName;
@@ -1112,6 +1161,15 @@
         document.getElementById('res-items-couvert').innerHTML = `R$ ${couvert.toFixed(2)}`;
         document.getElementById('res-tip').innerHTML = `R$ ${tipValue.toFixed(2)}`;
         document.getElementById('grand-total').innerHTML = `R$ ${finalTotal.toFixed(2)}`;
+
+        // Minha parte (racha)
+        const minhaParteBox = document.getElementById('minha-parte-box');
+        if (meuTotalRacha !== null) {
+            document.getElementById('minha-parte-valor').textContent = `R$ ${meuTotalRacha.toFixed(2)}`;
+            minhaParteBox.classList.remove('hidden');
+        } else {
+            minhaParteBox.classList.add('hidden');
+        }
         
         // Escala dinâmica: próximo múltiplo de 50 acima do total
         const scaleMax = finalTotal > 0 ? Math.ceil(finalTotal / 50) * 50 : 50;
@@ -1225,14 +1283,63 @@
             const couvertVal = parseFloat(document.getElementById('in-couvert').value) || 0;
             const hasTipVal = document.getElementById('in-tip').checked;
             const subtotalVal = consumption.reduce((sum, i) => sum + (i.qty * i.price), 0);
+            let histItems, histSubtotal, rachaSnapshot;
+            if (meuTotalRacha !== null && rachaAtribuicoes.length === consumption.length) {
+                histItems = [];
+                histSubtotal = 0;
+                consumption.forEach((item, idx) => {
+                    const atr = rachaAtribuicoes[idx];
+                    let myQty = 0;
+                    if (atr.split) myQty = atr.split['Você'] || 0;
+                    else if (atr.owner === 'Você') myQty = item.qty;
+                    if (myQty > 0) {
+                        histItems.push({ name: item.name, qty: myQty, price: item.price });
+                        histSubtotal += myQty * item.price;
+                    }
+                });
+                // snapshot completo por pessoa para a comanda do histórico
+                rachaSnapshot = {};
+                rachaPessoas.forEach(p => { rachaSnapshot[p] = { consumo: 0, items: [] }; });
+                consumption.forEach((item, idx) => {
+                    const atr = rachaAtribuicoes[idx];
+                    if (atr.split) {
+                        rachaPessoas.forEach(p => {
+                            const qty = atr.split[p] || 0;
+                            if (qty > 0) {
+                                rachaSnapshot[p].consumo += qty * item.price;
+                                rachaSnapshot[p].items.push({ name: item.name, qty, price: item.price });
+                            }
+                        });
+                    } else {
+                        rachaSnapshot[atr.owner].consumo += item.qty * item.price;
+                        rachaSnapshot[atr.owner].items.push({ name: item.name, qty: item.qty, price: item.price });
+                    }
+                });
+                rachaPessoas.forEach(p => {
+                    const gorj = hasTipVal ? rachaSnapshot[p].consumo * 0.10 : 0;
+                    rachaSnapshot[p].gorjeta = gorj;
+                    rachaSnapshot[p].couvert = couvertVal;
+                    rachaSnapshot[p].total = rachaSnapshot[p].consumo + couvertVal + gorj;
+                });
+            } else {
+                histItems = JSON.parse(JSON.stringify(consumption));
+                histSubtotal = subtotalVal;
+                rachaSnapshot = null;
+            }
             sessionHistory.unshift({
                 date: new Date().toLocaleString(),
                 bar: currentBarName,
-                items: JSON.parse(JSON.stringify(consumption)),
-                total: total,
-                itemsCount: consumption.reduce((sum, i) => sum + i.qty, 0),
+                items: histItems,
+                allItems: JSON.parse(JSON.stringify(consumption)),
+                allSubtotal: subtotalVal,
+                allTotal: total,
+                total: meuTotalRacha !== null ? meuTotalRacha : total,
+                itemsCount: histItems.reduce((sum, i) => sum + i.qty, 0),
                 couvert: couvertVal,
-                tip: hasTipVal ? subtotalVal * 0.10 : 0
+                tip: hasTipVal ? histSubtotal * 0.10 : 0,
+                hasTip: hasTipVal,
+                rachado: meuTotalRacha !== null,
+                rachaSnapshot: rachaSnapshot
             });
             if (sessionHistory.length > 20) sessionHistory.pop();
             localStorage.setItem('botequim_history', JSON.stringify(sessionHistory));
@@ -1240,6 +1347,8 @@
         consumption = [];
         editingIndex = null;
         currentBarName = '';
+        meuTotalRacha = null;
+        localStorage.removeItem('botequim_meu_total_racha');
         localStorage.removeItem('botequim_bar_name');
         updateResumoTitulo();
         document.getElementById('in-couvert').value = 0;
@@ -1295,7 +1404,7 @@
                                 <span class="font-bold text-orange-500">${escapeHtml(h.bar)}</span>
                                 <span class="text-xs text-gray-400">${h.date}</span>
                             </div>
-                            <div class="text-xs mt-1 text-gray-300">${h.itemsCount} itens | Total: R$ ${h.total.toFixed(2)}</div>
+                            <div class="text-xs mt-1 text-gray-300">${h.itemsCount} itens | ${h.rachado ? '<span class="text-yellow-400">Minha parte: </span>' : 'Total: '}R$ ${h.total.toFixed(2)}</div>
                             <div class="text-xs text-gray-500 truncate mt-1">${h.items.map(i => i.qty + 'x ' + i.name).join(', ')}</div>
                         </div>
                         <button onclick="event.stopPropagation(); deleteHistoryItem(${idx})" class="ml-2 mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500/40 transition-colors" title="Apagar este registro">
@@ -1306,6 +1415,7 @@
             `).join('');
         }
         
+        document.getElementById('progress-fill').style.visibility = 'hidden';
         modal.classList.add('active');
     }
 
@@ -1347,29 +1457,94 @@
     function showHistoryDetail(idx) {
         currentDetailIdx = idx;
         const h = sessionHistory[idx];
-        const subtotal = h.items.reduce((sum, i) => sum + (i.qty * i.price), 0);
+        // topo sempre mostra a conta completa
+        const displayItems = (h.rachado && h.allItems) ? h.allItems : h.items;
+        const displaySubtotal = (h.rachado && h.allSubtotal != null) ? h.allSubtotal : displayItems.reduce((s,i) => s + i.qty * i.price, 0);
+        const displayTotal = (h.rachado && h.allTotal != null) ? h.allTotal : h.total;
         const couvert = h.couvert || 0;
-        const tip = h.tip || 0;
+        const tip = h.rachado && h.hasTip ? displaySubtotal * 0.10 : (h.tip || 0);
 
-        document.getElementById('detail-bar-name').textContent = h.bar;
-        document.getElementById('detail-date').textContent = h.date;
-        document.getElementById('detail-subtotal').textContent = 'R$ ' + subtotal.toFixed(2);
-        document.getElementById('detail-couvert').textContent = 'R$ ' + couvert.toFixed(2);
-        document.getElementById('detail-tip').textContent = 'R$ ' + tip.toFixed(2);
-        document.getElementById('detail-total').textContent = 'R$ ' + h.total.toFixed(2);
+        let itemsHtml = '';
+        displayItems.forEach(item => {
+            const rowTotal = (item.qty * item.price).toFixed(2);
+            const unitLine = item.qty > 1
+                ? `<div style="font-size:0.78rem;color:#555;padding-left:4px">${item.qty} x R$ ${item.price.toFixed(2)}</div>`
+                : '';
+            itemsHtml += `
+                <div style="margin-bottom:6px">
+                    <div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.92rem">
+                        <span>${item.qty}x ${escapeHtml(item.name)}</span>
+                        <span>R$ ${rowTotal}</span>
+                    </div>
+                    ${unitLine}
+                </div>`;
+        });
 
-        document.getElementById('detail-items').innerHTML = h.items.map(i => `
-            <div class="flex justify-between text-sm py-1 border-b border-white/5">
-                <div>
-                    <span><span class="text-orange-400 font-bold">${i.qty}x</span> ${escapeHtml(i.name)}</span>
-                    ${i.qty > 1 ? `<div class="text-xs text-gray-500">unidade: R$ ${i.price.toFixed(2)}</div>` : ''}
-                </div>
-                <span class="text-white font-semibold">R$ ${(i.qty * i.price).toFixed(2)}</span>
+        let rachaHistHtml = '';
+        if (h.rachado && h.rachaSnapshot) {
+            const pessoas = Object.keys(h.rachaSnapshot);
+            const linhas = pessoas.map(p => {
+                const d = h.rachaSnapshot[p];
+                const isVoce = p === 'Você';
+                const subItens = d.items.map(i =>
+                    `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px">
+                        <span>${escapeHtml(i.name)}${i.qty > 1 ? ` (${i.qty}x R$${i.price.toFixed(2)})` : ''}</span>
+                        <span>R$ ${(i.qty * i.price).toFixed(2)}</span>
+                    </div>`).join('');
+                const extras = `
+                    ${d.couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Couvert</span><span>R$ ${d.couvert.toFixed(2)}</span></div>` : ''}
+                    ${d.gorjeta > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Gorjeta (10%)</span><span>R$ ${d.gorjeta.toFixed(2)}</span></div>` : ''}`;
+                return `
+                    <div style="margin-bottom:8px">
+                        <div style="display:flex;justify-content:space-between;font-size:0.9rem;font-weight:700;${isVoce ? 'color:#b35a00' : 'color:#222'}">
+                            <span>${isVoce ? 'VOCÊ' : p.toUpperCase()}</span>
+                            <span>R$ ${d.total.toFixed(2)}</span>
+                        </div>
+                        ${subItens}${extras}
+                    </div>`;
+            }).join('');
+            rachaHistHtml = `
+                <hr class="comanda-dotted">
+                <div style="font-size:0.72rem;color:#555;margin-bottom:6px;letter-spacing:1px">DIVISÃO DA CONTA</div>
+                ${linhas}`;
+        } else if (h.rachado) {
+            rachaHistHtml = `
+                <hr class="comanda-dotted">
+                <div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700;color:#b35a00">
+                    <span>MINHA PARTE</span><span>R$ ${total.toFixed(2)}</span>
+                </div>`;
+        }
+
+        document.getElementById('comanda-content').innerHTML = `
+            <div style="text-align:center;margin-bottom:4px">
+                <div style="font-size:1.5rem;letter-spacing:2px;font-weight:700;text-transform:uppercase">${escapeHtml(h.bar || 'BOTEQUIM')}</div>
+                <div style="font-size:0.72rem;color:#555;margin-top:2px">COMANDA</div>
             </div>
-        `).join('');
+            <hr class="comanda-dashed">
+            <div style="font-size:0.72rem;color:#555;text-align:center;margin-bottom:2px">${h.date}</div>
+            <hr class="comanda-dotted">
+            <div style="font-size:0.78rem;color:#555;margin-bottom:8px;display:flex;justify-content:space-between">
+                <span>ITEM</span><span>TOTAL</span>
+            </div>
+            ${itemsHtml}
+            <hr class="comanda-dashed">
+            <div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px">
+                <span>CONSUMO</span><span>R$ ${displaySubtotal.toFixed(2)}</span>
+            </div>
+            ${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px"><span>COUVERT</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
+            ${tip > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px"><span>GORJETA (10%)</span><span>R$ ${tip.toFixed(2)}</span></div>` : ''}
+            <hr class="comanda-dashed">
+            <div style="display:flex;justify-content:space-between;font-size:1.15rem;font-weight:700">
+                <span>TOTAL</span><span>R$ ${displayTotal.toFixed(2)}</span>
+            </div>
+            ${rachaHistHtml}
+<div style="margin-top:16px;text-align:right">
+</div>
+`;
 
+        _comandaFromHistory = true;
         closeModal('history-modal');
-        document.getElementById('history-detail-modal').classList.add('active');
+        document.getElementById('comanda-modal').classList.add('active');
     }
     
     function clearHistory() {
@@ -1388,6 +1563,9 @@
     
     function closeModal(modalId) {
         document.getElementById(modalId).classList.remove('active');
+        if (modalId === 'history-modal') {
+            document.getElementById('progress-fill').style.visibility = '';
+        }
     }
     
     window.onclick = function(event) {
@@ -1395,12 +1573,141 @@
             event.target.classList.remove('active');
         }
     };
-    
+
+    let _comandaFromHistory = false;
+
+    function compartilharComandaTexto() {
+        if (_comandaFromHistory) { shareHistoryWhatsApp(); } else { shareWhatsApp(); }
+    }
+
+    async function compartilharComandaImagem() {
+        const actions = document.getElementById('comanda-actions');
+        const closeBtn = document.querySelector('.comanda-close-btn');
+        actions.style.display = 'none';
+        closeBtn.style.display = 'none';
+        try {
+            const el = document.getElementById('comanda-content');
+            const canvas = await html2canvas(el, { backgroundColor: '#f5f0e8', scale: 2, useCORS: true, logging: false });
+            canvas.toBlob(async (blob) => {
+                const file = new File([blob], 'comanda-botequim.png', { type: 'image/png' });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share({ files: [file], title: 'Comanda Botequim' });
+                } else {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = 'comanda-botequim.png';
+                    a.click();
+                }
+            }, 'image/png');
+        } catch(e) { console.error(e); }
+        finally { actions.style.display = 'flex'; closeBtn.style.display = ''; }
+    }
+
+    function openComanda() {
+        _comandaFromHistory = false;
+        const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
+        const hasTip = document.getElementById('in-tip').checked;
+        const subtotal = consumption.reduce((sum, i) => sum + (i.qty * i.price), 0);
+        const tip = hasTip ? subtotal * 0.10 : 0;
+        const total = subtotal + couvert + tip;
+        const barName = currentBarName || 'BOTEQUIM';
+        const now = new Date().toLocaleString('pt-BR');
+        const isMeuRacha = meuTotalRacha !== null;
+
+        let itemsHtml = '';
+        consumption.forEach(item => {
+            const rowTotal = (item.qty * item.price).toFixed(2);
+            const unitLine = item.qty > 1
+                ? `<div style="font-size:0.78rem;color:#555;padding-left:4px">${item.qty} x R$ ${item.price.toFixed(2)}</div>`
+                : '';
+            itemsHtml += `
+                <div style="margin-bottom:6px">
+                    <div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.92rem">
+                        <span>${item.qty}x ${escapeHtml(item.name)}</span>
+                        <span>R$ ${rowTotal}</span>
+                    </div>
+                    ${unitLine}
+                </div>`;
+        });
+
+        let rachaHtml = '';
+        if (isMeuRacha) {
+            const totaisPessoa = {};
+            const itensPessoa = {};
+            rachaPessoas.forEach(p => { totaisPessoa[p] = 0; itensPessoa[p] = []; });
+            consumption.forEach((item, idx) => {
+                const atr = rachaAtribuicoes[idx];
+                if (atr.split) {
+                    rachaPessoas.forEach(p => {
+                        const qty = atr.split[p] || 0;
+                        if (qty > 0) {
+                            totaisPessoa[p] += qty * item.price;
+                            itensPessoa[p].push({ name: item.name, qty, price: item.price });
+                        }
+                    });
+                } else {
+                    totaisPessoa[atr.owner] += item.qty * item.price;
+                    itensPessoa[atr.owner].push({ name: item.name, qty: item.qty, price: item.price });
+                }
+            });
+            const linhas = rachaPessoas.map(p => {
+                const gorj = hasTip ? totaisPessoa[p] * 0.10 : 0;
+                const totalP = totaisPessoa[p] + couvert + gorj;
+                const isVoce = p === 'Você';
+                const subItens = itensPessoa[p].map(i =>
+                    `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px">
+                        <span>${escapeHtml(i.name)}${i.qty > 1 ? ` (${i.qty}x R$${i.price.toFixed(2)})` : ''}</span>
+                        <span>R$ ${(i.qty * i.price).toFixed(2)}</span>
+                    </div>`).join('');
+                const extras = `
+                    ${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Couvert</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
+                    ${gorj > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Gorjeta (10%)</span><span>R$ ${gorj.toFixed(2)}</span></div>` : ''}`;
+                return `
+                    <div style="margin-bottom:8px">
+                        <div style="display:flex;justify-content:space-between;font-size:0.9rem;font-weight:700;${isVoce ? 'color:#b35a00' : 'color:#222'}">
+                            <span>${isVoce ? 'VOCÊ' : p.toUpperCase()}</span>
+                            <span>R$ ${totalP.toFixed(2)}</span>
+                        </div>
+                        ${subItens}${extras}
+                    </div>`;
+            }).join('');
+            rachaHtml = `
+                <hr class="comanda-dotted">
+                <div style="font-size:0.72rem;color:#555;margin-bottom:6px;letter-spacing:1px">DIVISÃO DA CONTA</div>
+                ${linhas}`;
+        }
+
+        document.getElementById('comanda-content').innerHTML = `
+            <div style="text-align:center;margin-bottom:4px">
+                <div style="font-size:1.5rem;letter-spacing:2px;font-weight:700;text-transform:uppercase">${escapeHtml(barName)}</div>
+                <div style="font-size:0.72rem;color:#555;margin-top:2px">COMANDA</div>
+            </div>
+            <hr class="comanda-dashed">
+            <div style="font-size:0.72rem;color:#555;text-align:center;margin-bottom:2px">${now}</div>
+            <hr class="comanda-dotted">
+            <div style="font-size:0.78rem;color:#555;margin-bottom:8px;display:flex;justify-content:space-between">
+                <span>ITEM</span><span>TOTAL</span>
+            </div>
+            ${itemsHtml}
+            <hr class="comanda-dashed">
+            <div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px">
+                <span>CONSUMO</span><span>R$ ${subtotal.toFixed(2)}</span>
+            </div>
+            ${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px"><span>COUVERT</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
+            ${hasTip ? `<div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px"><span>GORJETA (10%)</span><span>R$ ${tip.toFixed(2)}</span></div>` : ''}
+            <hr class="comanda-dashed">
+            <div style="display:flex;justify-content:space-between;font-size:1.15rem;font-weight:700">
+                <span>TOTAL</span><span>R$ ${total.toFixed(2)}</span>
+            </div>
+            ${rachaHtml}
+`;
+
+        document.getElementById('comanda-modal').classList.add('active');
+    }
+
     updateResumoTitulo();
     updateResumoTitulo();
     updateCalculos();
-    
-
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -1408,5 +1715,40 @@
         });
     }
 </script>
+<!-- Modal Comanda -->
+<div id="comanda-modal" class="modal">
+    <div class="modal-content" style="width:340px; max-height:88vh; background:#f5f0e8; border-radius:4px; padding:0; overflow:hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.6);">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+            .comanda-wrap {
+                font-family: 'Courier Prime', 'Courier New', monospace;
+                color: #1a1a1a;
+                background: #f5f0e8;
+                padding: 24px 20px 20px;
+                overflow-y: auto;
+                max-height: calc(88vh - 80px);
+            }
+            .comanda-wrap * { font-family: 'Courier Prime', 'Courier New', monospace; }
+            .comanda-dashed { border: none; border-top: 2px dashed #999; margin: 10px 0; }
+            .comanda-dotted { border: none; border-top: 1px dotted #bbb; margin: 6px 0; }
+            .comanda-close-btn {
+                position: absolute; top: 10px; right: 14px;
+                background: none; border: none; font-size: 1.4rem;
+                color: #555; cursor: pointer; font-family: monospace;
+                z-index: 10;
+            }
+        </style>
+        <div class="comanda-wrap" id="comanda-content">
+            <!-- gerado por openComanda() -->
+        </div>
+        <button class="comanda-close-btn" onclick="closeModal('comanda-modal')">✕</button>
+        <div id="comanda-actions" style="background:#f5f0e8;padding:12px 20px 16px;display:flex;justify-content:center;gap:24px;border-top:1px dashed #ccc;">
+            <button onclick="compartilharComandaImagem()" title="" style="background:transparent;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;">
+                <img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/whatsapp.svg" alt="WhatsApp" width="28" height="28">
+                </button>
+          </div>
+    </div>
+</div>
+
 </body>
 </html>
