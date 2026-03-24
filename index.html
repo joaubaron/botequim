@@ -977,50 +977,6 @@ closeModal('racha-itens-modal');
 openModal('racha-resultado-modal');
 }
 
-function rachaShareWhatsApp() {
-const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
-const hasTip = document.getElementById('in-tip').checked;
-const totais = {};
-const itensPor = {};
-rachaPessoas.forEach(p => {
-totais[p] = { consumo: 0, couvert: couvert, gorjeta: 0 };
-itensPor[p] = [];
-});
-
-consumption.forEach((item, idx) => {
-const atr = rachaAtribuicoes[idx];
-if (atr.split) {
-rachaPessoas.forEach(p => {
-const qty = atr.split[p] || 0;
-if (qty > 0) {
-totais[p].consumo += qty * item.price;
-itensPor[p].push({ name: item.name, qty, price: item.price });
-}
-});
-} else {
-totais[atr.owner].consumo += item.qty * item.price;
-itensPor[atr.owner].push({ name: item.name, qty: item.qty, price: item.price });
-}
-});
-rachaPessoas.forEach(p => { totais[p].gorjeta = hasTip ? totais[p].consumo * 0.10 : 0; });
-
-let txt = `🍺 *Racha — ${currentBarName || 'Botequim'}*\n\n`;
-rachaPessoas.forEach(p => {
-const t = totais[p];
-const total = t.consumo + t.couvert + t.gorjeta;
-txt += `👤 *${p}*\n`;
-itensPor[p].forEach(i => {
-txt += `  • ${i.qty}x ${i.name}`;
-if (i.qty > 1) txt += ` (R$ ${i.price.toFixed(2)} un)`;
-txt += ` — R$ ${(i.qty * i.price).toFixed(2)}\n`;
-});
-if (t.couvert > 0) txt += `  🎵 Couvert: R$ ${t.couvert.toFixed(2)}\n`;
-if (t.gorjeta > 0) txt += `  🤝 Gorjeta (10%): R$ ${t.gorjeta.toFixed(2)}\n`;
-txt += `  💰 *Total: R$ ${total.toFixed(2)}*\n\n`;
-});
-window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
-}
-
 function confirmarMinhaParte() {
 const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
 const hasTip = document.getElementById('in-tip').checked;
@@ -1525,31 +1481,6 @@ const tip = hasTip ? subtotal * 0.10 : 0;
 return subtotal + couvert + tip;
 }
 
-function shareWhatsApp() {
-if (consumption.length === 0) {
-document.getElementById('validation-modal').classList.add('active');
-return;
-}
-const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
-const hasTip = document.getElementById('in-tip').checked;
-const subtotal = consumption.reduce((sum, i) => sum + (i.qty * i.price), 0);
-const tip = hasTip ? subtotal * 0.10 : 0;
-const total = subtotal + couvert + tip;
-
-let txt = `🍺 *Conta — ${currentBarName || 'Botequim'}*\n\n`;
-consumption.forEach(i => {
-txt += `• ${i.qty}x ${i.name}\n`;
-if (i.qty > 1) txt += `Unidade: R$ ${i.price.toFixed(2)}\n`;
-txt += `R$ ${(i.qty * i.price).toFixed(2)}\n\n`;
-});
-if (couvert > 0) txt += `🎵 Couvert: R$ ${couvert.toFixed(2)}\n`;
-if (hasTip) txt += `🤝 Gorjeta (10%): R$ ${tip.toFixed(2)}\n\n`;
-txt += `💰 *TOTAL: R$ ${total.toFixed(2)}*`;
-
-window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
-}
-
-
 function showHistory() {
 const modal = document.getElementById('history-modal');
 const historyList = document.getElementById('history-list');
@@ -1736,10 +1667,6 @@ event.target.classList.remove('active');
 };
 
 let _comandaFromHistory = false;
-
-function compartilharComandaTexto() {
-if (_comandaFromHistory) { shareHistoryWhatsApp(); } else { shareWhatsApp(); }
-}
 
 async function compartilharComandaImagem() {
 const actions = document.getElementById('comanda-actions');
