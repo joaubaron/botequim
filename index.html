@@ -1348,7 +1348,7 @@ function quickAddExample() {
     // Preencher a lista de exemplos
     const examplesList = document.getElementById('examples-list');
     examplesList.innerHTML = examples.map((ex, idx) => `
-        <div onclick="addExampleItem(${idx})" 
+        <div onclick="addExampleItem(event, ${idx})"
              class="bg-white/5 rounded-xl p-3 cursor-pointer hover:bg-white/10 transition-all"
              style="border-left: 3px solid #ff9800;">
             <div class="flex justify-between items-center">
@@ -1363,18 +1363,20 @@ function quickAddExample() {
 }
 
 // Função para adicionar o item selecionado
-function addExampleItem(idx) {
+function addExampleItem(event, idx) {
+    event.stopPropagation(); // 👈 ADICIONA ISSO
+
     const item = examples[idx];
     document.getElementById('in-name').value = item.name;
     document.getElementById('in-price').value = item.price;
     document.getElementById('in-qty').value = 1;
     addItem();
-    
-    // Fechar o modal de exemplos
+
     const examplesModal = document.getElementById('examples-modal');
     if (examplesModal) {
         examplesModal.classList.remove('active');
     }
+}
     
     // Opcional: dar um feedback visual
     if (window.navigator && window.navigator.vibrate) {
