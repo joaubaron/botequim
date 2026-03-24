@@ -1321,62 +1321,51 @@ document.getElementById('validation-modal').classList.add('active');
 }
 
 // Função para mostrar o menu de exemplos
-// Substitua a função quickAddExample e addExampleItem pelas versões corrigidas:
-
 function quickAddExample() {
     if (!currentBarName) {
         openBarNameModal();
         return;
     }
     
-    let examplesModal = document.getElementById('examples-modal');
-    if (!examplesModal) {
-        examplesModal = document.createElement('div');
-        examplesModal.id = 'examples-modal';
-        examplesModal.className = 'modal';
-        examplesModal.setAttribute('data-no-close', 'true');
-        examplesModal.innerHTML = `
-            <div class="modal-content" style="width:340px; max-height:80vh;">
-                <div class="flex justify-between items-center mb-1">
-                    <h3 class="text-lg font-bold text-orange-500">
-                        <i class="fas fa-list mr-2"></i>Itens do Cardápio
-                    </h3>
-                    <button onclick="closeModal('examples-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
-                </div>
-                <div class="text-xs text-gray-400 mb-3 pl-1">
-                    Clique para adicionar <i class="fas fa-hand-point-down ml-1"></i>
-                </div>
-                <div id="examples-list" class="space-y-2 max-h-96 overflow-y-auto"></div>
+   let examplesModal = document.getElementById('examples-modal');
+if (!examplesModal) {
+    examplesModal = document.createElement('div');
+    examplesModal.id = 'examples-modal';
+    examplesModal.className = 'modal';
+    examplesModal.innerHTML = `
+        <div class="modal-content" style="width:340px; max-height:80vh;">
+            <div class="flex justify-between items-center mb-1">
+                <h3 class="text-lg font-bold text-orange-500">
+                    <i class="fas fa-list mr-2"></i>Itens do Cardápio
+                </h3>
+                <button onclick="closeModal('examples-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
             </div>
-        `;
-        document.body.appendChild(examplesModal);
-        
-        // Impede que o clique dentro do modal feche ele
-        examplesModal.addEventListener('click', function(e) {
-            if (e.target === examplesModal) {
-                closeModal('examples-modal');
-            }
-        });
-    }
+            <div class="text-xs text-gray-400 mb-3 pl-1">
+    Clique para adicionar <i class="fas fa-hand-point-down ml-1"></i>
+</div>
+            <div id="examples-list" class="space-y-2 max-h-96 overflow-y-auto"></div>
+        </div>
+    `;
+    document.body.appendChild(examplesModal);
+}
     
     const examplesList = document.getElementById('examples-list');
     examplesList.innerHTML = examples.map((ex, idx) => `
-        <div onclick="addExampleItem(event, ${idx})"
+        <div onclick="addExampleItem(${idx})"
              class="bg-white/5 rounded-xl p-3 cursor-pointer hover:bg-white/10 transition-all"
              style="border-left: 3px solid #ff9800;">
             <div class="flex justify-between items-center">
-                <span class="text-sm font-semibold text-white">${escapeHtml(ex.name)}</span>
+                <span class="text-xs font-semibold text-white">${escapeHtml(ex.name)}</span>
                 <span class="text-orange-400 font-bold text-sm">R$ ${ex.price.toFixed(2)}</span>
             </div>
-        </div>
+       </div>
     `).join('');
     
     openModal('examples-modal');
 }
 
 // Função para adicionar o item selecionado
-function addExampleItem(event, idx) {
-    event.stopPropagation(); // Impede propagação do clique
+function addExampleItem(idx) {
     const item = examples[idx];
 
     document.getElementById('in-name').value = item.name;
@@ -1386,10 +1375,7 @@ function addExampleItem(event, idx) {
     addItem();
 
     // FECHA O MODAL
-    const modal = document.getElementById('examples-modal');
-    if (modal) {
-        modal.classList.remove('active');
-    }
+    closeModal('examples-modal');
 
     // feedback
     if (window.navigator && window.navigator.vibrate) {
@@ -1733,35 +1719,20 @@ closeModal('clear-history-modal');
 closeModal('history-modal');
 }
 
-// Substitua a função closeModal existente por esta versão corrigida:
-// Adicione também esta função closeModal melhorada:
+
+
+
 function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.classList.remove('active');
-    }
-    if (modalId === 'history-modal') {
-        const progressFill = document.getElementById('progress-fill');
-        if (progressFill) {
-            progressFill.style.visibility = '';
-        }
-    }
+document.getElementById(modalId).classList.remove('active');
+if (modalId === 'history-modal') {
+document.getElementById('progress-fill').style.visibility = '';
+}
 }
 
-// Substitua a função window.onclick existente por esta:
 window.onclick = function(event) {
-    // Não fecha modais que têm data-no-close="true" ao clicar no fundo
-    if (event.target.classList.contains('modal')) {
-        const shouldNotClose = event.target.getAttribute('data-no-close') === 'true';
-        if (!shouldNotClose && event.target.id !== 'barname-modal') {
-            event.target.classList.remove('active');
-        } else if (shouldNotClose && event.target === event.target) {
-            // Para o modal de exemplos, só fecha se clicar no botão X
-            if (event.target === event.target && event.target.id === 'examples-modal') {
-                // Não faz nada - só fecha se clicar no X
-            }
-        }
-    }
+if (event.target.classList.contains('modal') && event.target.id !== 'barname-modal') {
+event.target.classList.remove('active');
+}
 };
 
 let _comandaFromHistory = false;
