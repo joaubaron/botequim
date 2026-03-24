@@ -1315,6 +1315,7 @@ updateCalculos();
 };
 }
 }
+
 function clearItems() {
 if (!currentBarName) {
 openBarNameModal(true);
@@ -1553,6 +1554,10 @@ sessionHistory = [];
 localStorage.removeItem('botequim_history');
 closeModal('clear-history-modal');
 closeModal('history-modal');
+}
+
+
+
 
 function closeModal(modalId) {
 document.getElementById(modalId).classList.remove('active');
