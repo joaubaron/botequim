@@ -1,8 +1,8 @@
 // ⚠️ Atualize a versão a cada deploy
 const CACHE_VERSION = '1.1.1.10012';
 const CACHE_NAME = `botequim-${CACHE_VERSION}`;
-const STATIC_ASSETS = [
 const OFFLINE_URL = './index.html';
+
 // Recursos ESSENCIAIS para funcionamento offline
 const ESSENTIAL_ASSETS = [
     './',
@@ -13,12 +13,13 @@ const ESSENTIAL_ASSETS = [
     './comanda.png',
     './icon.png',
     './icon512.png',
-    './bar-bg.webp'
+    './bar-bg.webp',
+    './sw.js'  // Cache o próprio service worker
 ];
 
 // Recursos externos que DEVEM ser cacheados
 const EXTERNAL_CACHE = [
-    'https://cdn.tailwindcss.com/3.4.1',
+    'https://cdn.tailwindcss.com/3.4.1?plugins=forms,typography,aspect-ratio,container-queries',
     'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
@@ -32,26 +33,35 @@ self.addEventListener('install', event => {
             // Cachear assets essenciais
             for (const asset of ESSENTIAL_ASSETS) {
                 try {
-                    const response = await fetch(asset);
+                    const response = await fetch(asset, {
+                        cache: 'no-cache'  // Evita cache durante instalação
+                    });
                     if (response.ok) {
                         await cache.put(asset, response);
                         console.log(`✅ Cached: ${asset}`);
+                    } else {
+                        console.log(`⚠️ Failed to cache ${asset}: status ${response.status}`);
                     }
                 } catch (err) {
-                    console.log(`⚠️ Failed to cache ${asset}:`, err);
+                    console.log(`❌ Error caching ${asset}:`, err);
                 }
             }
             
             // Cachear recursos externos
             for (const url of EXTERNAL_CACHE) {
                 try {
-                    const response = await fetch(url);
+                    const response = await fetch(url, {
+                        mode: 'cors',
+                        credentials: 'omit'
+                    });
                     if (response.ok) {
                         await cache.put(url, response);
                         console.log(`✅ Cached external: ${url}`);
+                    } else {
+                        console.log(`⚠️ Failed to cache external ${url}: status ${response.status}`);
                     }
                 } catch (err) {
-                    console.log(`⚠️ Failed to cache external ${url}:`, err);
+                    console.log(`❌ Error caching external ${url}:`, err);
                 }
             }
             
@@ -68,7 +78,10 @@ self.addEventListener('activate', event => {
             // Limpar caches antigos
             const keys = await caches.keys();
             await Promise.all(
-                keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+                keys.filter(key => key !== CACHE_NAME).map(key => {
+                    console.log(`🗑️ Deleting old cache: ${key}`);
+                    return caches.delete(key);
+                })
             );
             await self.clients.claim();
             console.log('✅ Service Worker activated');
@@ -79,6 +92,13 @@ self.addEventListener('activate', event => {
 // Estratégia de fetch inteligente
 self.addEventListener('fetch', event => {
     const url = new URL(event.request.url);
+    
+    // Ignorar requisições de analytics e extensões
+    if (url.pathname.includes('chrome-extension') || 
+        url.pathname.includes('analytics') ||
+        url.hostname.includes('google-analytics')) {
+        return;
+    }
     
     // Para navegação (HTML)
     if (event.request.mode === 'navigate') {
@@ -91,6 +111,7 @@ self.addEventListener('fetch', event => {
                     cache.put(event.request, networkResponse.clone());
                     return networkResponse;
                 } catch (error) {
+                    console.log('📱 Offline mode - serving from cache');
                     // Offline: tenta cache, fallback para index.html
                     const cachedResponse = await caches.match(event.request);
                     if (cachedResponse) return cachedResponse;
@@ -110,23 +131,31 @@ self.addEventListener('fetch', event => {
         event.respondWith(
             (async () => {
                 const cachedResponse = await caches.match(event.request);
-                if (cachedResponse) return cachedResponse;
+                if (cachedResponse) {
+                    console.log(`📦 Cache hit: ${url.pathname}`);
+                    return cachedResponse;
+                }
                 
                 try {
                     const networkResponse = await fetch(event.request);
                     if (networkResponse && networkResponse.status === 200) {
                         const cache = await caches.open(CACHE_NAME);
                         cache.put(event.request, networkResponse.clone());
+                        console.log(`🌐 Network & cached: ${url.pathname}`);
                     }
                     return networkResponse;
                 } catch (error) {
+                    console.log(`❌ Failed to fetch: ${url.pathname}`);
                     // Fallback para imagem padrão se for imagem
                     if (event.request.destination === 'image') {
                         return caches.match('./icon.png');
                     }
                     return new Response('Recurso indisponível offline', {
                         status: 503,
-                        statusText: 'Service Unavailable'
+                        statusText: 'Service Unavailable',
+                        headers: new Headers({
+                            'Content-Type': 'text/plain'
+                        })
                     });
                 }
             })()
@@ -134,12 +163,28 @@ self.addEventListener('fetch', event => {
         return;
     }
     
-    // Para outros recursos
+    // Para outros recursos - Network First com fallback
     event.respondWith(
-        caches.match(event.request).then(response => {
-            return response || fetch(event.request).catch(() => {
-                return new Response('Offline', { status: 503 });
-            });
-        })
+        (async () => {
+            try {
+                const networkResponse = await fetch(event.request);
+                // Cache apenas recursos bem-sucedidos
+                if (networkResponse && networkResponse.status === 200) {
+                    const cache = await caches.open(CACHE_NAME);
+                    cache.put(event.request, networkResponse.clone());
+                }
+                return networkResponse;
+            } catch (error) {
+                const cachedResponse = await caches.match(event.request);
+                if (cachedResponse) {
+                    console.log(`📦 Cache fallback: ${url.pathname}`);
+                    return cachedResponse;
+                }
+                return new Response('Recurso indisponível offline', { 
+                    status: 503,
+                    statusText: 'Service Unavailable'
+                });
+            }
+        })()
     );
 });
