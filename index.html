@@ -856,6 +856,7 @@ return `
 function rachaSetOwner(idx, person) {
 rachaAtribuicoes[idx] = { owner: person };
 renderRachaItens();
+updateCalculos();
 }
 
 function rachaOpenSplit(idx) {
@@ -930,6 +931,7 @@ return;
 rachaAtribuicoes[idx] = { split };
 closeModal('racha-split-modal');
 renderRachaItens();
+updateCalculos();
 }
 
 function rachaCalcular() {
@@ -946,7 +948,7 @@ const qty = atr.split[p] || 0;
 totais[p].consumo += qty * item.price;
 });
 } else {
-totais[atr.owner].consumo += item.qty * item.price;
+if (totais[atr.owner]) totais[atr.owner].consumo += item.qty * item.price;
 }
 });
 
@@ -1303,8 +1305,7 @@ if (!examplesModal) {
         </div>
     `;
     document.body.appendChild(examplesModal);
-}
-    
+
     const examplesList = document.getElementById('examples-list');
     examplesList.innerHTML = examples.map((ex, idx) => `
         <div onclick="event.stopPropagation(); addExampleItem(${idx})"
@@ -1316,6 +1317,7 @@ if (!examplesModal) {
             </div>
        </div>
     `).join('');
+}
     
     openModal('examples-modal');
 }
@@ -1363,13 +1365,21 @@ const examples = [
 ];
 
 function incrementItem(idx) { 
-    consumption[idx].qty += 1; 
+    consumption[idx].qty += 1;
+    // se havia split, invalida — distribuição ficaria errada
+    if (rachaAtribuicoes[idx] && rachaAtribuicoes[idx].split) {
+        rachaAtribuicoes[idx] = { owner: 'Você' };
+    }
     updateCalculos(); 
 }
 
 function decrementItem(idx) {
 if (consumption[idx].qty > 1) {
 consumption[idx].qty -= 1;
+// se havia split, invalida — distribuição ficaria errada
+if (rachaAtribuicoes[idx] && rachaAtribuicoes[idx].split) {
+    rachaAtribuicoes[idx] = { owner: 'Você' };
+}
 updateCalculos();
 } else {
 const modal = document.getElementById('remove-modal');
@@ -1772,7 +1782,6 @@ ${rachaHtml}
 document.getElementById('comanda-modal').classList.add('active');
 }
 
-updateResumoTitulo();
 updateResumoTitulo();
 updateCalculos();
 
