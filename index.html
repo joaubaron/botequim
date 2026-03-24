@@ -1261,9 +1261,9 @@ function addExampleItem(idx) {
     }
 }
 
-const examples =
+const examples = [
     { name: 'Pilsen 300ml', price: 11.00 },
-    { name: 'Weiss 300ml', price: 15.00 },
+    { name: 'Weiss 300ml', price:  15.00 },
     { name: 'IPA 300ml', price: 16.00 },
     { name: 'Chope 500ml', price: 18.00 },
     { name: 'Chope Torre 2L', price: 62.00 },
@@ -1291,6 +1291,7 @@ const examples =
     { name: 'X-Salada', price: 22.00 },
     { name: 'Pizza Média', price: 58.00 }
 };
+
 function incrementItem(idx) { 
     consumption[idx].qty += 1;
     // se havia split, invalida — distribuição ficaria errada
