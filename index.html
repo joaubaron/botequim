@@ -1362,7 +1362,7 @@ function quickAddExample() {
     openModal('examples-modal');
 }
 
-// Versão alternativa com setTimeout
+// Função para adicionar o item selecionado
 function addExampleItem(idx) {
 const item = examples[idx];
 document.getElementById('in-name').value = item.name;
@@ -1370,13 +1370,16 @@ document.getElementById('in-price').value = item.price;
 document.getElementById('in-qty').value = 1;
 addItem();
 
-// Pequeno delay para garantir que o item foi adicionado
-setTimeout(() => {
+// Fechar o modal de exemplos
 const examplesModal = document.getElementById('examples-modal');
 if (examplesModal) {
 examplesModal.classList.remove('active');
 }
-}, 100);
+
+// Opcional: dar um feedback visual
+if (window.navigator && window.navigator.vibrate) {
+window.navigator.vibrate(50);
+}
 }
 
 const examples = [
