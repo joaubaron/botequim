@@ -1395,13 +1395,6 @@ const examples = [
 { name: 'Gin Tônica', price: 22.00 }
 ];
 
-const random = examples[Math.floor(Math.random() * examples.length)];
-document.getElementById('in-name').value = random.name;
-document.getElementById('in-price').value = random.price;
-document.getElementById('in-qty').value = 1;
-addItem();
-}
-
 function incrementItem(idx) { 
 consumption[idx].qty += 1; 
 updateCalculos(); 
