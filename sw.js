@@ -1,6 +1,8 @@
-const CACHE_NAME = 'botequim-v10016';
+// ⚠️ Atualize a versão a cada deploy
+const CACHE_VERSION = '1.1.1.10012';
+const CACHE_NAME = `botequim-${CACHE_VERSION}`;
+const STATIC_ASSETS = [
 const OFFLINE_URL = './index.html';
-
 // Recursos ESSENCIAIS para funcionamento offline
 const ESSENTIAL_ASSETS = [
     './',
