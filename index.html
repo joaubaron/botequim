@@ -856,6 +856,7 @@ return `
 function rachaSetOwner(idx, person) {
 rachaAtribuicoes[idx] = { owner: person };
 renderRachaItens();
+updateCalculos();
 }
 
 function rachaOpenSplit(idx) {
