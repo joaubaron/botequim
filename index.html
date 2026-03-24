@@ -69,68 +69,6 @@ height: 1.5rem;
 cursor: pointer;
 }
 
-.btn-qty { 
-background: transparent;
-border: none;
-font-weight: bold; 
-font-size: 1.3rem; 
-min-width: 38px;
-transition: all 0.1s;
-cursor: pointer;
-color: #ff9800;
-}
-
-.btn-qty:active {
-transform: scale(0.9);
-}
-
-.btn-minus { 
-color: #aaa;
-}
-
-.btn-edit {
-background: transparent;
-border: none;
-color: #4caf50;
-font-size: 0.8rem;
-cursor: pointer;
-transition: all 0.1s;
-padding: 4px 8px;
-}
-
-.btn-edit:active {
-transform: scale(0.9);
-}
-
-.btn-save {
-background: #4caf50;
-color: white;
-padding: 4px 12px;
-border-radius: 6px;
-font-size: 0.8rem;
-cursor: pointer;
-border: none;
-}
-
-.btn-cancel {
-background: #666;
-color: white;
-padding: 4px 12px;
-border-radius: 6px;
-font-size: 0.8rem;
-cursor: pointer;
-border: none;
-}
-
-.edit-input {
-background: #3d3d45 !important;
-border: 1px solid #ff9800 !important;
-padding: 4px 8px !important;
-border-radius: 6px !important;
-font-size: 0.85rem !important;
-width: 100px !important;
-}
-
 /* Animações */
 @keyframes slideIn {
 from {
@@ -152,23 +90,12 @@ animation: slideIn 0.3s ease-out;
 50% { transform: scale(1.02); }
 }
 
-.edit-mode {
-animation: pulse 0.3s ease;
-}
-
 /* Scrollbar personalizada */
 ::-webkit-scrollbar {
 width: 0px;
 background: transparent;
 }
 
-
-.stat-card {
-background: rgba(0,0,0,0.2);
-border-radius: 12px;
-padding: 12px 8px;
-text-align: center;
-}
 
 /* Responsividade */
 @media (max-width: 640px) {
@@ -406,14 +333,7 @@ Gerencie sua conta 🪪
 <div class="progress-bar mt-3">
 <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
 </div>
-<div id="progress-scale" class="flex justify-between mt-1 px-0" style="font-size:9px; color: rgba(255,152,0,0.45);">
-<span>R$0</span>
-<span id="scale-50">R$50</span>
-<span id="scale-100">R$100</span>
-<span id="scale-150">R$150</span>
-<span id="scale-200">R$200</span>
-<span id="scale-max"></span>
-</div>
+<div id="progress-scale" class="flex justify-between mt-1 px-0" style="font-size:9px; color: rgba(255,152,0,0.45);"></div>
 </div>
 
 
@@ -522,17 +442,6 @@ Cancelar
 </div>
 </div>
 
-<!-- Modal de Estatísticas -->
-<div id="stats-modal" class="modal">
-<div class="modal-content">
-<div class="flex justify-between items-center mb-4">
-<h3 class="text-xl font-bold text-orange-500"><i class="fas fa-chart-bar"></i> Estatísticas</h3>
-<button onclick="closeModal('stats-modal')" class="text-2xl">&times;</button>
-</div>
-<div id="stats-content" class="space-y-3"></div>
-</div>
-</div>
-
 <!-- Modal Restaurar Histórico -->
 
 
@@ -586,41 +495,6 @@ onkeypress="if(event.key==='Enter') confirmBarName()">
 <div class="flex gap-3 w-full mt-4">
 <button onclick="confirmBarName()" class="w-1/2 py-3 rounded-xl text-sm font-bold btn-accent mx-auto block">
 <i class="fas fa-check mr-1"></i> Abrir a conta
-</button>
-</div>
-</div>
-</div>
-</div>
-
-<!-- Modal Detalhe Histórico -->
-<div id="history-detail-modal" class="modal">
-<div class="modal-content" style="width:360px">
-<div class="flex justify-between items-center mb-4">
-<h3 id="detail-bar-name" class="text-lg font-bold text-orange-500"></h3>
-<button onclick="closeModal('history-detail-modal'); showHistory()" class="text-gray-400 text-xl leading-none">&times;</button>
-</div>
-<div id="detail-date" class="text-xs text-gray-400 mb-4"></div>
-<div id="detail-items" class="space-y-1 mb-4 max-h-60 overflow-y-auto"></div>
-<div class="border-t border-gray-700/50 pt-3 space-y-1">
-<div class="flex justify-between text-sm text-gray-300">
-<span><i class="fas fa-shopping-cart"></i> Consumo:</span>
-<span id="detail-subtotal"></span>
-</div>
-<div class="flex justify-between text-sm text-gray-300">
-<span><i class="fas fa-music"></i> Couvert:</span>
-<span id="detail-couvert"></span>
-</div>
-<div class="flex justify-between text-sm text-gray-300">
-<span><i class="fas fa-heart"></i> Gorjeta:</span>
-<span id="detail-tip"></span>
-</div>
-<div class="flex justify-between items-center pt-2 border-t border-gray-700/50 mt-2">
-<span id="detail-total-label" class="font-bold"><i class="fas fa-coins"></i> TOTAL:</span>
-<span id="detail-total" class="text-xl font-black text-orange-500"></span>
-</div>
-<div class="flex justify-end" style="margin-top: 30px;">
-<button onclick="compartilharComandaImagem()" class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#25D366,#128C7E);">
-<i class="fab fa-whatsapp text-white text-xl"></i>
 </button>
 </div>
 </div>
@@ -1579,10 +1453,7 @@ showHistory();
 };
 }
 
-let currentDetailIdx = null;
-
 function showHistoryDetail(idx) {
-currentDetailIdx = idx;
 const h = sessionHistory[idx];
 // topo sempre mostra a conta completa
 const displayItems = (h.rachado && h.allItems) ? h.allItems : h.items;
