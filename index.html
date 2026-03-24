@@ -1328,23 +1328,26 @@ function quickAddExample() {
     }
     
     let examplesModal = document.getElementById('examples-modal');
-    if (!examplesModal) {
-        examplesModal = document.createElement('div');
-        examplesModal.id = 'examples-modal';
-        examplesModal.className = 'modal';
-        examplesModal.innerHTML = `
-            <div class="modal-content" style="width:340px; max-height:80vh;">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold text-orange-500">
-                        <i class="fas fa-list mr-2"></i>Itens do Cardápio
-                    </h3>
-                    <button onclick="closeModal('examples-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
-                </div>
-                <div id="examples-list" class="space-y-2 max-h-96 overflow-y-auto"></div>
+if (!examplesModal) {
+    examplesModal = document.createElement('div');
+    examplesModal.id = 'examples-modal';
+    examplesModal.className = 'modal';
+    examplesModal.innerHTML = `
+        <div class="modal-content" style="width:340px; max-height:80vh;">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-lg font-bold text-orange-500">
+                    <i class="fas fa-list mr-2"></i>Itens do Cardápio
+                </h3>
+                <button onclick="closeModal('examples-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
             </div>
-        `;
-        document.body.appendChild(examplesModal);
-    }
+            <div class="text-xs text-gray-400 text-center mb-4">
+                <i class="fas fa-hand-pointer mr-1"></i>Clique para adicionar
+            </div>
+            <div id="examples-list" class="space-y-2 max-h-96 overflow-y-auto"></div>
+        </div>
+    `;
+    document.body.appendChild(examplesModal);
+}
     
     const examplesList = document.getElementById('examples-list');
     examplesList.innerHTML = examples.map((ex, idx) => `
