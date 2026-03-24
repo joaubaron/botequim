@@ -6,19 +6,8 @@
 <title>Botequim - Gestão de Conta</title>
 <meta name="theme-color" content="#243447">
 <meta name="description" content="Gerencie sua conta do bar de forma simples e rápida">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Botequim">
-<link rel="apple-touch-icon" href="icon.png">
-<link rel="apple-touch-icon" sizes="152x152" href="icon.png">
-<link rel="apple-touch-icon" sizes="180x180" href="icon.png">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.png">
-<!-- Preload para recursos críticos -->
-<link rel="preload" href="botequim-pwa.png" as="image">
-<link rel="preload" href="icon.png" as="image">
-<link rel="preconnect" href="https://cdn.tailwindcss.com">
-<link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -288,60 +277,35 @@ white-space: nowrap;
 .tooltip:hover .tooltiptext {
 visibility: visible;
 }
-/* Adicionar fallback para quando Tailwind não carregar */
-.offline-fallback {
-display: none;
+/* Estilos do modal comanda */
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+.comanda-wrap {
+font-family: 'Courier Prime', 'Courier New', monospace;
+color: #1a1a1a;
+background: #f5f0e8;
+padding: 24px 20px 20px;
+overflow-y: auto;
+max-height: calc(88vh - 80px);
+}
+.comanda-wrap * { font-family: 'Courier Prime', 'Courier New', monospace; }
+.comanda-dashed { border: none; border-top: 2px dashed #999; margin: 10px 0; }
+.comanda-dotted { border: none; border-top: 1px dotted #bbb; margin: 6px 0; }
+.comanda-close-btn {
+position: absolute; top: 10px; right: 14px;
+background: none; border: none; font-size: 1.4rem;
+color: #555; cursor: pointer; font-family: monospace;
+z-index: 10;
 }
 
-/* Indicador de status de conexão */
-.online-indicator {
-position: fixed;
-bottom: 10px;
-right: 10px;
-width: 10px;
-height: 10px;
-border-radius: 50%;
-background-color: #4caf50;
-z-index: 9999;
-box-shadow: 0 0 4px rgba(0,0,0,0.3);
-transition: background-color 0.3s;
-}
-
-.online-indicator.offline {
-background-color: #f44336;
-}
-
-/* Loading para PWA */
-.pwa-loading {
-position: fixed;
-top: 0;
-left: 0;
-right: 0;
-bottom: 0;
-background: #243447;
-display: flex;
-align-items: center;
-justify-content: center;
-z-index: 9998;
-transition: opacity 0.5s;
-}
-
-.pwa-loading.hide {
-opacity: 0;
-pointer-events: none;
-}
 </style>
 </head>
 <body class="p-4 max-w-md mx-auto relative pb-24">
 
 <header class="text-left mb-3 px-1 pr-2 flex justify-between items-center overflow-visible">
 <div class="overflow-visible">
-<h1 class="flex items-center text-3xl font-bold italic pr-1 overflow-visible">
-
+<h1 class="flex items-center text-3xl font-bold italic pr-1 overflow-visible gap-2">
 <img src="botequim-pwa.png" alt="Botequim" class="h-[65px] object-contain">
-
 <img src="botequim-modal.png" alt="Logo" class="h-[60px] object-contain">
-
 </h1>
 
 <p id="header-subtitle" class="text-gray-400 mt-1" style="font-size:15px">
@@ -408,7 +372,7 @@ Gerencie sua conta 🪪
 
 <div class="card p-2 mt-2">
 <h2 id="resumo-titulo" class="text-sm font-bold mb-5 text-gray-500 tracking-widest flex items-center justify-between gap-2">
-<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo detalhado</span>
+<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo do consumo</span>
 </h2>
 <div class="space-y-2 border-b border-gray-700/50 pb-4 mb-4">
 <div class="flex justify-between text-sm text-gray-300 py-1">
@@ -769,6 +733,21 @@ OK, entendi
 </div>
 </div>
 
+<!-- Modal Comanda -->
+<div id="comanda-modal" class="modal">
+<div class="modal-content" style="width:340px; max-height:88vh; background:#f5f0e8; border-radius:4px; padding:0; overflow:hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.6);">
+<div class="comanda-wrap" id="comanda-content">
+<!-- gerado por openComanda() -->
+</div>
+<button class="comanda-close-btn" onclick="closeModal('comanda-modal')">✕</button>
+<div id="comanda-actions" style="background:#f5f0e8;padding:12px 20px 16px;display:flex;justify-content:center;gap:24px;border-top:1px dashed #ccc;">
+<button onclick="compartilharComandaImagem()" title="" style="background:transparent;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;">
+<img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/whatsapp.svg" alt="WhatsApp" width="28" height="28">
+</button>
+</div>
+</div>
+</div>
+
 <script>
 // ---- RACHA ----
 let rachaPessoas = []; // ex: ['Você', 'João']
@@ -865,8 +844,8 @@ return `
 <div class="bg-white/5 rounded-xl p-3">
 <div class="flex justify-between items-start mb-2">
 <div>
-    <span class="text-sm font-semibold"><span class="text-orange-400">${item.qty}x</span> ${escapeHtml(item.name)}</span>
-    <div class="text-xs text-gray-500">R$ ${(item.qty * item.price).toFixed(2)}</div>
+<span class="text-sm font-semibold"><span class="text-orange-400">${item.qty}x</span> ${escapeHtml(item.name)}</span>
+<div class="text-xs text-gray-500">R$ ${(item.qty * item.price).toFixed(2)}</div>
 </div>
 <div>${statusHtml}</div>
 </div>
@@ -910,10 +889,10 @@ return `
 <span class="text-sm font-semibold text-white w-24">${escapeHtml(p)}</span>
 <div class="flex items-center gap-3">
 <button onclick="rachaSplitChange('${p}', -1, ${idx})"
-    class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 transition-colors text-lg font-bold">−</button>
+class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 transition-colors text-lg font-bold">−</button>
 <span class="text-white font-bold w-4 text-center">${val}</span>
 <button onclick="rachaSplitChange('${p}', 1, ${idx})"
-    class="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 transition-colors text-lg font-bold">+</button>
+class="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 transition-colors text-lg font-bold">+</button>
 </div>
 </div>
 `;
@@ -1071,9 +1050,7 @@ meuTotalRacha = null;
 localStorage.removeItem('botequim_meu_total_racha');
 updateCalculos();
 }
-</script>
 
-<script>
 let consumption = JSON.parse(localStorage.getItem('botequim_baron')) || [];
 let sessionHistory = JSON.parse(localStorage.getItem('botequim_history')) || [];
 let editingIndex = null;
@@ -1081,10 +1058,26 @@ let meuTotalRacha = null;
 const _savedMeuTotal = localStorage.getItem('botequim_meu_total_racha');
 if (_savedMeuTotal !== null) meuTotalRacha = parseFloat(_savedMeuTotal);
 
-document.querySelectorAll('.enter-submit').forEach(input => {
-input.addEventListener('keypress', function(e) {
-if (e.key === 'Enter') addItem();
+// Navegação entre campos com Enter
+document.getElementById('in-name').addEventListener('keypress', function(e) {
+if (e.key === 'Enter') {
+e.preventDefault();
+document.getElementById('in-qty').focus();
+}
 });
+
+document.getElementById('in-qty').addEventListener('keypress', function(e) {
+if (e.key === 'Enter') {
+e.preventDefault();
+document.getElementById('in-price').focus();
+}
+});
+
+document.getElementById('in-price').addEventListener('keypress', function(e) {
+if (e.key === 'Enter') {
+e.preventDefault();
+addItem();
+}
 });
 
 let currentBarName = localStorage.getItem('botequim_bar_name') || '';
@@ -1126,11 +1119,20 @@ updateResumoTitulo();
 function updateResumoTitulo() {
 const titulo = document.getElementById('resumo-titulo');
 const text = currentBarName
-? `<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo detalhado — ${currentBarName}</span>`
-: '<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo detalhado</span>';
+? `<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo do consumo — ${currentBarName}</span>`
+: '<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo do consumo</span>';
 titulo.innerHTML = text;
+
 const sub = document.getElementById('header-subtitle');
-if (sub) sub.innerHTML = currentBarName ? '📍 ' + currentBarName : 'Gerencie sua conta <i class="fas fa-id-card ml-2"></i>';
+if (sub) {
+if (currentBarName) {
+sub.innerHTML = '<i class="fas fa-store mr-1"></i> ' + currentBarName;
+sub.style.marginLeft = '10px';
+} else {
+sub.innerHTML = 'Gerencie sua conta <i class="fas fa-id-card ml-2"></i>';
+sub.style.marginLeft = '0';  // Remove quando não tem nome do bar
+}
+}
 toggleInputArea();
 }
 
@@ -1187,20 +1189,20 @@ list.innerHTML += `
 <div class="py-2 border-b border-white/10 item-animate">
 <div class="flex items-start justify-between mb-1">
 <div class="flex-1 min-w-0">
-    <div class="text-lg font-semibold"><span class="text-orange-500 font-bold">${item.qty}x</span> ${escapeHtml(item.name)}</div>
-    ${unitPriceDisplay}
+<div class="text-lg font-semibold"><span class="text-orange-500 font-bold">${item.qty}x</span> ${escapeHtml(item.name)}</div>
+${unitPriceDisplay}
 </div>
 <div class="font-bold text-lg text-white whitespace-nowrap pl-3">R$ ${totalRow.toFixed(2)}</div>
 </div>
 <div class="flex items-center gap-2 mt-2">
 <button onclick="startEdit(${idx})" class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 text-green-400 hover:bg-green-500/20 transition-colors">
-    <i class="fas fa-pencil-alt text-xs"></i>
+<i class="fas fa-pencil-alt text-xs"></i>
 </button>
 <button onclick="decrementItem(${idx})" class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 transition-colors">
-    <i class="fas fa-minus text-sm"></i>
+<i class="fas fa-minus text-sm"></i>
 </button>
 <button onclick="incrementItem(${idx})" class="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 transition-colors">
-    <i class="fas fa-plus text-sm"></i>
+<i class="fas fa-plus text-sm"></i>
 </button>
 </div>
 </div>
@@ -1286,11 +1288,11 @@ openBarNameModal();
 return;
 }
 const examples = [
-{ name: 'Cerveja', price: 8.50 },
-{ name: 'Porção de Batata', price: 25.00 },
-{ name: 'Caipirinha', price: 15.00 },
-{ name: 'Coca-Cola', price: 6.00 },
-{ name: 'Petiscos', price: 18.00 }
+{ name: 'Cerveja', price: 12.00 },
+{ name: 'Porção de Batata', price: 28.00 },
+{ name: 'Caipirinha', price: 18.00 },
+{ name: 'Coca-Cola', price: 7.00 },
+{ name: 'Petiscos', price: 25.00 }
 ];
 const random = examples[Math.floor(Math.random() * examples.length)];
 document.getElementById('in-name').value = random.name;
@@ -1357,11 +1359,11 @@ consumption.forEach((item, idx) => {
 const atr = rachaAtribuicoes[idx];
 if (atr.split) {
 rachaPessoas.forEach(p => {
-    const qty = atr.split[p] || 0;
-    if (qty > 0) {
-        rachaSnapshot[p].consumo += qty * item.price;
-        rachaSnapshot[p].items.push({ name: item.name, qty, price: item.price });
-    }
+const qty = atr.split[p] || 0;
+if (qty > 0) {
+rachaSnapshot[p].consumo += qty * item.price;
+rachaSnapshot[p].items.push({ name: item.name, qty, price: item.price });
+}
 });
 } else {
 rachaSnapshot[atr.owner].consumo += item.qty * item.price;
@@ -1404,7 +1406,7 @@ meuTotalRacha = null;
 localStorage.removeItem('botequim_meu_total_racha');
 localStorage.removeItem('botequim_bar_name');
 updateResumoTitulo();
-document.getElementById('in-couvert').value = 0;
+document.getElementById('in-couvert').value = '';
 closeModal('clear-modal');
 updateCalculos();
 }
@@ -1453,15 +1455,15 @@ historyList.innerHTML = sessionHistory.map((h, idx) => `
 <div class="history-item" onclick="showHistoryDetail(${idx})">
 <div class="flex justify-between items-start">
 <div class="flex-1 min-w-0">
-    <div class="flex items-center gap-2">
-        <span class="font-bold text-orange-500">${escapeHtml(h.bar)}</span>
-        <span class="text-xs text-gray-400">${h.date}</span>
-    </div>
-    <div class="text-xs mt-1 text-gray-300">${h.itemsCount} itens | ${h.rachado ? '<span class="text-yellow-400">Minha parte: </span>' : 'Total: '}R$ ${h.total.toFixed(2)}</div>
-    <div class="text-xs text-gray-500 truncate mt-1">${h.items.map(i => i.qty + 'x ' + i.name).join(', ')}</div>
+<div class="flex items-center gap-2">
+<span class="font-bold text-orange-500">${escapeHtml(h.bar)}</span>
+<span class="text-xs text-gray-400">${h.date}</span>
+</div>
+<div class="text-xs mt-1 text-gray-300">${h.itemsCount} itens | ${h.rachado ? '<span class="text-yellow-400">Minha parte: </span>' : 'Total: '}R$ ${h.total.toFixed(2)}</div>
+<div class="text-xs text-gray-500 truncate mt-1">${h.items.map(i => i.qty + 'x ' + i.name).join(', ')}</div>
 </div>
 <button onclick="event.stopPropagation(); deleteHistoryItem(${idx})" class="ml-2 mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500/40 transition-colors" title="Apagar este registro">
-    <i class="fas fa-trash-alt text-xs"></i>
+<i class="fas fa-trash-alt text-xs"></i>
 </button>
 </div>
 </div>
@@ -1494,7 +1496,7 @@ const couvert = h.couvert || 0;
 const tip = h.tip || 0;
 
 let txt = `🍺 *Conta — ${h.bar || 'Botequim'}*\n`;
-txt += `📍 ${h.bar} — ${h.date}\n\n`;
+txt += `🏪 ${h.bar} — ${h.date}\n\n`;
 h.items.forEach(i => {
 txt += `• ${i.qty}x ${i.name}\n`;
 if (i.qty > 1) txt += `  Unidade: R$ ${i.price.toFixed(2)}\n`;
@@ -1550,8 +1552,8 @@ ${d.gorjeta > 0 ? `<div style="display:flex;justify-content:space-between;font-s
 return `
 <div style="margin-bottom:8px">
 <div style="display:flex;justify-content:space-between;font-size:0.9rem;font-weight:700;${isVoce ? 'color:#b35a00' : 'color:#222'}">
-    <span>${isVoce ? 'VOCÊ' : p.toUpperCase()}</span>
-    <span>R$ ${d.total.toFixed(2)}</span>
+<span>${isVoce ? 'VOCÊ' : p.toUpperCase()}</span>
+<span>R$ ${d.total.toFixed(2)}</span>
 </div>
 ${subItens}${extras}
 </div>`;
@@ -1694,8 +1696,8 @@ if (atr.split) {
 rachaPessoas.forEach(p => {
 const qty = atr.split[p] || 0;
 if (qty > 0) {
-    totaisPessoa[p] += qty * item.price;
-    itensPessoa[p].push({ name: item.name, qty, price: item.price });
+totaisPessoa[p] += qty * item.price;
+itensPessoa[p].push({ name: item.name, qty, price: item.price });
 }
 });
 } else {
@@ -1718,8 +1720,8 @@ ${gorj > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0
 return `
 <div style="margin-bottom:8px">
 <div style="display:flex;justify-content:space-between;font-size:0.9rem;font-weight:700;${isVoce ? 'color:#b35a00' : 'color:#222'}">
-    <span>${isVoce ? 'VOCÊ' : p.toUpperCase()}</span>
-    <span>R$ ${totalP.toFixed(2)}</span>
+<span>${isVoce ? 'VOCÊ' : p.toUpperCase()}</span>
+<span>R$ ${totalP.toFixed(2)}</span>
 </div>
 ${subItens}${extras}
 </div>`;
@@ -1768,40 +1770,6 @@ navigator.serviceWorker.register('./sw.js');
 });
 }
 </script>
-<!-- Modal Comanda -->
-<div id="comanda-modal" class="modal">
-<div class="modal-content" style="width:340px; max-height:88vh; background:#f5f0e8; border-radius:4px; padding:0; overflow:hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.6);">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
-.comanda-wrap {
-font-family: 'Courier Prime', 'Courier New', monospace;
-color: #1a1a1a;
-background: #f5f0e8;
-padding: 24px 20px 20px;
-overflow-y: auto;
-max-height: calc(88vh - 80px);
-}
-.comanda-wrap * { font-family: 'Courier Prime', 'Courier New', monospace; }
-.comanda-dashed { border: none; border-top: 2px dashed #999; margin: 10px 0; }
-.comanda-dotted { border: none; border-top: 1px dotted #bbb; margin: 6px 0; }
-.comanda-close-btn {
-position: absolute; top: 10px; right: 14px;
-background: none; border: none; font-size: 1.4rem;
-color: #555; cursor: pointer; font-family: monospace;
-z-index: 10;
-}
-</style>
-<div class="comanda-wrap" id="comanda-content">
-<!-- gerado por openComanda() -->
-</div>
-<button class="comanda-close-btn" onclick="closeModal('comanda-modal')">✕</button>
-<div id="comanda-actions" style="background:#f5f0e8;padding:12px 20px 16px;display:flex;justify-content:center;gap:24px;border-top:1px dashed #ccc;">
-<button onclick="compartilharComandaImagem()" title="" style="background:transparent;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;">
-<img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/whatsapp.svg" alt="WhatsApp" width="28" height="28">
-</button>
-</div>
-</div>
-</div>
 
 </body>
 </html>
