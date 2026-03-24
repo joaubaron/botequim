@@ -1,4 +1,4 @@
-const CACHE_NAME = 'botequim-v10015';
+const CACHE_NAME = 'botequim-v10016';
 const OFFLINE_URL = './index.html';
 
 // Recursos ESSENCIAIS para funcionamento offline
