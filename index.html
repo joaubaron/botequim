@@ -1355,7 +1355,8 @@ function quickAddExample() {
                 <span class="text-sm font-semibold text-white">${escapeHtml(ex.name)}</span>
                 <span class="text-orange-400 font-bold text-sm">R$ ${ex.price.toFixed(2)}</span>
             </div>
-            </div>
+            <div class="text-xs text-gray-500 mt-1">Clique para adicionar</div>
+        </div>
     `).join('');
     
     openModal('examples-modal');
@@ -1363,22 +1364,22 @@ function quickAddExample() {
 
 // Função para adicionar o item selecionado
 function addExampleItem(idx) {
-const item = examples[idx];
-document.getElementById('in-name').value = item.name;
-document.getElementById('in-price').value = item.price;
-document.getElementById('in-qty').value = 1;
-addItem();
-
-// Fechar o modal de exemplos
-const examplesModal = document.getElementById('examples-modal');
-if (examplesModal) {
-examplesModal.classList.remove('active');
-}
-
-// Opcional: dar um feedback visual
-if (window.navigator && window.navigator.vibrate) {
-window.navigator.vibrate(50);
-}
+    const item = examples[idx];
+    document.getElementById('in-name').value = item.name;
+    document.getElementById('in-price').value = item.price;
+    document.getElementById('in-qty').value = 1;
+    addItem();
+    
+    // Fechar o modal de exemplos
+    const examplesModal = document.getElementById('examples-modal');
+    if (examplesModal) {
+        examplesModal.classList.remove('active');
+    }
+    
+    // Opcional: dar um feedback visual
+    if (window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate(50);
+    }
 }
 
 const examples = [
