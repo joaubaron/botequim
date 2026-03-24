@@ -1307,7 +1307,7 @@ if (!examplesModal) {
     
     const examplesList = document.getElementById('examples-list');
     examplesList.innerHTML = examples.map((ex, idx) => `
-        <div onclick="addExampleItem(${idx})"
+        <div onclick="event.stopPropagation(); addExampleItem(${idx})"
              class="bg-white/5 rounded-xl p-3 cursor-pointer hover:bg-white/10 transition-all"
              style="border-left: 3px solid #ff9800;">
             <div class="flex justify-between items-center">
@@ -1324,14 +1324,14 @@ if (!examplesModal) {
 function addExampleItem(idx) {
     const item = examples[idx];
 
+    // FECHA O MODAL PRIMEIRO
+    closeModal('examples-modal');
+
     document.getElementById('in-name').value = item.name;
     document.getElementById('in-price').value = item.price;
     document.getElementById('in-qty').value = 1;
 
     addItem();
-
-    // FECHA O MODAL
-    closeModal('examples-modal');
 
     // feedback
     if (window.navigator && window.navigator.vibrate) {
