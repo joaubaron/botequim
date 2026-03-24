@@ -361,8 +361,8 @@ Gerencie sua conta 🪪
 <span class="text-gray-400 text-sm ml-2"><i class="fas fa-hand-holding-heart"></i> 10%:</span>
 <input id="in-tip" type="checkbox" checked onchange="updateCalculos()">
 </div>
-<div class="text-2xl cursor-pointer flex items-center gap-2" onclick="openComanda()" title="Comanda">
-<i class="fas fa-receipt text-gray-400"></i>
+<div class="text-2xl cursor-pointer flex items-center gap-2" onclick="openComanda()" title="">
+<span class="text-gray-400 text-sm"></span> <i class="fas fa-receipt text-gray-400"></i>
 </div>
 </div>
 
@@ -1183,12 +1183,34 @@ const unitPriceDisplay = item.qty > 1
 ? `<div class="text-sm text-gray-400">unidade: R$ ${item.price.toFixed(2)}</div>` 
 : '';
 
+// Racha ativo: mostra dono e botões rápidos de reatribuição
+let rachaInlineHtml = '';
+if (meuTotalRacha !== null && rachaAtribuicoes[idx]) {
+const atr = rachaAtribuicoes[idx];
+let ownerLabel = '';
+if (atr.split) {
+const parts = Object.entries(atr.split).filter(([,v]) => v > 0).map(([k,v]) => `${k}${atr.split && Object.keys(atr.split).filter(k2=>atr.split[k2]>0).length>1?':'+v:''}`).join(', ');
+ownerLabel = `<span class="text-yellow-400 text-xs"><i class="fas fa-cut mr-1"></i>${parts}</span>`;
+} else {
+ownerLabel = `<span class="text-xs" style="color:#aaa"><i class="fas fa-user mr-1"></i>${escapeHtml(atr.owner)}</span>`;
+}
+const personBtns = rachaPessoas.map(p => {
+const isActive = !atr.split && atr.owner === p;
+return `<button onclick="rachaSetOwner(${idx},'${escapeHtml(p)}')" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${isActive ? 'border-orange-500 text-orange-400 bg-orange-500/15' : 'border-white/10 text-gray-500 hover:border-orange-400/50'}">${escapeHtml(p)}</button>`;
+}).join('');
+const splitBtn = item.qty > 1
+? `<button onclick="rachaOpenSplit(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.split ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-500 hover:border-yellow-400/50'}"><i class="fas fa-cut"></i></button>`
+: '';
+rachaInlineHtml = `<div class="flex items-center gap-1 mt-1 flex-wrap">${ownerLabel}<span class="text-gray-600 text-xs mx-1">→</span>${personBtns}${splitBtn}</div>`;
+}
+
 list.innerHTML += `
 <div class="py-2 border-b border-white/10 item-animate">
 <div class="flex items-start justify-between mb-1">
 <div class="flex-1 min-w-0">
 <div class="text-lg font-semibold"><span class="text-orange-500 font-bold">${item.qty}x</span> ${escapeHtml(item.name)}</div>
 ${unitPriceDisplay}
+${rachaInlineHtml}
 </div>
 <div class="font-bold text-lg text-white whitespace-nowrap pl-3">R$ ${totalRow.toFixed(2)}</div>
 </div>
@@ -1215,9 +1237,23 @@ document.getElementById('res-items-couvert').innerHTML = `R$ ${couvert.toFixed(2
 document.getElementById('res-tip').innerHTML = `R$ ${tipValue.toFixed(2)}`;
 document.getElementById('grand-total').innerHTML = `R$ ${finalTotal.toFixed(2)}`;
 
-// Minha parte (racha)
+// Minha parte (racha) — recalcula dinamicamente
 const minhaParteBox = document.getElementById('minha-parte-box');
 if (meuTotalRacha !== null) {
+// Recalcula sempre com base nos itens e atribuições atuais
+let consumoVoce = 0;
+consumption.forEach((item, idx) => {
+const atr = rachaAtribuicoes[idx];
+if (!atr) return;
+if (atr.split) {
+consumoVoce += (atr.split['Você'] || 0) * item.price;
+} else if (atr.owner === 'Você') {
+consumoVoce += item.qty * item.price;
+}
+});
+const gorjetaVoce = hasTip ? consumoVoce * 0.10 : 0;
+meuTotalRacha = consumoVoce + couvert + gorjetaVoce;
+localStorage.setItem('botequim_meu_total_racha', meuTotalRacha);
 document.getElementById('minha-parte-valor').textContent = `R$ ${meuTotalRacha.toFixed(2)}`;
 minhaParteBox.classList.remove('hidden');
 } else {
@@ -1266,6 +1302,10 @@ const price = parseFloat(priceEl.value) || 0;
 
 if (name && price > 0) {
 consumption.push({ name, qty, price });
+// Se racha ativo, atribui o novo item a "Você" por padrão e recalcula
+if (meuTotalRacha !== null) {
+rachaAtribuicoes.push({ owner: 'Você' });
+}
 nameEl.value = ''; 
 qtyEl.value = ''; 
 priceEl.value = '';
@@ -1314,6 +1354,7 @@ document.getElementById('remove-item-name').textContent = consumption[idx].name;
 modal.classList.add('active');
 document.getElementById('remove-confirm-btn').onclick = function() {
 consumption.splice(idx, 1);
+if (rachaAtribuicoes.length > idx) rachaAtribuicoes.splice(idx, 1);
 if (editingIndex === idx) editingIndex = null;
 else if (editingIndex > idx) editingIndex--;
 closeModal('remove-modal');
