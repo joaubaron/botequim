@@ -85,11 +85,6 @@ transform: translateX(0);
 animation: slideIn 0.3s ease-out;
 }
 
-@keyframes pulse {
-0%, 100% { transform: scale(1); }
-50% { transform: scale(1.02); }
-}
-
 /* Scrollbar personalizada */
 ::-webkit-scrollbar {
 width: 0px;
@@ -307,7 +302,7 @@ Gerencie sua conta 🪪
 <span><i class="fas fa-shopping-cart"></i> Consumo:</span> 
 <span id="res-items">R$ 0,00</span>
 </div>
-<div class="flex justify-between text-sm text-gray-300 py-1">
+<div id="res-couvert-row" class="flex justify-between text-sm text-gray-300 py-1">
 <span><i class="fas fa-music"></i> Couvert:</span> 
 <span id="res-items-couvert">R$ 0,00</span>
 </div>
@@ -940,6 +935,7 @@ localStorage.removeItem('botequim_baron');
 localStorage.removeItem('botequim_history');
 }
 let editingIndex = null;
+let _addingItem = false;
 let meuTotalRacha = null;
 const _savedMeuTotal = localStorage.getItem('botequim_meu_total_racha');
 if (_savedMeuTotal !== null) meuTotalRacha = parseFloat(_savedMeuTotal);
@@ -1112,7 +1108,7 @@ rachaInlineHtml = `<div class="flex items-center gap-1 mt-1 flex-wrap">${ownerLa
 }
 
 list.innerHTML += `
-<div class="py-2 border-b border-white/10 item-animate">
+<div class="py-2 border-b border-white/10 ${_addingItem ? 'item-animate' : ''}">
 <div class="flex items-start justify-between mb-1">
 <div class="flex-1 min-w-0">
 <div class="text-base font-semibold"><span class="text-orange-500 font-bold">${item.qty}x</span> ${escapeHtml(item.name)}</div>
@@ -1141,6 +1137,7 @@ const finalTotal = subtotalItems + couvert + tipValue;
 
 document.getElementById('res-items').innerHTML = `R$ ${subtotalItems.toFixed(2)}`;
 document.getElementById('res-items-couvert').innerHTML = `R$ ${couvert.toFixed(2)}`;
+document.getElementById('res-couvert-row').style.display = couvert > 0 ? '' : 'none';
 document.getElementById('res-tip').innerHTML = `R$ ${tipValue.toFixed(2)}`;
 document.getElementById('grand-total').innerHTML = `R$ ${finalTotal.toFixed(2)}`;
 
@@ -1221,7 +1218,9 @@ nameEl.value = '';
 qtyEl.value = ''; 
 priceEl.value = '';
 if (!noFocus) nameEl.focus();
+_addingItem = true;
 updateCalculos();
+_addingItem = false;
 
 if (window.navigator && window.navigator.vibrate) {
 window.navigator.vibrate(50);
@@ -1488,7 +1487,7 @@ hasTip: hasTipVal,
 rachado: meuTotalRacha !== null,
 rachaSnapshot: rachaSnapshot
 });
-if (sessionHistory.length > 20) sessionHistory.pop();
+if (sessionHistory.length > 100) sessionHistory.pop();
 localStorage.setItem('botequim_history', JSON.stringify(sessionHistory));
 }
 consumption = [];
