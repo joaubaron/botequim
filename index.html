@@ -1581,7 +1581,7 @@ let itemsHtml = '';
 displayItems.forEach(item => {
 const rowTotal = (item.qty * item.price).toFixed(2);
 const unitLine = item.qty > 1
-? `<div style="font-size:0.80rem;color:#888;padding-left:4px;margin-top:-2px;line-height:1">${item.qty} x R$ ${item.price.toFixed(2)}</div>`
+? `<div style="font-size:0.80rem;color:#888;margin-top:-2px;line-height:1">${item.qty} x R$ ${item.price.toFixed(2)}</div>`
 : '';
 itemsHtml += `
 <div style="margin-bottom:6px">
