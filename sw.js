@@ -15,7 +15,7 @@ const ESSENTIAL_ASSETS = [
 './icon.png',
 './icon512.png',
 './bar-bg.webp',
-'./sw.js'  // Cache o próprio service worker
+'./sw.js'
 ];
 
 // Recursos externos que DEVEM ser cacheados
