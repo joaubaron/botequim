@@ -1262,26 +1262,71 @@ function addExampleItem(idx) {
 }
 
 const examples = [
-{ name: 'Frida Blond Ale 300ml', price: 13.00 },
-{ name: 'IPA 300ml', price: 14.00 },
-{ name: 'Strong Ale 300ml', price: 14.00 },
-{ name: 'Imperial Stout 300ml', price: 18.00 },
-{ name: 'Weissbier 300ml', price: 18.00 },
-{ name: 'Bolinho de linguiça', price: 49.00 },
-{ name: 'Batatas Rosti', price: 59.90 },
-{ name: 'Schnitzel', price: 49.90 },
-{ name: 'Mussarela Sticks', price: 49.90 },
-{ name: 'Refrigerante', price: 6.50 },
-{ name: 'Suco Natural', price: 8.00 },
-{ name: 'Água Mineral', price: 4.50 },
-{ name: 'Hambúrguer', price: 32.00 },
-{ name: 'X-Salada', price: 22.00 },
-{ name: 'Porção de...', price: 30.00 },
-{ name: 'Pastel de...', price: 8.00 },
-{ name: 'Isca de Peixe', price: 38.00 },
-{ name: 'Pizza Média', price: 55.00 },
-{ name: 'Dose de Whisky', price: 18.00 },
-{ name: 'Gin Tônica', price: 22.00 }
+  // CHOPPES E CERVEJAS
+  { name: 'Chope Pilsen 300ml', price: 12.00 },
+  { name: 'Chope Weiss 300ml', price: 16.00 },
+  { name: 'Chope IPA 300ml', price: 18.00 },
+  { name: 'Chope Stout 300ml', price: 18.00 },
+  { name: 'Chope 500ml', price: 18.00 },
+  { name: 'Chope Torre 2L', price: 65.00 },
+  { name: 'Long Neck', price: 14.00 },
+  
+  // DRINKS
+  { name: 'Caipirinha', price: 22.00 },
+  { name: 'Caipiroska', price: 24.00 },
+  { name: 'Gin Tônica', price: 28.00 },
+  { name: 'Mojito', price: 26.00 },
+  { name: 'Dose de Whisky', price: 22.00 },
+  { name: 'Dose de Cachaça', price: 12.00 },
+  
+  // NÃO ALCOÓLICOS
+  { name: 'Refrigerante Lata', price: 8.00 },
+  { name: 'Suco Natural', price: 12.00 },
+  { name: 'Água Mineral', price: 6.00 },
+  { name: 'Água com Gás', price: 7.00 },
+  { name: 'Chá Gelado', price: 10.00 },
+  
+  // PORÇÕES
+  { name: 'Porção de Batata Frita', price: 38.00 },
+  { name: 'Porção de Batata com Cheddar e Bacon', price: 52.00 },
+  { name: 'Porção de Linguiça Blumenau', price: 55.00 },
+  { name: 'Porção de Frango a Passarinho', price: 48.00 },
+  { name: 'Porção de Torresmo', price: 42.00 },
+  { name: 'Porção de Isca de Tilápia', price: 52.00 },
+  { name: 'Porção de Bolinho de Linguiça', price: 52.00 },
+  { name: 'Porção de Calabresa Acebolada', price: 48.00 },
+  { name: 'Porção de Polenta Frita', price: 32.00 },
+  { name: 'Porção de Mandioca', price: 35.00 },
+  
+  // PASTÉIS
+  { name: 'Pastel de Carne', price: 12.00 },
+  { name: 'Pastel de Queijo', price: 12.00 },
+  { name: 'Pastel de Frango', price: 12.00 },
+  { name: 'Pastel de Pizza', price: 14.00 },
+  { name: 'Pastel de Camarão', price: 18.00 },
+  
+  // LANCHES
+  { name: 'Hambúrguer Artesanal', price: 42.00 },
+  { name: 'X-Salada', price: 28.00 },
+  { name: 'X-Bacon', price: 32.00 },
+  { name: 'X-Tudo', price: 45.00 },
+  { name: 'Hot Dog', price: 22.00 },
+  
+  // PRATOS PRINCIPAIS (inspirado no Biervila)
+  { name: 'Picanha Suína', price: 49.90 },
+  { name: 'Frango Grelhado', price: 49.90 },
+  { name: 'Alcatra Grelhada', price: 89.90 },
+  { name: 'Entrecot Grelhado', price: 89.90 },
+  { name: 'Schnitzel', price: 59.90 },
+  
+  // PIZZAS
+  { name: 'Pizza Média', price: 65.00 },
+  { name: 'Pizza Grande', price: 85.00 },
+  
+  // SOBREMESAS
+  { name: 'Pudim', price: 18.00 },
+  { name: 'Brownie com Sorvete', price: 24.00 },
+  { name: 'Petit Gateau', price: 28.00 }
 ];
 
 function incrementItem(idx) { 
