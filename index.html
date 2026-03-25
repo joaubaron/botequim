@@ -1775,7 +1775,7 @@ const d = h.rachaSnapshot[p];
 const isVoce = p === 'Você';
 const subItens = d.items.map(i => {
 	const itemVal = i.valorFixo !== undefined ? i.valorFixo.toFixed(2) : (i.qty * i.price).toFixed(2);
-	const subLine = i.valorFixo !== undefined ? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">(valor dividido)</div>` : (i.qty > 1 ? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty}x R$ ${i.price.toFixed(2)}</div>` : '');
+	const subLine = i.valorFixo !== undefined ? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">Divisão por pessoa</div>` : (i.qty > 1 ? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty}x R$ ${i.price.toFixed(2)}</div>` : '');
 	return `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:6px">
 	<div><div style="margin-bottom:0px">${escapeHtml(i.name)}</div>${subLine}</div>
 	<span style="white-space:nowrap;padding-left:8px">R$ ${itemVal}</span>
@@ -1959,7 +1959,7 @@ const subItens = itensPessoa[p].map(i => {
 	let html = `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:6px">
 	<div>${escapeHtml(i.name)}`;
 	if (i.valorFixo !== undefined) {
-	html += `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">(valor dividido)</div>`;
+	html += `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">Divisão por pessoa</div>`;
 	} else if (i.qty > 1) {
 	html += `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty} x R$ ${i.price.toFixed(2)}</div>`;
 	}
