@@ -266,11 +266,11 @@ Gerencie sua conta 🪪
 </div>
 
 <div id="input-area">
-<div class="flex gap-2 mb-6" style="display: flex; gap: 8px;">
+<div class="flex gap-2 mb-6">
 <input id="in-name" type="text" placeholder="Item (ex: Cerveja)" class="text-sm p-2 rounded enter-submit" style="flex: 3; min-width: 0;">
 <input id="in-qty" type="number" inputmode="numeric" placeholder="Qt" class="text-sm p-2 rounded text-center enter-submit" style="width: 55px;">
 <input id="in-price" type="number" inputmode="decimal" step="0.01" placeholder="R$" class="text-sm p-2 rounded text-center enter-submit" style="width: 65px;">
-<button onclick="addItem()" class="btn-accent rounded font-bold text-xl" style="width: 45px; display: flex; align-items: center; justify-content: center;">
+<button onclick="addItem()" aria-label="Adicionar item" class="btn-accent rounded font-bold text-xl" style="width: 45px; display: flex; align-items: center; justify-content: center;">
 <i class="fas fa-plus"></i>
 </button>
 </div>
@@ -354,7 +354,7 @@ Desfazer divisao
 <button id="remove-confirm-btn" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
 <i class="fas fa-trash-alt mr-1"></i> Remover
 </button>
-<button onclick="closeModal('remove-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+<button onclick="closeModal('remove-modal')" aria-label="Cancelar" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
 Cancelar
 </button>
 </div>
@@ -367,7 +367,7 @@ Cancelar
 <div class="modal-content" style="width:340px">
 <div class="flex justify-between items-center mb-5">
 <h3 class="text-lg font-bold text-orange-500"><i class="fas fa-pencil-alt mr-2"></i>Editar item</h3>
-<button onclick="closeModal('edit-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
+<button onclick="closeModal('edit-modal')" aria-label="Fechar" class="text-gray-400 text-xl leading-none">&times;</button>
 </div>
 <div class="space-y-4">
 <div>
@@ -438,7 +438,7 @@ Cancelar
 <div class="modal-content">
 <div class="flex justify-between items-center mb-4">
 <h3 class="text-xl font-bold text-orange-500"><i class="fas fa-chart-line"></i> Histórico</h3>
-<button onclick="closeModal('history-modal')" class="text-2xl">&times;</button>
+<button onclick="closeModal('history-modal')" aria-label="Fechar" class="text-2xl">&times;</button>
 </div>
 <div id="history-list" class="space-y-2 max-h-96 overflow-y-auto" style="overflow-x:hidden;"></div>
 <button onclick="clearHistory()" class="mt-3 w-1/2 py-3 rounded-xl text-sm font-bold btn-accent mx-auto block">Limpar Histórico</button>
@@ -634,9 +634,9 @@ Cancelar
 <div class="comanda-wrap" id="comanda-content">
 <!-- gerado por openComanda() -->
 </div>
-<button class="comanda-close-btn" onclick="closeModal('comanda-modal')">✕</button>
+<button class="comanda-close-btn" aria-label="Fechar comanda" onclick="closeModal('comanda-modal')">✕</button>
 <div id="comanda-actions" style="background:#f5f0e8;padding:12px 20px 16px;display:flex;justify-content:center;gap:24px;border-top:1px dashed #ccc;">
-<button onclick="compartilharComandaImagem()" title="" style="background:transparent;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;">
+<button onclick="compartilharComandaImagem()" aria-label="Compartilhar comanda" title="" style="background:transparent;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;">
 <img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/whatsapp.svg" alt="WhatsApp" width="28" height="28">
 </button>
 </div>
@@ -1021,14 +1021,14 @@ updateResumoTitulo();
 function updateResumoTitulo() {
 const titulo = document.getElementById('resumo-titulo');
 const text = currentBarName
-? `<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo do consumo — ${currentBarName}</span>`
+? `<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo do consumo — ${escapeHtml(currentBarName)}</span>`
 : '<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo do consumo</span>';
 titulo.innerHTML = text;
 
 const sub = document.getElementById('header-subtitle');
 if (sub) {
 if (currentBarName) {
-sub.innerHTML = '<i class="fas fa-store mr-1"></i> ' + currentBarName;
+sub.innerHTML = '<i class="fas fa-store mr-1"></i> ' + escapeHtml(currentBarName);
 sub.style.marginLeft = '10px';
 } else {
 sub.innerHTML = 'Gerencie sua conta <i class="fas fa-id-card ml-2"></i>';
