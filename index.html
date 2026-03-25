@@ -1226,7 +1226,12 @@ rachaAtribuicoes.push({ owner: 'Você' });
 nameEl.value = ''; 
 qtyEl.value = ''; 
 priceEl.value = '';
-if (!noFocus) nameEl.focus();
+
+// Remove o foco de todos os campos - o teclado não aparecerá automaticamente
+nameEl.blur();
+qtyEl.blur();
+priceEl.blur();
+
 _addingItem = true;
 updateCalculos();
 _addingItem = false;
