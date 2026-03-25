@@ -1588,9 +1588,9 @@ const linhas = pessoas.map(p => {
 const d = h.rachaSnapshot[p];
 const isVoce = p === 'Você';
 const subItens = d.items.map(i =>
-`<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px">
-<span>${escapeHtml(i.name)}${i.qty > 1 ? ` (${i.qty}x R$${i.price.toFixed(2)})` : ''}</span>
-<span>R$ ${(i.qty * i.price).toFixed(2)}</span>
+`<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:3px">
+<div><div>${escapeHtml(i.name)}</div>${i.qty > 1 ? `<div style="font-size:0.72rem;color:#888">${i.qty}x R$ ${i.price.toFixed(2)}</div>` : ''}</div>
+<span style="white-space:nowrap;padding-left:8px">R$ ${(i.qty * i.price).toFixed(2)}</span>
 </div>`).join('');
 const extras = `
 ${d.couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Couvert</span><span>R$ ${d.couvert.toFixed(2)}</span></div>` : ''}
@@ -1752,9 +1752,9 @@ const gorj = hasTip ? totaisPessoa[p] * 0.10 : 0;
 const totalP = totaisPessoa[p] + couvert + gorj;
 const isVoce = p === 'Você';
 const subItens = itensPessoa[p].map(i =>
-`<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px">
-<span>${escapeHtml(i.name)}${i.qty > 1 ? ` (${i.qty}x R$${i.price.toFixed(2)})` : ''}</span>
-<span>R$ ${(i.qty * i.price).toFixed(2)}</span>
+`<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:3px">
+<div><div>${escapeHtml(i.name)}</div>${i.qty > 1 ? `<div style="font-size:0.72rem;color:#888">${i.qty}x R$ ${i.price.toFixed(2)}</div>` : ''}</div>
+<span style="white-space:nowrap;padding-left:8px">R$ ${(i.qty * i.price).toFixed(2)}</span>
 </div>`).join('');
 const extras = `
 ${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Couvert</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
