@@ -1188,7 +1188,7 @@ div.textContent = text;
 return div.innerHTML;
 }
 
-function addItem() {
+function addItem(noFocus) {
 if (!currentBarName) {
 if (!document.getElementById('barname-modal').classList.contains('active')) {
 openBarNameModal();
@@ -1212,7 +1212,7 @@ rachaAtribuicoes.push({ owner: 'Você' });
 nameEl.value = ''; 
 qtyEl.value = ''; 
 priceEl.value = '';
-nameEl.focus(); 
+if (!noFocus) nameEl.focus();
 updateCalculos();
 
 if (window.navigator && window.navigator.vibrate) {
@@ -1306,7 +1306,7 @@ function addExampleItem(idx) {
     document.getElementById('in-price').value = item.price;
     document.getElementById('in-qty').value = 1;
 
-    addItem();
+    addItem(true);
 
     // feedback
     if (window.navigator && window.navigator.vibrate) {
