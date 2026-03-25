@@ -589,17 +589,18 @@ Cancelar
 </div>
 </div>
 
-<!-- Modal Racha - Split por VALOR -->
+<!-- Modal Racha - Split de valor (qty=1) -->
 <div id="racha-split-valor-modal" class="modal">
 <div class="modal-content" style="width:340px; z-index:3000;">
-<div class="flex justify-between items-center mb-4">
+<div class="flex justify-between items-center mb-3">
 <h3 class="text-base font-bold text-yellow-400"><i class="fas fa-dollar-sign mr-2"></i>Dividir valor</h3>
 <button onclick="closeModal('racha-split-valor-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
 </div>
-<p id="racha-split-valor-desc" class="text-sm text-gray-300 mb-1"></p>
-<p id="racha-split-valor-total-label" class="text-xs text-orange-400 font-bold mb-4"></p>
-<div id="racha-split-valor-inputs" class="space-y-3 mb-2"></div>
-<div id="racha-split-valor-restante" class="text-xs text-center mb-3"></div>
+<div class="mb-4">
+<div class="text-sm text-gray-200 font-semibold" id="racha-split-valor-title"></div>
+<div class="text-sm text-orange-400 font-bold" id="racha-split-valor-total"></div>
+</div>
+<div id="racha-split-valor-inputs" class="space-y-3 mb-4"></div>
 <div class="flex gap-3 mt-2">
 <button onclick="rachaSplitValorConfirm()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
 <i class="fas fa-check mr-1"></i> Confirmar
@@ -761,8 +762,8 @@ list.innerHTML = consumption.map((item, idx) => {
 const atr = rachaAtribuicoes[idx];
 let statusHtml = '';
 if (atr.splitValor) {
-const parts = Object.entries(atr.splitValor).filter(([,v]) => v > 0).map(([k,v]) => `${k}: R$${v.toFixed(2)}`).join(', ');
-statusHtml = `<span class="text-xs text-green-400">R$ ${parts}</span>`;
+const parts = Object.entries(atr.splitValor).filter(([,v]) => v > 0).map(([k,v]) => `${k}:R$${v.toFixed(2)}`).join(', ');
+statusHtml = `<span class="text-xs text-yellow-400">÷ ${parts}</span>`;
 } else if (atr.split) {
 const parts = Object.entries(atr.split).filter(([,v]) => v > 0).map(([k,v]) => `${k}:${v}`).join(', ');
 statusHtml = `<span class="text-xs text-yellow-400">÷ ${parts}</span>`;
@@ -776,8 +777,7 @@ class="px-2 py-1 rounded-lg text-xs font-bold border transition-all ${atr.owner 
 `).join('');
 const splitBtn = item.qty > 1
 ? `<button onclick="rachaOpenSplit(${idx})" class="px-2 py-1 rounded-lg text-xs font-bold border transition-all ${atr.split ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-400'}"><i class="fas fa-cut"></i> Dividir</button>`
-: '';
-const splitValorBtn = `<button onclick="rachaOpenSplitValor(${idx})" class="px-2 py-1 rounded-lg text-xs font-bold border transition-all ${atr.splitValor ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-white/10 text-gray-400'}"><i class="fas fa-coins"></i> R$</button>`;
+: `<button onclick="rachaOpenSplitValor(${idx})" class="px-2 py-1 rounded-lg text-xs font-bold border transition-all ${atr.splitValor ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-400'}"><i class="fas fa-dollar-sign"></i> Dividir valor</button>`;
 return `
 <div class="bg-white/5 rounded-xl p-3">
 <div class="flex justify-between items-start mb-2">
@@ -787,14 +787,14 @@ return `
 </div>
 <div>${statusHtml}</div>
 </div>
-<div class="flex flex-wrap gap-2">${personBtns}${splitBtn}${splitValorBtn}</div>
+<div class="flex flex-wrap gap-2">${personBtns}${splitBtn}</div>
 </div>
 `;
 }).join('');
 }
 
 function rachaSetOwner(idx, person) {
-rachaAtribuicoes[idx] = { owner: person }; // limpa split e splitValor
+rachaAtribuicoes[idx] = { owner: person };
 renderRachaItens();
 updateCalculos();
 if (meuTotalRacha !== null) {
@@ -878,123 +878,93 @@ renderRachaItens();
 updateCalculos();
 }
 
-// ---- SPLIT POR VALOR ----
-let rachaSplitValorItemIdx = null;
+// ---- SPLIT POR VALOR (apenas para qty=1) ----
+let rachaSplitValorIdx = null;
 let rachaSplitValorValues = {};
 
 function rachaOpenSplitValor(idx) {
-rachaSplitValorItemIdx = idx;
+rachaSplitValorIdx = idx;
 const item = consumption[idx];
 const atr = rachaAtribuicoes[idx];
-const totalItem = item.qty * item.price;
-document.getElementById('racha-split-valor-desc').textContent = `${item.qty}x ${item.name}`;
-document.getElementById('racha-split-valor-total-label').textContent = `Total: R$ ${totalItem.toFixed(2)}`;
+const totalItem = item.price; // qty=1
+document.getElementById('racha-split-valor-title').textContent = item.name;
+document.getElementById('racha-split-valor-total').textContent = `Total: R$ ${totalItem.toFixed(2)}`;
 
 rachaSplitValorValues = {};
-// Se já havia splitValor, restaura; senão distribui igualmente
 if (atr.splitValor) {
 rachaPessoas.forEach(p => { rachaSplitValorValues[p] = atr.splitValor[p] || 0; });
 } else {
-// distribui igualmente como ponto de partida
-const igualdade = totalItem / rachaPessoas.length;
-rachaPessoas.forEach(p => { rachaSplitValorValues[p] = parseFloat(igualdade.toFixed(2)); });
-// ajusta arredondamento no primeiro
-const soma = rachaPessoas.reduce((s,p) => s + rachaSplitValorValues[p], 0);
-const diff = parseFloat((totalItem - soma).toFixed(2));
-rachaSplitValorValues[rachaPessoas[0]] = parseFloat((rachaSplitValorValues[rachaPessoas[0]] + diff).toFixed(2));
+rachaPessoas.forEach(p => { rachaSplitValorValues[p] = atr.owner === p ? totalItem : 0; });
 }
-
-renderSplitValorInputs(idx);
+renderSplitValorInputs();
 openModal('racha-split-valor-modal');
 }
 
-function renderSplitValorInputs(idx) {
+function renderSplitValorInputs() {
+const idx = rachaSplitValorIdx;
 const item = consumption[idx];
-const totalItem = item.qty * item.price;
+const totalItem = item.price;
 const inputs = document.getElementById('racha-split-valor-inputs');
-const totalAtribuido = rachaPessoas.reduce((s, p) => s + (rachaSplitValorValues[p] || 0), 0);
-const restante = parseFloat((totalItem - totalAtribuido).toFixed(2));
+const usado = rachaPessoas.reduce((s, p) => s + (rachaSplitValorValues[p] || 0), 0);
+const restante = parseFloat((totalItem - usado).toFixed(2));
 
-inputs.innerHTML = rachaPessoas.map((p, i) => {
-const val = (rachaSplitValorValues[p] || 0).toFixed(2);
+inputs.innerHTML = rachaPessoas.map(p => {
+const val = rachaSplitValorValues[p] || 0;
 return `
-<div class="bg-white/5 rounded-xl px-3 py-2">
-<div class="flex items-center justify-between gap-3">
-<span class="text-sm font-semibold text-white w-24 flex-shrink-0">${escapeHtml(p)}</span>
-<div class="flex items-center gap-2 flex-1">
+<div class="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2">
+<span class="text-sm font-semibold text-white w-24">${escapeHtml(p)}</span>
+<div class="flex items-center gap-2">
 <span class="text-gray-400 text-sm">R$</span>
-<input type="number" inputmode="decimal" step="0.01" min="0"
-id="split-valor-input-${i}"
-value="${val}"
-oninput="rachaSplitValorChange('${escapeHtml(p)}', this.value, ${idx})"
-class="flex-1 p-2 rounded-lg text-sm text-center font-bold"
-style="max-width:90px">
+<input type="number" inputmode="decimal" step="0.01" min="0" max="${totalItem}"
+value="${val > 0 ? val.toFixed(2) : ''}"
+placeholder="0,00"
+oninput="rachaSplitValorSetValue('${escapeHtml(p)}', this.value)"
+class="w-24 p-2 rounded-lg text-center text-sm font-bold"
+style="background:#2d2d35;border:1px solid rgba(255,152,0,0.3);color:white;outline:none;">
 </div>
-</div>
-</div>
-`;
+</div>`;
 }).join('');
 
-const restEl = document.getElementById('racha-split-valor-restante');
-if (Math.abs(restante) < 0.01) {
-restEl.innerHTML = `<span class="text-green-400 font-bold">&#10003; Tudo distribuído</span>`;
-} else if (restante > 0) {
-restEl.innerHTML = `<span class="text-yellow-400">Falta R$ ${restante.toFixed(2)}</span>`;
-} else {
-restEl.innerHTML = `<span class="text-red-400">Excede em R$ ${Math.abs(restante).toFixed(2)}</span>`;
-}
+const restanteColor = Math.abs(restante) < 0.01 ? 'text-green-400' : (restante < 0 ? 'text-red-400' : 'text-yellow-400');
+const restanteMsg = Math.abs(restante) < 0.01 ? '✓ Tudo distribuído' : (restante > 0 ? `Faltam R$ ${restante.toFixed(2)}` : `Excesso de R$ ${Math.abs(restante).toFixed(2)}`);
+inputs.innerHTML += `<div id="split-valor-indicator" class="text-xs text-center mt-2 font-semibold ${restanteColor}">${restanteMsg}</div>`;
 }
 
-function rachaSplitValorChange(person, rawVal, idx) {
-const val = parseFloat(rawVal) || 0;
-const oldVal = rachaSplitValorValues[person] || 0;
-rachaSplitValorValues[person] = parseFloat(val.toFixed(2));
+function rachaSplitValorSetValue(person, rawVal) {
+const idx = rachaSplitValorIdx;
 const item = consumption[idx];
-const totalItem = item.qty * item.price;
-// Calcula só a mudança em vez de fazer reduce
-let totalAtribuido = 0;
-for (let p of rachaPessoas) {
-totalAtribuido += rachaSplitValorValues[p] || 0;
-}
-const restante = parseFloat((totalItem - totalAtribuido).toFixed(2));
-const restEl = document.getElementById('racha-split-valor-restante');
-if (!restEl) return; // elemento não existe
-if (Math.abs(restante) < 0.01) {
-restEl.innerHTML = `<span class="text-green-400 font-bold">✓ Tudo distribuído</span>`;
-} else if (restante > 0) {
-restEl.innerHTML = `<span class="text-yellow-400">Falta R$ ${restante.toFixed(2)}</span>`;
-} else {
-restEl.innerHTML = `<span class="text-red-400">Excede em R$ ${Math.abs(restante).toFixed(2)}</span>`;
+const totalItem = item.price;
+let val = parseFloat(rawVal);
+if (isNaN(val) || val < 0) val = 0;
+if (val > totalItem) val = totalItem;
+rachaSplitValorValues[person] = parseFloat(val.toFixed(2));
+const usado = rachaPessoas.reduce((s, p) => s + (rachaSplitValorValues[p] || 0), 0);
+const restante = parseFloat((totalItem - usado).toFixed(2));
+const indicator = document.getElementById('split-valor-indicator');
+if (indicator) {
+const restanteColor = Math.abs(restante) < 0.01 ? 'text-green-400' : (restante < 0 ? 'text-red-400' : 'text-yellow-400');
+const restanteMsg = Math.abs(restante) < 0.01 ? '✓ Tudo distribuído' : (restante > 0 ? `Faltam R$ ${restante.toFixed(2)}` : `Excesso de R$ ${Math.abs(restante).toFixed(2)}`);
+indicator.className = `text-xs text-center mt-2 font-semibold ${restanteColor}`;
+indicator.textContent = restanteMsg;
 }
 }
 
 function rachaSplitValorConfirm() {
-const idx = rachaSplitValorItemIdx;
+const idx = rachaSplitValorIdx;
 const item = consumption[idx];
-const totalItem = item.qty * item.price;
-
-// lê valores dos inputs no momento (caso o usuário tenha digitado sem perder foco)
-rachaPessoas.forEach((p, i) => {
-const el = document.getElementById(`split-valor-input-${i}`);
-if (el) rachaSplitValorValues[p] = parseFloat(el.value) || 0;
-});
-
-const totalAtribuido = rachaPessoas.reduce((s, p) => s + (rachaSplitValorValues[p] || 0), 0);
-const diff = Math.abs(totalItem - totalAtribuido);
-if (diff > 0.02) {
-renderSplitValorInputs(idx); // mostra erro inline
+const totalItem = item.price;
+const splitValor = {};
+let totalDistribuido = 0;
+rachaPessoas.forEach(p => { splitValor[p] = rachaSplitValorValues[p] || 0; totalDistribuido += splitValor[p]; });
+if (Math.abs(totalDistribuido - totalItem) > 0.01) {
+renderSplitValorInputs();
 return;
 }
-// normaliza pequenos erros de arredondamento
-const splitValor = {};
-rachaPessoas.forEach(p => { splitValor[p] = parseFloat((rachaSplitValorValues[p] || 0).toFixed(2)); });
 rachaAtribuicoes[idx] = { splitValor };
 closeModal('racha-split-valor-modal');
 renderRachaItens();
 updateCalculos();
 }
-
-function rachaCalcular() {
 const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
 const hasTip = document.getElementById('in-tip').checked;
 const totais = {};
@@ -1003,9 +973,7 @@ rachaPessoas.forEach(p => { totais[p] = { consumo: 0, couvert: couvert, gorjeta:
 consumption.forEach((item, idx) => {
 const atr = rachaAtribuicoes[idx];
 if (atr.splitValor) {
-rachaPessoas.forEach(p => {
-totais[p].consumo += atr.splitValor[p] || 0;
-});
+rachaPessoas.forEach(p => { totais[p].consumo += atr.splitValor[p] || 0; });
 } else if (atr.split) {
 rachaPessoas.forEach(p => {
 const qty = atr.split[p] || 0;
@@ -1243,25 +1211,24 @@ const unitPriceDisplay = item.qty > 1
 let rachaInlineHtml = '';
 if (meuTotalRacha !== null && rachaAtribuicoes[idx]) {
 const atr = rachaAtribuicoes[idx];
-	let ownerLabel = '';
-	if (atr.splitValor) {
-	const parts = Object.entries(atr.splitValor).filter(([,v]) => v > 0).map(([k,v]) => `${k}: R$${v.toFixed(2)}`).join(', ');
-	ownerLabel = `<span class="text-green-400 text-xs"><i class="fas fa-coins mr-1"></i>${parts}</span>`;
-	} else if (atr.split) {
-	const parts = Object.entries(atr.split).filter(([,v]) => v > 0).map(([k,v]) => `${k}${atr.split && Object.keys(atr.split).filter(k2=>atr.split[k2]>0).length>1?':'+v:''}`).join(', ');
-	ownerLabel = `<span class="text-yellow-400 text-xs"><i class="fas fa-cut mr-1"></i>${parts}</span>`;
-	} else {
-	ownerLabel = `<span class="text-xs" style="color:#aaa"><i class="fas fa-user mr-1"></i>${escapeHtml(atr.owner)}</span>`;
-	}
-	const personBtns = rachaPessoas.map(p => {
-	const isActive = !atr.split && !atr.splitValor && atr.owner === p;
-	return `<button onclick="rachaSetOwner(${idx},'${escapeHtml(p)}')" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${isActive ? 'border-orange-500 text-orange-400 bg-orange-500/15' : 'border-white/10 text-gray-500 hover:border-orange-400/50'}">${escapeHtml(p)}</button>`;
-	}).join('');
-	const splitBtn = item.qty > 1
-	? `<button onclick="rachaOpenSplit(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.split ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-500 hover:border-yellow-400/50'}"><i class="fas fa-cut"></i></button>`
-	: '';
-	const splitValorBtnInline = `<button onclick="rachaOpenSplitValor(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.splitValor ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-white/10 text-gray-500 hover:border-green-400/50'}"><i class="fas fa-coins"></i></button>`;
-rachaInlineHtml = `<div class="flex items-center gap-1 mt-1 flex-wrap">${ownerLabel}<span class="text-gray-600 text-xs mx-1">→</span>${personBtns}${splitBtn}${splitValorBtnInline}</div>`;
+let ownerLabel = '';
+if (atr.splitValor) {
+const parts = Object.entries(atr.splitValor).filter(([,v]) => v > 0).map(([k,v]) => `${k}:R$${v.toFixed(2)}`).join(', ');
+ownerLabel = `<span class="text-yellow-400 text-xs"><i class="fas fa-dollar-sign mr-1"></i>${parts}</span>`;
+} else if (atr.split) {
+const parts = Object.entries(atr.split).filter(([,v]) => v > 0).map(([k,v]) => `${k}${atr.split && Object.keys(atr.split).filter(k2=>atr.split[k2]>0).length>1?':'+v:''}`).join(', ');
+ownerLabel = `<span class="text-yellow-400 text-xs"><i class="fas fa-cut mr-1"></i>${parts}</span>`;
+} else {
+ownerLabel = `<span class="text-xs" style="color:#aaa"><i class="fas fa-user mr-1"></i>${escapeHtml(atr.owner)}</span>`;
+}
+const personBtns = rachaPessoas.map(p => {
+const isActive = !atr.split && !atr.splitValor && atr.owner === p;
+return `<button onclick="rachaSetOwner(${idx},'${escapeHtml(p)}')" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${isActive ? 'border-orange-500 text-orange-400 bg-orange-500/15' : 'border-white/10 text-gray-500 hover:border-orange-400/50'}">${escapeHtml(p)}</button>`;
+}).join('');
+const splitBtn = item.qty > 1
+? `<button onclick="rachaOpenSplit(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.split ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-500 hover:border-yellow-400/50'}"><i class="fas fa-cut"></i></button>`
+: `<button onclick="rachaOpenSplitValor(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.splitValor ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-500 hover:border-yellow-400/50'}"><i class="fas fa-dollar-sign"></i></button>`;
+rachaInlineHtml = `<div class="flex items-center gap-1 mt-1 flex-wrap">${ownerLabel}<span class="text-gray-600 text-xs mx-1">→</span>${personBtns}${splitBtn}</div>`;
 }
 
 list.innerHTML += `
@@ -1301,19 +1268,19 @@ document.getElementById('grand-total').innerHTML = `R$ ${finalTotal.toFixed(2)}`
 // Minha parte (racha) — recalcula dinamicamente
 const minhaParteBox = document.getElementById('minha-parte-box');
 if (meuTotalRacha !== null) {
-	// Recalcula sempre com base nos itens e atribuições atuais
-	let consumoVoce = 0;
-	consumption.forEach((item, idx) => {
-	const atr = rachaAtribuicoes[idx];
-	if (!atr) return;
-	if (atr.splitValor) {
-	consumoVoce += atr.splitValor['Você'] || 0;
-	} else if (atr.split) {
-	consumoVoce += (atr.split['Você'] || 0) * item.price;
-	} else if (atr.owner === 'Você') {
-	consumoVoce += item.qty * item.price;
-	}
-	});
+// Recalcula sempre com base nos itens e atribuições atuais
+let consumoVoce = 0;
+consumption.forEach((item, idx) => {
+const atr = rachaAtribuicoes[idx];
+if (!atr) return;
+if (atr.splitValor) {
+consumoVoce += atr.splitValor['Você'] || 0;
+} else if (atr.split) {
+consumoVoce += (atr.split['Você'] || 0) * item.price;
+} else if (atr.owner === 'Você') {
+consumoVoce += item.qty * item.price;
+}
+});
 const gorjetaVoce = hasTip ? consumoVoce * 0.10 : 0;
 meuTotalRacha = consumoVoce + couvert + gorjetaVoce;
 localStorage.setItem('botequim_meu_total_racha', meuTotalRacha);
@@ -1602,50 +1569,50 @@ let histItems, histSubtotal, rachaSnapshot;
 if (meuTotalRacha !== null && rachaAtribuicoes.length === consumption.length) {
 histItems = [];
 histSubtotal = 0;
-	consumption.forEach((item, idx) => {
-	const atr = rachaAtribuicoes[idx];
-	if (atr.splitValor) {
-	const val = atr.splitValor['Você'] || 0;
-	if (val > 0) {
-	histItems.push({ name: item.name, qty: item.qty, price: item.price, valorFixo: val });
-	histSubtotal += val;
-	}
-	} else {
-	let myQty = 0;
-	if (atr.split) myQty = atr.split['Você'] || 0;
-	else if (atr.owner === 'Você') myQty = item.qty;
-	if (myQty > 0) {
-	histItems.push({ name: item.name, qty: myQty, price: item.price });
-	histSubtotal += myQty * item.price;
-	}
-	}
-	});
+consumption.forEach((item, idx) => {
+const atr = rachaAtribuicoes[idx];
+if (atr.splitValor) {
+const myValor = atr.splitValor['Você'] || 0;
+if (myValor > 0) {
+histItems.push({ name: item.name, qty: item.qty, price: item.price, valorDividido: myValor });
+histSubtotal += myValor;
+}
+} else {
+let myQty = 0;
+if (atr.split) myQty = atr.split['Você'] || 0;
+else if (atr.owner === 'Você') myQty = item.qty;
+if (myQty > 0) {
+histItems.push({ name: item.name, qty: myQty, price: item.price });
+histSubtotal += myQty * item.price;
+}
+}
+});
 // snapshot completo por pessoa para a comanda do histórico
 rachaSnapshot = {};
 rachaPessoas.forEach(p => { rachaSnapshot[p] = { consumo: 0, items: [] }; });
-	consumption.forEach((item, idx) => {
-	const atr = rachaAtribuicoes[idx];
-	if (atr.splitValor) {
-	rachaPessoas.forEach(p => {
-	const val = atr.splitValor[p] || 0;
-	if (val > 0) {
-	rachaSnapshot[p].consumo += val;
-	rachaSnapshot[p].items.push({ name: item.name, qty: item.qty, price: item.price, valorFixo: val });
-	}
-	});
-	} else if (atr.split) {
-	rachaPessoas.forEach(p => {
-	const qty = atr.split[p] || 0;
-	if (qty > 0) {
-	rachaSnapshot[p].consumo += qty * item.price;
-	rachaSnapshot[p].items.push({ name: item.name, qty, price: item.price });
-	}
-	});
-	} else {
-	rachaSnapshot[atr.owner].consumo += item.qty * item.price;
-	rachaSnapshot[atr.owner].items.push({ name: item.name, qty: item.qty, price: item.price });
-	}
-	});
+consumption.forEach((item, idx) => {
+const atr = rachaAtribuicoes[idx];
+if (atr.splitValor) {
+rachaPessoas.forEach(p => {
+const valor = atr.splitValor[p] || 0;
+if (valor > 0) {
+rachaSnapshot[p].consumo += valor;
+rachaSnapshot[p].items.push({ name: item.name, qty: item.qty, price: item.price, valorDividido: valor });
+}
+});
+} else if (atr.split) {
+rachaPessoas.forEach(p => {
+const qty = atr.split[p] || 0;
+if (qty > 0) {
+rachaSnapshot[p].consumo += qty * item.price;
+rachaSnapshot[p].items.push({ name: item.name, qty, price: item.price });
+}
+});
+} else {
+rachaSnapshot[atr.owner].consumo += item.qty * item.price;
+rachaSnapshot[atr.owner].items.push({ name: item.name, qty: item.qty, price: item.price });
+}
+});
 rachaPessoas.forEach(p => {
 const gorj = hasTipVal ? rachaSnapshot[p].consumo * 0.10 : 0;
 rachaSnapshot[p].gorjeta = gorj;
@@ -1774,13 +1741,15 @@ const linhas = pessoas.map(p => {
 const d = h.rachaSnapshot[p];
 const isVoce = p === 'Você';
 const subItens = d.items.map(i => {
-	const itemVal = i.valorFixo !== undefined ? i.valorFixo.toFixed(2) : (i.qty * i.price).toFixed(2);
-	const subLine = i.valorFixo !== undefined ? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">(valor dividido)</div>` : (i.qty > 1 ? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty}x R$ ${i.price.toFixed(2)}</div>` : '');
-	return `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:6px">
-	<div><div style="margin-bottom:0px">${escapeHtml(i.name)}</div>${subLine}</div>
-	<span style="white-space:nowrap;padding-left:8px">R$ ${itemVal}</span>
-	</div>`;
-	}).join('');
+const itemTotal = i.valorDividido !== undefined ? i.valorDividido.toFixed(2) : (i.qty * i.price).toFixed(2);
+const subLabel = i.valorDividido !== undefined
+? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">(valor dividido)</div>`
+: (i.qty > 1 ? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty}x R$ ${i.price.toFixed(2)}</div>` : '');
+return `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:6px">
+<div><div style="margin-bottom:0px">${escapeHtml(i.name)}</div>${subLabel}</div>
+<span style="white-space:nowrap;padding-left:8px">R$ ${itemTotal}</span>
+</div>`;
+}).join('');
 const extras = `
 ${d.couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Couvert</span><span>R$ ${d.couvert.toFixed(2)}</span></div>` : ''}
 ${d.gorjeta > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Gorjeta (10%)</span><span>R$ ${d.gorjeta.toFixed(2)}</span></div>` : ''}`;
@@ -1928,46 +1897,46 @@ const totaisPessoa = {};
 const itensPessoa = {};
 rachaPessoas.forEach(p => { totaisPessoa[p] = 0; itensPessoa[p] = []; });
 consumption.forEach((item, idx) => {
-	const atr = rachaAtribuicoes[idx];
-	if (atr.splitValor) {
-	rachaPessoas.forEach(p => {
-	const val = atr.splitValor[p] || 0;
-	if (val > 0) {
-	totaisPessoa[p] += val;
-	itensPessoa[p].push({ name: item.name, qty: item.qty, price: item.price, valorFixo: val });
-	}
-	});
-	} else if (atr.split) {
-	rachaPessoas.forEach(p => {
-	const qty = atr.split[p] || 0;
-	if (qty > 0) {
-	totaisPessoa[p] += qty * item.price;
-	itensPessoa[p].push({ name: item.name, qty, price: item.price });
-	}
-	});
-	} else {
-	totaisPessoa[atr.owner] += item.qty * item.price;
-	itensPessoa[atr.owner].push({ name: item.name, qty: item.qty, price: item.price });
-	}
-	});
+const atr = rachaAtribuicoes[idx];
+if (atr.splitValor) {
+rachaPessoas.forEach(p => {
+const valor = atr.splitValor[p] || 0;
+if (valor > 0) {
+totaisPessoa[p] += valor;
+itensPessoa[p].push({ name: item.name, qty: item.qty, price: item.price, valorDividido: valor });
+}
+});
+} else if (atr.split) {
+rachaPessoas.forEach(p => {
+const qty = atr.split[p] || 0;
+if (qty > 0) {
+totaisPessoa[p] += qty * item.price;
+itensPessoa[p].push({ name: item.name, qty, price: item.price });
+}
+});
+} else {
+totaisPessoa[atr.owner] += item.qty * item.price;
+itensPessoa[atr.owner].push({ name: item.name, qty: item.qty, price: item.price });
+}
+});
 const linhas = rachaPessoas.map(p => {
 const gorj = hasTip ? totaisPessoa[p] * 0.10 : 0;
 const totalP = totaisPessoa[p] + couvert + gorj;
 const isVoce = p === 'Você';
 const subItens = itensPessoa[p].map(i => {
-	const itemTotal = i.valorFixo !== undefined ? i.valorFixo.toFixed(2) : (i.qty * i.price).toFixed(2);
-	let html = `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:6px">
-	<div>${escapeHtml(i.name)}`;
-	if (i.valorFixo !== undefined) {
-	html += `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">(valor dividido)</div>`;
-	} else if (i.qty > 1) {
-	html += `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty} x R$ ${i.price.toFixed(2)}</div>`;
-	}
-	html += `</div>
-	<span style="white-space:nowrap;padding-left:8px">R$ ${itemTotal}</span>
-	</div>`;
-	return html;
-	}).join('');
+const itemTotal = i.valorDividido !== undefined ? i.valorDividido.toFixed(2) : (i.qty * i.price).toFixed(2);
+let html = `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:6px">
+<div>${escapeHtml(i.name)}`;
+if (i.valorDividido !== undefined) {
+html += `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">(valor dividido)</div>`;
+} else if (i.qty > 1) {
+html += `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty} x R$ ${i.price.toFixed(2)}</div>`;
+}
+html += `</div>
+<span style="white-space:nowrap;padding-left:8px">R$ ${itemTotal}</span>
+</div>`;
+return html;
+}).join('');
 const extras = `
 ${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Couvert</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
 ${gorj > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Gorjeta (10%)</span><span>R$ ${gorj.toFixed(2)}</span></div>` : ''}`;
