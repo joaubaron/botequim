@@ -672,6 +672,8 @@ openModal('racha-pessoas-modal');
 function confirmarRefazerRacha() {
 meuTotalRacha = null;
 localStorage.removeItem('botequim_meu_total_racha');
+localStorage.removeItem('botequim_racha_pessoas');
+localStorage.removeItem('botequim_racha_atribuicoes');
 rachaPessoas = ['Você'];
 rachaAtribuicoes = consumption.map(() => ({ owner: 'Você' }));
 renderRachaPessoas();
@@ -915,7 +917,11 @@ updateCalculos();
 
 function desfazerRacha() {
 meuTotalRacha = null;
+rachaPessoas = ['Você'];
+rachaAtribuicoes = [];
 localStorage.removeItem('botequim_meu_total_racha');
+localStorage.removeItem('botequim_racha_pessoas');
+localStorage.removeItem('botequim_racha_atribuicoes');
 updateCalculos();
 }
 
@@ -933,6 +939,21 @@ let editingIndex = null;
 let meuTotalRacha = null;
 const _savedMeuTotal = localStorage.getItem('botequim_meu_total_racha');
 if (_savedMeuTotal !== null) meuTotalRacha = parseFloat(_savedMeuTotal);
+
+// Restaura racha ao reabrir o app
+try {
+  const _savedPessoas = localStorage.getItem('botequim_racha_pessoas');
+  const _savedAtrib = localStorage.getItem('botequim_racha_atribuicoes');
+  if (_savedPessoas) rachaPessoas = JSON.parse(_savedPessoas);
+  if (_savedAtrib) rachaAtribuicoes = JSON.parse(_savedAtrib);
+  // Garante que atribuições tem o mesmo tamanho que consumption
+  if (meuTotalRacha !== null && rachaAtribuicoes.length !== consumption.length) {
+    rachaAtribuicoes = consumption.map((_, i) => rachaAtribuicoes[i] || { owner: 'Você' });
+  }
+} catch(e) {
+  rachaPessoas = ['Você'];
+  rachaAtribuicoes = [];
+}
 
 // Navegação entre campos com Enter
 document.getElementById('in-name').addEventListener('keypress', function(e) {
@@ -1151,6 +1172,10 @@ s.innerHTML = marks.map(v => `<span>R$${Math.round(v)}</span>`).join('');
 }
 
 localStorage.setItem('botequim_baron', JSON.stringify(consumption));
+if (meuTotalRacha !== null) {
+  localStorage.setItem('botequim_racha_pessoas', JSON.stringify(rachaPessoas));
+  localStorage.setItem('botequim_racha_atribuicoes', JSON.stringify(rachaAtribuicoes));
+}
 
 if (editingIndex === null && list.lastChild) {
 list.lastChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1468,7 +1493,12 @@ consumption = [];
 editingIndex = null;
 currentBarName = '';
 meuTotalRacha = null;
+rachaPessoas = ['Você'];
+rachaAtribuicoes = [];
 localStorage.removeItem('botequim_meu_total_racha');
+localStorage.removeItem('botequim_racha_pessoas');
+localStorage.removeItem('botequim_racha_atribuicoes');
+localStorage.removeItem('botequim_baron');
 localStorage.removeItem('botequim_bar_name');
 updateResumoTitulo();
 document.getElementById('in-couvert').value = '';
