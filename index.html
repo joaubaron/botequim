@@ -340,7 +340,6 @@ Desfazer divisao
 <div id="progress-scale" class="flex justify-between mt-1 px-0" style="font-size:9px; color: rgba(255,152,0,0.45);"></div>
 </div>
 
-
 <!-- Modal Remover Item -->
 <div id="remove-modal" class="modal">
 <div class="modal-content" style="width:320px">
@@ -445,9 +444,6 @@ Cancelar
 <button onclick="clearHistory()" class="mt-3 w-1/2 py-3 rounded-xl text-sm font-bold btn-accent mx-auto block">Limpar Histórico</button>
 </div>
 </div>
-
-<!-- Modal Restaurar Histórico -->
-
 
 <!-- Modal Limpar Histórico -->
 <div id="clear-history-modal" class="modal">
@@ -1678,9 +1674,6 @@ closeModal('clear-history-modal');
 closeModal('history-modal');
 }
 
-
-
-
 function closeModal(modalId) {
 document.getElementById(modalId).classList.remove('active');
 if (modalId === 'history-modal') {
@@ -1725,218 +1718,218 @@ finally { actions.style.display = 'flex'; closeBtn.style.display = ''; }
 }
 
 function openComanda() {
-  _comandaFromHistory = false;
-  const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
-  const hasTip = document.getElementById('in-tip').checked;
-  const subtotal = consumption.reduce((sum, i) => sum + (i.qty * i.price), 0);
-  const tip = hasTip ? subtotal * 0.10 : 0;
-  const total = subtotal + couvert + tip;
-  const barName = currentBarName || 'BOTEQUIM';
-  const now = new Date().toLocaleString('pt-BR');
-  const isMeuRacha = meuTotalRacha !== null;
+_comandaFromHistory = false;
+const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
+const hasTip = document.getElementById('in-tip').checked;
+const subtotal = consumption.reduce((sum, i) => sum + (i.qty * i.price), 0);
+const tip = hasTip ? subtotal * 0.10 : 0;
+const total = subtotal + couvert + tip;
+const barName = currentBarName || 'BOTEQUIM';
+const now = new Date().toLocaleString('pt-BR');
+const isMeuRacha = meuTotalRacha !== null;
 
-  let itemsHtml = '';
-  consumption.forEach(item => {
-    const rowTotal = (item.qty * item.price).toFixed(2);
-    
-    // Sempre mostra "Nome R$ total"
-    itemsHtml += `
-      <div style="margin-bottom:6px">
-        <div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.92rem">
-          <span>${escapeHtml(item.name)}</span>
-          <span>R$ ${rowTotal}</span>
-        </div>`;
-    
-    // Se qtd > 1, mostra linha unitária
-    if (item.qty > 1) {
-      itemsHtml += `
-        <div style="font-size:0.80rem;color:#888;margin-top:-2px;line-height:1">${item.qty} x R$ ${item.price.toFixed(2)}</div>`;
-    }
-    
-    itemsHtml += `</div>`;
-  });
+let itemsHtml = '';
+consumption.forEach(item => {
+const rowTotal = (item.qty * item.price).toFixed(2);
 
-  let rachaHtml = '';
-  if (isMeuRacha) {
-    const totaisPessoa = {};
-    const itensPessoa = {};
-    rachaPessoas.forEach(p => { totaisPessoa[p] = 0; itensPessoa[p] = []; });
-    consumption.forEach((item, idx) => {
-      const atr = rachaAtribuicoes[idx];
-      if (atr.split) {
-        rachaPessoas.forEach(p => {
-          const qty = atr.split[p] || 0;
-          if (qty > 0) {
-            totaisPessoa[p] += qty * item.price;
-            itensPessoa[p].push({ name: item.name, qty, price: item.price });
-          }
-        });
-      } else {
-        totaisPessoa[atr.owner] += item.qty * item.price;
-        itensPessoa[atr.owner].push({ name: item.name, qty: item.qty, price: item.price });
-      }
-    });
-    const linhas = rachaPessoas.map(p => {
-      const gorj = hasTip ? totaisPessoa[p] * 0.10 : 0;
-      const totalP = totaisPessoa[p] + couvert + gorj;
-      const isVoce = p === 'Você';
-      const subItens = itensPessoa[p].map(i => {
-        const itemTotal = (i.qty * i.price).toFixed(2);
-        let html = `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:6px">
-          <div>${escapeHtml(i.name)}`;
-        if (i.qty > 1) {
-          html += `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty} x R$ ${i.price.toFixed(2)}</div>`;
-        }
-        html += `</div>
-          <span style="white-space:nowrap;padding-left:8px">R$ ${itemTotal}</span>
-        </div>`;
-        return html;
-      }).join('');
-      const extras = `
-        ${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Couvert</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
-        ${gorj > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Gorjeta (10%)</span><span>R$ ${gorj.toFixed(2)}</span></div>` : ''}`;
-      return `
-        <div style="margin-bottom:8px">
-          <div style="display:flex;justify-content:space-between;font-size:0.9rem;font-weight:700;${isVoce ? 'color:#b35a00' : 'color:#222'}">
-            <span>${isVoce ? 'VOCÊ' : p.toUpperCase()}</span>
-            <span>R$ ${totalP.toFixed(2)}</span>
-          </div>
-          ${subItens}${extras}
-        </div>`;
-    }).join('');
-    rachaHtml = `
-      <hr class="comanda-dotted">
-      <div style="font-size:0.72rem;color:#555;margin-bottom:6px;letter-spacing:1px">DIVISÃO DA CONTA</div>
-      ${linhas}`;
-  }
+// Sempre mostra "Nome R$ total"
+itemsHtml += `
+<div style="margin-bottom:6px">
+<div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.92rem">
+<span>${escapeHtml(item.name)}</span>
+<span>R$ ${rowTotal}</span>
+</div>`;
 
-  document.getElementById('comanda-content').innerHTML = `
-    <div style="text-align:center;margin-bottom:4px">
-      <div style="font-size:1.2rem;letter-spacing:2px;font-weight:700;text-transform:uppercase">${escapeHtml(barName)}</div>
-    </div>
-    <hr class="comanda-dashed">
-    <div style="font-size:0.72rem;color:#555;text-align:center;margin-bottom:2px">${now}</div>
-    <hr class="comanda-dotted">
-    <div style="font-size:0.78rem;color:#555;margin-bottom:8px;display:flex;justify-content:space-between">
-      <span>ITEM</span><span>TOTAL</span>
-    </div>
-    ${itemsHtml}
-    <hr class="comanda-dashed">
-    <div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px">
-      <span>CONSUMO</span><span>R$ ${subtotal.toFixed(2)}</span>
-    </div>
-    ${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px"><span>COUVERT</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
-    ${hasTip ? `<div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px"><span>GORJETA (10%)</span><span>R$ ${tip.toFixed(2)}</span></div>` : ''}
-    <hr class="comanda-dashed">
-    <div style="display:flex;justify-content:space-between;font-size:1.15rem;font-weight:700">
-      <span>TOTAL</span><span>R$ ${total.toFixed(2)}</span>
-    </div>
-    ${rachaHtml}
-  `;
+// Se qtd > 1, mostra linha unitária
+if (item.qty > 1) {
+itemsHtml += `
+<div style="font-size:0.80rem;color:#888;margin-top:-2px;line-height:1">${item.qty} x R$ ${item.price.toFixed(2)}</div>`;
+}
 
-  document.getElementById('comanda-modal').classList.add('active');
+itemsHtml += `</div>`;
+});
+
+let rachaHtml = '';
+if (isMeuRacha) {
+const totaisPessoa = {};
+const itensPessoa = {};
+rachaPessoas.forEach(p => { totaisPessoa[p] = 0; itensPessoa[p] = []; });
+consumption.forEach((item, idx) => {
+const atr = rachaAtribuicoes[idx];
+if (atr.split) {
+rachaPessoas.forEach(p => {
+const qty = atr.split[p] || 0;
+if (qty > 0) {
+totaisPessoa[p] += qty * item.price;
+itensPessoa[p].push({ name: item.name, qty, price: item.price });
+}
+});
+} else {
+totaisPessoa[atr.owner] += item.qty * item.price;
+itensPessoa[atr.owner].push({ name: item.name, qty: item.qty, price: item.price });
+}
+});
+const linhas = rachaPessoas.map(p => {
+const gorj = hasTip ? totaisPessoa[p] * 0.10 : 0;
+const totalP = totaisPessoa[p] + couvert + gorj;
+const isVoce = p === 'Você';
+const subItens = itensPessoa[p].map(i => {
+const itemTotal = (i.qty * i.price).toFixed(2);
+let html = `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:6px">
+<div>${escapeHtml(i.name)}`;
+if (i.qty > 1) {
+html += `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty} x R$ ${i.price.toFixed(2)}</div>`;
+}
+html += `</div>
+<span style="white-space:nowrap;padding-left:8px">R$ ${itemTotal}</span>
+</div>`;
+return html;
+}).join('');
+const extras = `
+${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Couvert</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
+${gorj > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Gorjeta (10%)</span><span>R$ ${gorj.toFixed(2)}</span></div>` : ''}`;
+return `
+<div style="margin-bottom:8px">
+<div style="display:flex;justify-content:space-between;font-size:0.9rem;font-weight:700;${isVoce ? 'color:#b35a00' : 'color:#222'}">
+<span>${isVoce ? 'VOCÊ' : p.toUpperCase()}</span>
+<span>R$ ${totalP.toFixed(2)}</span>
+</div>
+${subItens}${extras}
+</div>`;
+}).join('');
+rachaHtml = `
+<hr class="comanda-dotted">
+<div style="font-size:0.72rem;color:#555;margin-bottom:6px;letter-spacing:1px">DIVISÃO DA CONTA</div>
+${linhas}`;
+}
+
+document.getElementById('comanda-content').innerHTML = `
+<div style="text-align:center;margin-bottom:4px">
+<div style="font-size:1.2rem;letter-spacing:2px;font-weight:700;text-transform:uppercase">${escapeHtml(barName)}</div>
+</div>
+<hr class="comanda-dashed">
+<div style="font-size:0.72rem;color:#555;text-align:center;margin-bottom:2px">${now}</div>
+<hr class="comanda-dotted">
+<div style="font-size:0.78rem;color:#555;margin-bottom:8px;display:flex;justify-content:space-between">
+<span>ITEM</span><span>TOTAL</span>
+</div>
+${itemsHtml}
+<hr class="comanda-dashed">
+<div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px">
+<span>CONSUMO</span><span>R$ ${subtotal.toFixed(2)}</span>
+</div>
+${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px"><span>COUVERT</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
+${hasTip ? `<div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px"><span>GORJETA (10%)</span><span>R$ ${tip.toFixed(2)}</span></div>` : ''}
+<hr class="comanda-dashed">
+<div style="display:flex;justify-content:space-between;font-size:1.15rem;font-weight:700">
+<span>TOTAL</span><span>R$ ${total.toFixed(2)}</span>
+</div>
+${rachaHtml}
+`;
+
+document.getElementById('comanda-modal').classList.add('active');
 }
 
 // ==================== FUNÇÃO showHistoryDetail CORRIGIDA ====================
 function showHistoryDetail(idx) {
-  const h = sessionHistory[idx];
-  const displayItems = (h.rachado && h.allItems) ? h.allItems : h.items;
-  const displaySubtotal = (h.rachado && h.allSubtotal != null) ? h.allSubtotal : displayItems.reduce((s,i) => s + i.qty * i.price, 0);
-  const displayTotal = (h.rachado && h.allTotal != null) ? h.allTotal : h.total;
-  const couvert = h.couvert || 0;
-  const tip = h.rachado && h.hasTip ? displaySubtotal * 0.10 : (h.tip || 0);
+const h = sessionHistory[idx];
+const displayItems = (h.rachado && h.allItems) ? h.allItems : h.items;
+const displaySubtotal = (h.rachado && h.allSubtotal != null) ? h.allSubtotal : displayItems.reduce((s,i) => s + i.qty * i.price, 0);
+const displayTotal = (h.rachado && h.allTotal != null) ? h.allTotal : h.total;
+const couvert = h.couvert || 0;
+const tip = h.rachado && h.hasTip ? displaySubtotal * 0.10 : (h.tip || 0);
 
-  let itemsHtml = '';
-  displayItems.forEach(item => {
-    const rowTotal = (item.qty * item.price).toFixed(2);
-    
-    // Sempre mostra "Nome R$ total"
-    itemsHtml += `
-      <div style="margin-bottom:6px">
-        <div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.92rem">
-          <span>${escapeHtml(item.name)}</span>
-          <span>R$ ${rowTotal}</span>
-        </div>`;
-    
-    // Se qtd > 1, mostra linha unitária
-    if (item.qty > 1) {
-      itemsHtml += `
-        <div style="font-size:0.80rem;color:#888;margin-top:-2px;line-height:1">${item.qty} x R$ ${item.price.toFixed(2)}</div>`;
-    }
-    
-    itemsHtml += `</div>`;
-  });
+let itemsHtml = '';
+displayItems.forEach(item => {
+const rowTotal = (item.qty * item.price).toFixed(2);
 
-  let rachaHistHtml = '';
-  if (h.rachado && h.rachaSnapshot) {
-    const pessoas = Object.keys(h.rachaSnapshot);
-    const linhas = pessoas.map(p => {
-      const d = h.rachaSnapshot[p];
-      const isVoce = p === 'Você';
-      const subItens = d.items.map(i => {
-        const itemTotal = (i.qty * i.price).toFixed(2);
-        let html = `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:6px">
-          <div>${escapeHtml(i.name)}`;
-        if (i.qty > 1) {
-          html += `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty} x R$ ${i.price.toFixed(2)}</div>`;
-        }
-        html += `</div>
-          <span style="white-space:nowrap;padding-left:8px">R$ ${itemTotal}</span>
-        </div>`;
-        return html;
-      }).join('');
-      const extras = `
-        ${d.couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Couvert</span><span>R$ ${d.couvert.toFixed(2)}</span></div>` : ''}
-        ${d.gorjeta > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Gorjeta (10%)</span><span>R$ ${d.gorjeta.toFixed(2)}</span></div>` : ''}`;
-      return `
-        <div style="margin-bottom:8px">
-          <div style="display:flex;justify-content:space-between;font-size:0.9rem;font-weight:700;${isVoce ? 'color:#b35a00' : 'color:#222'}">
-            <span>${isVoce ? 'VOCÊ' : p.toUpperCase()}</span>
-            <span>R$ ${d.total.toFixed(2)}</span>
-          </div>
-          ${subItens}${extras}
-        </div>`;
-    }).join('');
-    rachaHistHtml = `
-      <hr class="comanda-dotted">
-      <div style="font-size:0.72rem;color:#555;margin-bottom:6px;letter-spacing:1px">DIVISÃO DA CONTA</div>
-      ${linhas}`;
-  } else if (h.rachado) {
-    rachaHistHtml = `
-      <hr class="comanda-dotted">
-      <div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700;color:#b35a00">
-        <span>MINHA PARTE</span><span>R$ ${h.total.toFixed(2)}</span>
-      </div>`;
-  }
+// Sempre mostra "Nome R$ total"
+itemsHtml += `
+<div style="margin-bottom:6px">
+<div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.92rem">
+<span>${escapeHtml(item.name)}</span>
+<span>R$ ${rowTotal}</span>
+</div>`;
 
-  document.getElementById('comanda-content').innerHTML = `
-    <div style="text-align:center;margin-bottom:4px">
-      <div style="font-size:1.5rem;letter-spacing:2px;font-weight:700;text-transform:uppercase">${escapeHtml(h.bar || 'BOTEQUIM')}</div>
-    </div>
-    <hr class="comanda-dashed">
-    <div style="font-size:0.72rem;color:#555;text-align:center;margin-bottom:2px">${h.date}</div>
-    <hr class="comanda-dotted">
-    <div style="font-size:0.78rem;color:#555;margin-bottom:8px;display:flex;justify-content:space-between">
-      <span>ITEM</span><span>TOTAL</span>
-    </div>
-    ${itemsHtml}
-    <hr class="comanda-dashed">
-    <div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px">
-      <span>CONSUMO</span><span>R$ ${displaySubtotal.toFixed(2)}</span>
-    </div>
-    ${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px"><span>COUVERT</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
-    ${tip > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px"><span>GORJETA (10%)</span><span>R$ ${tip.toFixed(2)}</span></div>` : ''}
-    <hr class="comanda-dashed">
-    <div style="display:flex;justify-content:space-between;font-size:1.15rem;font-weight:700">
-      <span>TOTAL</span><span>R$ ${displayTotal.toFixed(2)}</span>
-    </div>
-    ${rachaHistHtml}
-    <div style="margin-top:16px;text-align:right"></div>
-  `;
+// Se qtd > 1, mostra linha unitária
+if (item.qty > 1) {
+itemsHtml += `
+<div style="font-size:0.80rem;color:#888;margin-top:-2px;line-height:1">${item.qty} x R$ ${item.price.toFixed(2)}</div>`;
+}
 
-  _comandaFromHistory = true;
-  closeModal('history-modal');
-  document.getElementById('comanda-modal').classList.add('active');
+itemsHtml += `</div>`;
+});
+
+let rachaHistHtml = '';
+if (h.rachado && h.rachaSnapshot) {
+const pessoas = Object.keys(h.rachaSnapshot);
+const linhas = pessoas.map(p => {
+const d = h.rachaSnapshot[p];
+const isVoce = p === 'Você';
+const subItens = d.items.map(i => {
+const itemTotal = (i.qty * i.price).toFixed(2);
+let html = `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:6px">
+<div>${escapeHtml(i.name)}`;
+if (i.qty > 1) {
+html += `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty} x R$ ${i.price.toFixed(2)}</div>`;
+}
+html += `</div>
+<span style="white-space:nowrap;padding-left:8px">R$ ${itemTotal}</span>
+</div>`;
+return html;
+}).join('');
+const extras = `
+${d.couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Couvert</span><span>R$ ${d.couvert.toFixed(2)}</span></div>` : ''}
+${d.gorjeta > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Gorjeta (10%)</span><span>R$ ${d.gorjeta.toFixed(2)}</span></div>` : ''}`;
+return `
+<div style="margin-bottom:8px">
+<div style="display:flex;justify-content:space-between;font-size:0.9rem;font-weight:700;${isVoce ? 'color:#b35a00' : 'color:#222'}">
+<span>${isVoce ? 'VOCÊ' : p.toUpperCase()}</span>
+<span>R$ ${d.total.toFixed(2)}</span>
+</div>
+${subItens}${extras}
+</div>`;
+}).join('');
+rachaHistHtml = `
+<hr class="comanda-dotted">
+<div style="font-size:0.72rem;color:#555;margin-bottom:6px;letter-spacing:1px">DIVISÃO DA CONTA</div>
+${linhas}`;
+} else if (h.rachado) {
+rachaHistHtml = `
+<hr class="comanda-dotted">
+<div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700;color:#b35a00">
+<span>MINHA PARTE</span><span>R$ ${h.total.toFixed(2)}</span>
+</div>`;
+}
+
+document.getElementById('comanda-content').innerHTML = `
+<div style="text-align:center;margin-bottom:4px">
+<div style="font-size:1.5rem;letter-spacing:2px;font-weight:700;text-transform:uppercase">${escapeHtml(h.bar || 'BOTEQUIM')}</div>
+</div>
+<hr class="comanda-dashed">
+<div style="font-size:0.72rem;color:#555;text-align:center;margin-bottom:2px">${h.date}</div>
+<hr class="comanda-dotted">
+<div style="font-size:0.78rem;color:#555;margin-bottom:8px;display:flex;justify-content:space-between">
+<span>ITEM</span><span>TOTAL</span>
+</div>
+${itemsHtml}
+<hr class="comanda-dashed">
+<div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px">
+<span>CONSUMO</span><span>R$ ${displaySubtotal.toFixed(2)}</span>
+</div>
+${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px"><span>COUVERT</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
+${tip > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.88rem;margin-bottom:4px"><span>GORJETA (10%)</span><span>R$ ${tip.toFixed(2)}</span></div>` : ''}
+<hr class="comanda-dashed">
+<div style="display:flex;justify-content:space-between;font-size:1.15rem;font-weight:700">
+<span>TOTAL</span><span>R$ ${displayTotal.toFixed(2)}</span>
+</div>
+${rachaHistHtml}
+<div style="margin-top:16px;text-align:right"></div>
+`;
+
+_comandaFromHistory = true;
+closeModal('history-modal');
+document.getElementById('comanda-modal').classList.add('active');
 }
 
 updateResumoTitulo();
