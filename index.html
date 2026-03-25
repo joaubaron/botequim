@@ -1535,7 +1535,7 @@ const modal = document.getElementById('history-modal');
 const historyList = document.getElementById('history-list');
 
 if (sessionHistory.length === 0) {
-historyList.innerHTML = '<div class="text-center text-gray-500 py-4">Nenhum histórico ainda</div>';
+historyList.innerHTML = '<div class="text-center text-gray-500 py-4">Nenhum histórico ainda.</div>';
 } else {
 historyList.innerHTML = sessionHistory.map((h, idx) => `
 <div class="history-item" onclick="showHistoryDetail(${idx})">
