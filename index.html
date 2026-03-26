@@ -300,32 +300,8 @@ Gerencie sua conta 🪪
 <h2 id="resumo-titulo" class="text-sm font-bold mb-5 text-gray-500 tracking-widest flex items-center justify-between gap-2">
 <span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Consumação</span>
 </h2>
-<div class="space-y-2 border-b border-gray-700/50 pb-4 mb-4">
-<div class="flex justify-between text-sm text-gray-300 py-1">
-<span><i class="fas fa-shopping-cart"></i> Consumo:</span> 
-<span id="res-items">R$ 0,00</span>
-</div>
-<div id="res-couvert-row" class="flex justify-between text-sm text-gray-300 py-1">
-<span><i class="fas fa-music"></i> Couvert:</span> 
-<span id="res-items-couvert">R$ 0,00</span>
-</div>
-<div class="flex justify-between text-sm text-gray-300 py-1">
-<span><i class="fas fa-heart"></i> Gorjeta (10%):</span> 
-<span id="res-tip">R$ 0,00</span>
-</div>
-</div>
-<div class="flex justify-between items-center pt-2">
-<span class="text-xl font-bold"><i class="fas fa-coins"></i> TOTAL:</span>
-<span id="grand-total" class="text-2xl font-black text-orange-500">R$ 0,00</span>
-</div>
-<div id="minha-parte-box" class="hidden mt-3 p-3 rounded-xl" style="background: rgba(255,152,0,0.12); border: 1px solid rgba(255,152,0,0.35);">
-<div class="flex justify-between items-center">
-<span class="text-sm font-bold text-orange-300"><i class="fas fa-user-check mr-1"></i> Minha parte na conta:</span>
-<span id="minha-parte-valor" class="text-xl font-black text-orange-400">R$ 0,00</span>
-</div>
-</div>
 
-<div class="mt-2 flex flex-wrap justify-start gap-x-4 gap-y-2 items-center">
+<div class="mt-2 flex flex-wrap justify-start gap-x-4 gap-y-2 items-center mb-4">
 <button onclick="closeModal('racha-resultado-modal'); renderRachaItens(); openModal('racha-itens-modal')" 
 class="text-xs text-white">
 Editar divisão
@@ -340,7 +316,7 @@ class="text-xs text-orange-400 font-bold flex items-center gap-1">
 </button>
 </div>
 
-<div id="add-pessoa-inline-panel" class="hidden mt-2" style="display:none">
+<div id="add-pessoa-inline-panel" class="hidden mt-2 mb-4" style="display:none">
 <div class="flex gap-2 items-center">
 <input id="add-pessoa-inline-input" type="text" placeholder="Nome da pessoa" maxlength="20"
 class="flex-1 p-2 rounded-lg text-sm"
@@ -350,6 +326,33 @@ onkeypress="if(event.key==='Enter') addPessoaInlineAndRecalculate()">
 <i class="fas fa-check"></i>
 </button>
 <button onclick="toggleAddPessoaInline()" class="text-gray-400 text-xs px-2 py-2">✕</button>
+</div>
+</div>
+
+<div class="space-y-2 border-b border-gray-700/50 pb-4 mb-4">
+<div class="flex justify-between text-sm text-gray-300 py-1">
+<span><i class="fas fa-shopping-cart"></i> Consumo:</span> 
+<span id="res-items">R$ 0,00</span>
+</div>
+<div id="res-couvert-row" class="flex justify-between text-sm text-gray-300 py-1">
+<span><i class="fas fa-music"></i> Couvert:</span> 
+<span id="res-items-couvert">R$ 0,00</span>
+</div>
+<div class="flex justify-between text-sm text-gray-300 py-1">
+<span><i class="fas fa-heart"></i> Gorjeta (10%):</span> 
+<span id="res-tip">R$ 0,00</span>
+</div>
+</div>
+
+<div class="flex justify-between items-center pt-2">
+<span class="text-xl font-bold"><i class="fas fa-coins"></i> TOTAL:</span>
+<span id="grand-total" class="text-2xl font-black text-orange-500">R$ 0,00</span>
+</div>
+
+<div id="minha-parte-box" class="hidden mt-3 p-3 rounded-xl" style="background: rgba(255,152,0,0.12); border: 1px solid rgba(255,152,0,0.35);">
+<div class="flex justify-between items-center">
+<span class="text-sm font-bold text-orange-300"><i class="fas fa-user-check mr-1"></i> Minha parte na conta:</span>
+<span id="minha-parte-valor" class="text-xl font-black text-orange-400">R$ 0,00</span>
 </div>
 </div>
 
