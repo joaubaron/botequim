@@ -280,10 +280,10 @@ Gerencie sua conta 🪪
 <div class="flex items-center gap-2">
 <i class="fas fa-music text-orange-500"></i>
 <span class="text-gray-400 text-sm">Couvert:</span>
-<input id="in-couvert" type="number" inputmode="decimal" placeholder="R$" onchange="updateCalculos()" onkeypress="if(event.key==='Enter') this.blur()" class="w-16 p-1 rounded text-center text-sm">
+<input id="in-couvert" type="number" inputmode="decimal" placeholder="R$" onchange="saveCouvertTip(); updateCalculos()" onkeypress="if(event.key==='Enter') this.blur()" class="w-16 p-1 rounded text-center text-sm">
 <span class="text-orange-500 text-sm ml-2"><i class="fas fa-hand-holding-heart"></i> 10%</span>
 <label class="relative inline-flex items-center cursor-pointer">
-<input type="checkbox" id="in-tip" onchange="updateCalculos()" class="sr-only peer">
+<input type="checkbox" id="in-tip" onchange="saveCouvertTip(); updateCalculos()" class="sr-only peer">
 <div class="w-9 h-5 bg-gray-600 rounded-full peer peer-checked:bg-orange-500 peer-focus:outline-none transition-all duration-200 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
 </label>
 </div>
@@ -1130,6 +1130,21 @@ addItem();
 }
 });
 
+function saveCouvertTip() {
+const couvert = document.getElementById('in-couvert').value || '';
+const tip = document.getElementById('in-tip').checked ? '1' : '0';
+localStorage.setItem('botequim_couvert', couvert);
+localStorage.setItem('botequim_tip', tip);
+}
+
+// Restaura couvert e gorjeta salvos
+(function restoreCouvertTip() {
+const savedCouvert = localStorage.getItem('botequim_couvert');
+const savedTip = localStorage.getItem('botequim_tip');
+if (savedCouvert) document.getElementById('in-couvert').value = savedCouvert;
+if (savedTip === '1') document.getElementById('in-tip').checked = true;
+})();
+
 let currentBarName = localStorage.getItem('botequim_bar_name') || '';
 
 let openedFromClear = false;
@@ -1265,16 +1280,18 @@ rachaInlineHtml = `<div class="flex items-center gap-1 mt-1 flex-wrap">${ownerLa
 }
 
 list.innerHTML += `
-<div class="py-2 border-b border-white/10 ${_addingItem ? 'item-animate' : ''}">
-<div class="flex items-start justify-between mb-1">
-<div class="flex-1 min-w-0">
+<div class="py-3 border-b border-white/10 ${_addingItem ? 'item-animate' : ''}">
+<!-- Linha 1: Qtd x Nome + Valor total -->
+<div class="flex items-center justify-between">
 <div class="text-base font-semibold"><span class="text-orange-500 font-bold">${item.qty}x</span> ${escapeHtml(item.name)}</div>
-${unitPriceDisplay}
-${rachaInlineHtml}
-</div>
 <div class="font-bold text-base text-white whitespace-nowrap pl-3">R$ ${totalRow.toFixed(2)}</div>
 </div>
-<div class="flex items-center gap-3 mt-2">
+<!-- Linha 2: Preço unitário (só se qty > 1) -->
+${unitPriceDisplay}
+<!-- Linha 3: Racha inline (só se racha ativo) -->
+${rachaInlineHtml}
+<!-- Linha 4: Botões ação -->
+<div class="flex items-center gap-2 mt-2">
 <button onclick="startEdit(${idx})" class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 text-green-400 hover:bg-green-500/20 transition-colors">
 <i class="fas fa-pencil-alt text-xs"></i>
 </button>
@@ -1688,6 +1705,9 @@ localStorage.removeItem('botequim_baron');
 localStorage.removeItem('botequim_bar_name');
 updateResumoTitulo();
 document.getElementById('in-couvert').value = '';
+document.getElementById('in-tip').checked = false;
+localStorage.removeItem('botequim_couvert');
+localStorage.removeItem('botequim_tip');
 closeModal('clear-modal');
 updateCalculos();
 }
