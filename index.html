@@ -1254,19 +1254,19 @@ const unitPriceDisplay = item.qty > 1
 ? `<div class="text-sm text-gray-400">unidade: R$ ${item.price.toFixed(2)}</div>` 
 : '';
 
-// Racha ativo: mostra dono e botões rápidos de reatribuição
-let rachaInlineHtml = '';
+// Racha ativo: linha 2 = info de divisão, linha 3 = botões de atribuição
+let rachaOwnerLine = '';  // linha 2: "✂ Você:1, Kiko:1" ou "💰 Você: R$100, Kiko: R$100"
+let rachaBtnsLine = '';   // linha 3: [Você] [Kiko] [✂] [💰]
 if (meuTotalRacha !== null && rachaAtribuicoes[idx]) {
 const atr = rachaAtribuicoes[idx];
-	let ownerLabel = '';
 	if (atr.splitValor) {
 	const parts = Object.entries(atr.splitValor).filter(([,v]) => v > 0).map(([k,v]) => `${k}: R$${v.toFixed(2)}`).join(', ');
-	ownerLabel = `<span class="text-green-400 text-xs"><i class="fas fa-coins mr-1"></i>${parts}</span>`;
+	rachaOwnerLine = `<div class="text-xs mt-0.5" style="color:#4ade80"><i class="fas fa-coins mr-1"></i>${parts}</div>`;
 	} else if (atr.split) {
-	const parts = Object.entries(atr.split).filter(([,v]) => v > 0).map(([k,v]) => `${k}${atr.split && Object.keys(atr.split).filter(k2=>atr.split[k2]>0).length>1?':'+v:''}`).join(', ');
-	ownerLabel = `<span class="text-yellow-400 text-xs"><i class="fas fa-cut mr-1"></i>${parts}</span>`;
+	const parts = Object.entries(atr.split).filter(([,v]) => v > 0).map(([k,v]) => `${k}:${v}`).join(', ');
+	rachaOwnerLine = `<div class="text-xs mt-0.5 text-yellow-400"><i class="fas fa-cut mr-1"></i>${parts}</div>`;
 	} else {
-	ownerLabel = `<span class="text-xs" style="color:#aaa"><i class="fas fa-user mr-1"></i>${escapeHtml(atr.owner)}</span>`;
+	rachaOwnerLine = `<div class="text-xs mt-0.5" style="color:#aaa"><i class="fas fa-user mr-1"></i>${escapeHtml(atr.owner)}</div>`;
 	}
 	const personBtns = rachaPessoas.map(p => {
 	const isActive = !atr.split && !atr.splitValor && atr.owner === p;
@@ -1276,7 +1276,7 @@ const atr = rachaAtribuicoes[idx];
 	? `<button onclick="rachaOpenSplit(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.split ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-500 hover:border-yellow-400/50'}"><i class="fas fa-cut"></i></button>`
 	: '';
 	const splitValorBtnInline = `<button onclick="rachaOpenSplitValor(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.splitValor ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-white/10 text-gray-500 hover:border-green-400/50'}"><i class="fas fa-coins"></i></button>`;
-rachaInlineHtml = `<div class="flex items-center gap-1 mt-1 flex-wrap">${ownerLabel}<span class="text-gray-600 text-xs mx-1">→</span>${personBtns}${splitBtn}${splitValorBtnInline}</div>`;
+	rachaBtnsLine = `<div class="flex items-center gap-1 mt-1 flex-wrap">${personBtns}${splitBtn}${splitValorBtnInline}</div>`;
 }
 
 list.innerHTML += `
@@ -1286,11 +1286,11 @@ list.innerHTML += `
 <div class="text-base font-semibold"><span class="text-orange-500 font-bold">${item.qty}x</span> ${escapeHtml(item.name)}</div>
 <div class="font-bold text-base text-white whitespace-nowrap pl-3">R$ ${totalRow.toFixed(2)}</div>
 </div>
-<!-- Linha 2: Preço unitário (só se qty > 1) -->
-${unitPriceDisplay}
-<!-- Linha 3: Racha inline (só se racha ativo) -->
-${rachaInlineHtml}
-<!-- Linha 4: Botões ação -->
+<!-- Linha 2: unidade (se qty>1) OU info divisão racha OU ambos -->
+${unitPriceDisplay}${rachaOwnerLine}
+<!-- Linha 3: Botões de atribuição racha (só se racha ativo) -->
+${rachaBtnsLine}
+<!-- Linha 4: Botões ação editar/−/+ -->
 <div class="flex items-center gap-2 mt-2">
 <button onclick="startEdit(${idx})" class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 text-green-400 hover:bg-green-500/20 transition-colors">
 <i class="fas fa-pencil-alt text-xs"></i>
