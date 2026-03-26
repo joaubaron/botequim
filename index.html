@@ -887,7 +887,7 @@ const atr = rachaAtribuicoes[idx];
 let statusHtml = '';
 if (atr.splitValor) {
 const parts = Object.entries(atr.splitValor).filter(([,v]) => v > 0).map(([k,v]) => `${k}: R$${v.toFixed(2)}`).join(', ');
-statusHtml = `<span class="text-xs text-green-400">R$ ${parts}</span>`;
+statusHtml = `<span class="text-xs text-green-400">${parts}</span>`;
 } else if (atr.split) {
 const parts = Object.entries(atr.split).filter(([,v]) => v > 0).map(([k,v]) => `${k}:${v}`).join(', ');
 statusHtml = `<span class="text-xs text-yellow-400">÷ ${parts}</span>`;
@@ -906,12 +906,10 @@ const splitValorBtn = `<button onclick="rachaOpenSplitValor(${idx})" class="px-2
 return `
 <div class="bg-white/5 rounded-xl p-3">
 <div class="flex justify-between items-start mb-2">
-<div>
 <span class="text-sm font-semibold"><span class="text-orange-400">${item.qty}x</span> ${escapeHtml(item.name)}</span>
-<div class="text-xs text-gray-500">R$ ${(item.qty * item.price).toFixed(2)}</div>
+<span class="text-sm font-bold text-white">R$ ${(item.qty * item.price).toFixed(2)}</span>
 </div>
-<div>${statusHtml}</div>
-</div>
+<div class="text-xs mb-2 ${statusHtml.includes('R$') ? 'text-green-400' : 'text-yellow-400'}">${statusHtml}</div>
 <div class="flex flex-wrap gap-2">${personBtns}${splitBtn}${splitValorBtn}</div>
 </div>
 `;
