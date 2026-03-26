@@ -267,9 +267,9 @@ Gerencie sua conta 🪪
 
 <div id="input-area">
 <div class="flex gap-2 mb-6">
-<input id="in-name" type="text" placeholder="Item (ex: Cerveja)" class="text-sm p-2 rounded enter-submit" style="flex: 3; min-width: 0;">
-<input id="in-qty" type="number" inputmode="numeric" placeholder="Qt" class="text-sm p-2 rounded text-center enter-submit" style="width: 55px;">
-<input id="in-price" type="number" inputmode="decimal" step="0.01" placeholder="R$" class="text-sm p-2 rounded text-center enter-submit" style="width: 65px;">
+<input id="in-name" type="text" placeholder="Item (ex: Cerveja)" class="text-sm p-2 rounded enter-submit" style="flex: 3; min-width: 0;" onfocus="this.select()">
+<input id="in-qty" type="number" inputmode="numeric" placeholder="Qt" class="text-sm p-2 rounded text-center enter-submit" style="width: 55px;" onfocus="this.select()">
+<input id="in-price" type="number" inputmode="decimal" step="0.01" placeholder="R$" class="text-sm p-2 rounded text-center enter-submit" style="width: 65px;" onfocus="this.select()">
 <button onclick="addItem()" aria-label="Adicionar item" class="btn-accent rounded font-bold text-xl" style="width: 45px; display: flex; align-items: center; justify-content: center;">
 <i class="fas fa-plus"></i>
 </button>
@@ -280,7 +280,7 @@ Gerencie sua conta 🪪
 <div class="flex items-center gap-2">
 <i class="fas fa-music text-orange-500"></i>
 <span class="text-gray-400 text-sm">Couvert:</span>
-<input id="in-couvert" type="number" inputmode="decimal" placeholder="R$" onchange="saveCouvertTip(); updateCalculos()" onkeypress="if(event.key==='Enter') this.blur()" class="w-16 p-1 rounded text-center text-sm">
+<input id="in-couvert" type="number" inputmode="decimal" placeholder="R$" onchange="saveCouvertTip(); updateCalculos()" onkeypress="if(event.key==='Enter') this.blur()" class="w-16 p-1 rounded text-center text-sm" onfocus="this.select()">
 <span class="text-orange-500 text-sm ml-2"><i class="fas fa-hand-holding-heart"></i> 10%</span>
 <label class="relative inline-flex items-center cursor-pointer">
 <input type="checkbox" id="in-tip" onchange="saveCouvertTip(); updateCalculos()" class="sr-only peer">
@@ -323,26 +323,31 @@ Gerencie sua conta 🪪
 <span class="text-sm font-bold text-orange-300"><i class="fas fa-user-check mr-1"></i> Minha parte na conta:</span>
 <span id="minha-parte-valor" class="text-xl font-black text-orange-400">R$ 0,00</span>
 </div>
-<div class="mt-2 flex justify-start gap-4 items-center flex-wrap">
+<div class="mt-2 flex flex-wrap justify-start gap-x-4 gap-y-2 items-center">
 <button onclick="closeModal('racha-resultado-modal'); renderRachaItens(); openModal('racha-itens-modal')" 
 class="text-xs text-white">
-Editar divisao
+Editar divisão
 </button>
 <button onclick="desfazerRacha()" 
 class="text-xs text-white">
-Desfazer divisao
+Desfazer divisão
 </button>
-<button onclick="toggleAddPessoaInline()" class="text-xs text-yellow-400 font-bold">
-<i class="fas fa-user-plus mr-1"></i> + Pessoa
+<button onclick="toggleAddPessoaInline()" id="btn-add-pessoa-inline"
+class="text-xs text-orange-400 font-bold flex items-center gap-1">
+<i class="fas fa-user-plus"></i> + Pessoa
 </button>
 </div>
-<div id="add-pessoa-inline" class="hidden mt-2 flex gap-2">
-<input id="add-pessoa-input" type="text" placeholder="Nome da pessoa" maxlength="20"
+<div id="add-pessoa-inline-panel" class="hidden mt-2" style="display:none">
+<div class="flex gap-2 items-center">
+<input id="add-pessoa-inline-input" type="text" placeholder="Nome da pessoa" maxlength="20"
 class="flex-1 p-2 rounded-lg text-sm"
-onkeypress="if(event.key==='Enter') addPessoaInline()">
-<button onclick="addPessoaInline()" class="btn-accent px-3 rounded-lg text-sm font-bold">
+style="min-width:0"
+onkeypress="if(event.key==='Enter') addPessoaInlineAndRecalculate()">
+<button onclick="addPessoaInlineAndRecalculate()" class="btn-accent px-3 py-2 rounded-lg text-xs font-bold whitespace-nowrap">
 <i class="fas fa-check"></i>
 </button>
+<button onclick="toggleAddPessoaInline()" class="text-gray-400 text-xs px-2 py-2">✕</button>
+</div>
 </div>
 </div>
 <div class="progress-bar mt-3">
@@ -383,16 +388,16 @@ Cancelar
 <div class="space-y-4">
 <div>
 <label class="text-xs text-gray-500 uppercase tracking-wider font-bold block mb-1">Nome</label>
-<input id="modal-edit-name" type="text" class="w-full p-3 rounded-xl text-sm" placeholder="Nome do item" onkeypress="if(event.key==='Enter') saveModalEdit()">
+<input id="modal-edit-name" type="text" class="w-full p-3 rounded-xl text-sm" placeholder="Nome do item" onkeypress="if(event.key==='Enter') saveModalEdit()" onfocus="this.select()">
 </div>
 <div class="grid grid-cols-2 gap-3">
 <div>
 <label class="text-xs text-gray-500 uppercase tracking-wider font-bold block mb-1">Preço unitário</label>
-<input id="modal-edit-price" type="number" step="0.01" inputmode="decimal" class="w-full p-3 rounded-xl text-sm text-center" placeholder="R$" onkeypress="if(event.key==='Enter') saveModalEdit()">
+<input id="modal-edit-price" type="number" step="0.01" inputmode="decimal" class="w-full p-3 rounded-xl text-sm text-center" placeholder="R$" onkeypress="if(event.key==='Enter') saveModalEdit()" onfocus="this.select()">
 </div>
 <div>
 <label class="text-xs text-gray-500 uppercase tracking-wider font-bold block mb-1">Quantidade</label>
-<input id="modal-edit-qty" type="number" inputmode="numeric" class="w-full p-3 rounded-xl text-sm text-center" placeholder="Qt" onkeypress="if(event.key==='Enter') saveModalEdit()">
+<input id="modal-edit-qty" type="number" inputmode="numeric" class="w-full p-3 rounded-xl text-sm text-center" placeholder="Qt" onkeypress="if(event.key==='Enter') saveModalEdit()" onfocus="this.select()">
 </div>
 </div>
 </div>
@@ -520,13 +525,12 @@ onkeypress="if(event.key==='Enter') confirmBarName()">
 <button onclick="closeModal('racha-pessoas-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
 </div>
 <p class="text-xs text-gray-400 mb-3">Quem vai dividir a conta com você?</p>
-<div class="flex gap-2 mb-4" style="background:rgba(255,152,0,0.08);border:1.5px solid rgba(255,152,0,0.5);border-radius:14px;padding:10px;">
-<input id="racha-new-person" type="text" placeholder="👤 Nome da pessoa..." maxlength="20"
-class="flex-1 rounded-lg text-sm font-semibold"
-style="background:transparent;border:none;outline:none;color:#fff;font-size:15px;padding:4px 6px;"
+<div class="flex gap-2 mb-3">
+<input id="racha-new-person" type="text" placeholder="Nome da pessoa" maxlength="20"
+class="flex-1 p-2 rounded-xl text-sm"
 onkeypress="if(event.key==='Enter') rachaAddPerson()">
-<button onclick="rachaAddPerson()" class="btn-accent px-4 rounded-xl text-sm font-bold" style="white-space:nowrap">
-<i class="fas fa-plus mr-1"></i> Adicionar
+<button onclick="rachaAddPerson()" class="btn-accent px-4 rounded-xl text-sm font-bold">
+<i class="fas fa-plus"></i>
 </button>
 </div>
 <div id="racha-pessoas-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto"></div>
@@ -701,7 +705,6 @@ rachaPessoas = ['Você'];
 rachaAtribuicoes = consumption.map(() => ({ owner: 'Você' }));
 renderRachaPessoas();
 openModal('racha-pessoas-modal');
-setTimeout(() => document.getElementById('racha-new-person').focus(), 100);
 }
 
 function confirmarRefazerRacha() {
@@ -715,7 +718,6 @@ renderRachaPessoas();
 closeModal('racha-reset-modal');
 updateCalculos();
 openModal('racha-pessoas-modal');
-setTimeout(() => document.getElementById('racha-new-person').focus(), 100);
 }
 
 function renderRachaPessoas() {
@@ -757,6 +759,45 @@ return { split: newSplit };
 return a;
 });
 renderRachaPessoas();
+}
+
+function toggleAddPessoaInline() {
+const panel = document.getElementById('add-pessoa-inline-panel');
+const isHidden = panel.style.display === 'none' || panel.style.display === '';
+panel.style.display = isHidden ? 'block' : 'none';
+if (isHidden) {
+setTimeout(() => {
+const inp = document.getElementById('add-pessoa-inline-input');
+if (inp) { inp.value = ''; inp.focus(); }
+}, 50);
+}
+}
+
+function addPessoaInlineAndRecalculate() {
+const input = document.getElementById('add-pessoa-inline-input');
+const name = input ? input.value.trim() : '';
+if (!name) return;
+if (rachaPessoas.find(p => p.toLowerCase() === name.toLowerCase())) {
+if (input) input.value = '';
+return;
+}
+rachaPessoas.push(name);
+// novos itens de rachaAtribuicoes já existem; apenas garante que splitValor/split incluam a nova pessoa
+rachaAtribuicoes = rachaAtribuicoes.map(a => {
+if (a.splitValor) {
+return { splitValor: { ...a.splitValor, [name]: 0 } };
+}
+if (a.split) {
+return { split: { ...a.split, [name]: 0 } };
+}
+return a;
+});
+if (input) input.value = '';
+// fecha o painel inline
+document.getElementById('add-pessoa-inline-panel').style.display = 'none';
+// recalcula e abre modal de atribuição de itens
+renderRachaItens();
+openModal('racha-itens-modal');
 }
 
 function rachaProximo() {
@@ -1081,37 +1122,6 @@ meuTotalRacha = consumoVoce + couvert + gorjetaVoce;
 localStorage.setItem('botequim_meu_total_racha', meuTotalRacha);
 closeModal('racha-resultado-modal');
 updateCalculos();
-}
-
-function toggleAddPessoaInline() {
-const box = document.getElementById('add-pessoa-inline');
-const input = document.getElementById('add-pessoa-input');
-box.classList.toggle('hidden');
-if (!box.classList.contains('hidden')) {
-input.value = '';
-input.focus();
-}
-}
-
-function addPessoaInline() {
-const input = document.getElementById('add-pessoa-input');
-const name = input.value.trim();
-if (!name) return;
-if (rachaPessoas.find(p => p.toLowerCase() === name.toLowerCase())) {
-input.value = '';
-return;
-}
-rachaPessoas.push(name);
-// atribui todos os itens sem dono à Você (mantém atribuições existentes)
-rachaAtribuicoes = consumption.map((_, i) => rachaAtribuicoes[i] || { owner: 'Você' });
-localStorage.setItem('botequim_racha_pessoas', JSON.stringify(rachaPessoas));
-localStorage.setItem('botequim_racha_atribuicoes', JSON.stringify(rachaAtribuicoes));
-input.value = '';
-document.getElementById('add-pessoa-inline').classList.add('hidden');
-updateCalculos();
-// abre modal de atribuição para redistribuir
-renderRachaItens();
-openModal('racha-itens-modal');
 }
 
 function desfazerRacha() {
