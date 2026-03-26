@@ -313,7 +313,7 @@ class="text-xs text-orange-400 font-bold flex items-center gap-1">
 <div class="border-t border-orange-500/30 mt-2 mb-4"></div>
 
 <h2 id="resumo-titulo" class="text-sm font-bold mb-5 text-gray-500 tracking-widest flex items-center justify-between gap-2">
-<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Consumação</span>
+<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo da conta</span>
 </h2>
 
 <div id="add-pessoa-inline-panel" class="hidden mt-2 mb-4" style="display:none">
@@ -1333,8 +1333,8 @@ updateResumoTitulo();
 function updateResumoTitulo() {
 const titulo = document.getElementById('resumo-titulo');
 const text = currentBarName
-? `<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Consumação — ${escapeHtml(currentBarName)}</span>`
-: '<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Consumação</span>';
+? `<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo da conta — ${escapeHtml(currentBarName)}</span>`
+: '<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo da conta</span>';
 titulo.innerHTML = text;
 
 const sub = document.getElementById('header-subtitle');
