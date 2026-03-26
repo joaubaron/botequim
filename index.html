@@ -1073,26 +1073,47 @@ restEl.innerHTML = `<span class="text-red-400">Excede em R$ ${Math.abs(restante)
 }
 
 function rachaSplitValorChange(person, rawVal, idx) {
-const val = parseFloat(rawVal) || 0;
-const oldVal = rachaSplitValorValues[person] || 0;
-rachaSplitValorValues[person] = parseFloat(val.toFixed(2));
-const item = consumption[idx];
-const totalItem = item.qty * item.price;
-// Calcula só a mudança em vez de fazer reduce
-let totalAtribuido = 0;
-for (let p of rachaPessoas) {
-totalAtribuido += rachaSplitValorValues[p] || 0;
-}
-const restante = parseFloat((totalItem - totalAtribuido).toFixed(2));
-const restEl = document.getElementById('racha-split-valor-restante');
-if (!restEl) return; // elemento não existe
-if (Math.abs(restante) < 0.01) {
-restEl.innerHTML = `<span class="text-green-400 font-bold">✓ Tudo distribuído</span>`;
-} else if (restante > 0) {
-restEl.innerHTML = `<span class="text-yellow-400">Falta R$ ${restante.toFixed(2)}</span>`;
-} else {
-restEl.innerHTML = `<span class="text-red-400">Excede em R$ ${Math.abs(restante).toFixed(2)}</span>`;
-}
+	const val = parseFloat(rawVal) || 0;
+	rachaSplitValorValues[person] = parseFloat(val.toFixed(2));
+	const item = consumption[idx];
+	const totalItem = item.qty * item.price;
+	
+	// Redistribui o restante igualmente entre as outras pessoas
+	const outrasPessoas = rachaPessoas.filter(p => p !== person);
+	const valorPessoaEditada = rachaSplitValorValues[person];
+	const restante = totalItem - valorPessoaEditada;
+	
+	if (outrasPessoas.length > 0 && restante >= 0) {
+		const parteIgual = parseFloat((restante / outrasPessoas.length).toFixed(2));
+		outrasPessoas.forEach(p => { rachaSplitValorValues[p] = parteIgual; });
+		// Corrige arredondamento na primeira pessoa da lista
+		const somaOutras = outrasPessoas.reduce((s, p) => s + rachaSplitValorValues[p], 0);
+		const diff = parseFloat((restante - somaOutras).toFixed(2));
+		if (Math.abs(diff) > 0.001) {
+			rachaSplitValorValues[outrasPessoas[0]] = parseFloat((rachaSplitValorValues[outrasPessoas[0]] + diff).toFixed(2));
+		}
+	}
+	
+	// Atualiza os inputs das outras pessoas (sem re-renderizar tudo para manter foco)
+	rachaPessoas.forEach((p, i) => {
+		if (p !== person) {
+			const el = document.getElementById(`split-valor-input-${i}`);
+			if (el) el.value = (rachaSplitValorValues[p] || 0).toFixed(2);
+		}
+	});
+	
+	// Atualiza status
+	const totalAtribuido = rachaPessoas.reduce((s, p) => s + (rachaSplitValorValues[p] || 0), 0);
+	const diff = parseFloat((totalItem - totalAtribuido).toFixed(2));
+	const restEl = document.getElementById('racha-split-valor-restante');
+	if (!restEl) return;
+	if (Math.abs(diff) < 0.01) {
+		restEl.innerHTML = `<span class="text-green-400 font-bold">&#10003; Tudo distribuído</span>`;
+	} else if (diff > 0) {
+		restEl.innerHTML = `<span class="text-yellow-400">Falta R$ ${diff.toFixed(2)}</span>`;
+	} else {
+		restEl.innerHTML = `<span class="text-red-400">Excede em R$ ${Math.abs(diff).toFixed(2)}</span>`;
+	}
 }
 
 function rachaSplitValorConfirm() {
