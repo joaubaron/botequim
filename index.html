@@ -789,17 +789,32 @@ if (rachaPessoas.find(p => p.toLowerCase() === name.toLowerCase())) {
 if (input) input.value = '';
 return;
 }
-rachaPessoas.push(name);
-// novos itens de rachaAtribuicoes já existem; apenas garante que splitValor/split incluam a nova pessoa
-rachaAtribuicoes = rachaAtribuicoes.map(a => {
-if (a.splitValor) {
-return { splitValor: { ...a.splitValor, [name]: 0 } };
-}
-if (a.split) {
-return { split: { ...a.split, [name]: 0 } };
-}
-return a;
-});
+	rachaPessoas.push(name);
+	const totalPessoas = rachaPessoas.length;
+	// redistribui igualmente todos os itens ao adicionar nova pessoa
+	rachaAtribuicoes = rachaAtribuicoes.map((a, idx) => {
+		const item = consumption[idx];
+		const totalItem = item ? item.qty * item.price : 0;
+		if (a.splitValor) {
+			// redistribui igualmente entre todas as pessoas
+			const parteIgual = parseFloat((totalItem / totalPessoas).toFixed(2));
+			const novo = {};
+			rachaPessoas.forEach(p => { novo[p] = parteIgual; });
+			// corrige arredondamento na primeira pessoa
+			const soma = rachaPessoas.reduce((s, p) => s + novo[p], 0);
+			const diff = parseFloat((totalItem - soma).toFixed(2));
+			novo[rachaPessoas[0]] = parseFloat((novo[rachaPessoas[0]] + diff).toFixed(2));
+			return { splitValor: novo };
+		}
+		if (a.split) {
+			// redistribui qtd igualmente (1 cada, modo split por quantidade)
+			const novo = {};
+			rachaPessoas.forEach(p => { novo[p] = a.split[p] || 0; });
+			novo[name] = 0;
+			return { split: novo };
+		}
+		return a;
+	});
 if (input) input.value = '';
 // fecha o painel inline
 document.getElementById('add-pessoa-inline-panel').style.display = 'none';
