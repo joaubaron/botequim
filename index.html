@@ -295,7 +295,7 @@ Gerencie sua conta 🪪
 </div>
 </div>
 <div class="card p-2 mt-2">
-<div class="mt-2 flex flex-wrap justify-start gap-x-4 gap-y-2 items-center mb-4">
+<div id="racha-acoes-bar" class="mt-2 flex flex-wrap justify-start gap-x-4 gap-y-2 items-center mb-4" style="display:none">
 <button onclick="closeModal('racha-resultado-modal'); renderRachaItens(); openModal('racha-itens-modal')" 
 class="text-xs text-white">
 Editar divisão
@@ -1429,9 +1429,15 @@ document.getElementById('res-couvert-row').style.display = couvert > 0 ? '' : 'n
 document.getElementById('res-tip').innerHTML = `R$ ${tipValue.toFixed(2)}`;
 document.getElementById('grand-total').innerHTML = `R$ ${finalTotal.toFixed(2)}`;
 
-// Minha parte (racha) — recalcula dinamicamente
-const minhaParteBox = document.getElementById('minha-parte-box');
-if (meuTotalRacha !== null) {
+	// Controla visibilidade dos botões de racha (Editar divisão / Desfazer / + Pessoa)
+	const rachaAcoesBar = document.getElementById('racha-acoes-bar');
+	if (rachaAcoesBar) {
+		rachaAcoesBar.style.display = meuTotalRacha !== null ? '' : 'none';
+	}
+
+	// Minha parte (racha) — recalcula dinamicamente
+	const minhaParteBox = document.getElementById('minha-parte-box');
+	if (meuTotalRacha !== null) {
 	// Recalcula sempre com base nos itens e atribuições atuais
 	let consumoVoce = 0;
 	consumption.forEach((item, idx) => {
