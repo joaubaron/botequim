@@ -2146,8 +2146,8 @@ const subItens = itensPessoa[p].map(i => {
 	return html;
 	}).join('');
 const extras = `
-${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Couvert</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
-${gorj > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Gorjeta (10%)</span><span>R$ ${gorj.toFixed(2)}</span></div>` : ''}`;
+${gorj > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Gorjeta (10%)</span><span>R$ ${gorj.toFixed(2)}</span></div>` : ''}
+${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Couvert</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}`;
 return `
 <div style="margin-bottom:8px">
 <div style="display:flex;justify-content:space-between;font-size:0.9rem;font-weight:700;${isVoce ? 'color:#b35a00' : 'color:#222'}">
