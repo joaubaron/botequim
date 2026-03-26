@@ -1266,7 +1266,8 @@ const atr = rachaAtribuicoes[idx];
 	const parts = Object.entries(atr.split).filter(([,v]) => v > 0).map(([k,v]) => `${k}:${v}`).join(', ');
 	rachaOwnerLine = `<div class="text-xs mt-0.5 text-yellow-400"><i class="fas fa-cut mr-1"></i>${parts}</div>`;
 	} else {
-	rachaOwnerLine = `<div class="text-xs mt-0.5" style="color:#aaa"><i class="fas fa-user mr-1"></i>${escapeHtml(atr.owner)}</div>`;
+	// dono único: não mostra linha extra — o botão ativo já indica quem é
+	rachaOwnerLine = '';
 	}
 	const personBtns = rachaPessoas.map(p => {
 	const isActive = !atr.split && !atr.splitValor && atr.owner === p;
