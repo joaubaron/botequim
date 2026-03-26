@@ -927,6 +927,7 @@ return `
 id="split-valor-input-${i}"
 value="${val}"
 oninput="rachaSplitValorChange('${escapeHtml(p)}', this.value, ${idx})"
+onkeypress="if(event.key==='Enter'){ event.preventDefault(); const next=document.getElementById('split-valor-input-${i+1}'); if(next) next.focus(); else rachaSplitValorConfirm(); }"
 class="flex-1 p-2 rounded-lg text-sm text-center font-bold"
 style="max-width:90px">
 </div>
