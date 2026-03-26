@@ -548,11 +548,12 @@ Cancelar
 <!-- Modal Racha - Passo 2: Atribuir itens -->
 <div id="racha-itens-modal" class="modal">
 <div class="modal-content" style="width:380px; max-height:85vh;">
-<div class="flex justify-between items-center mb-4">
+<div class="flex justify-between items-center mb-3">
 <h3 class="text-lg font-bold text-yellow-400"><i class="fas fa-receipt mr-2"></i>Quem vai pagar o quê?</h3>
 <button onclick="closeModal('racha-itens-modal'); openModal('racha-pessoas-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
 </div>
-<div id="racha-itens-list" class="space-y-3 mb-4 overflow-y-auto" style="max-height:55vh;"></div>
+<div id="racha-itens-pessoas-chips" class="flex flex-wrap gap-2 mb-3"></div>
+<div id="racha-itens-list" class="space-y-3 mb-4 overflow-y-auto" style="max-height:50vh;"></div>
 <div class="flex gap-3 mt-2">
 <button onclick="rachaCalcular()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
 <i class="fas fa-calculator mr-1"></i> Calcular
@@ -576,6 +577,7 @@ Voltar
 <button onclick="closeModal('racha-resultado-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
 </div>
 </div>
+<div id="racha-resultado-pessoas-chips" class="flex flex-wrap gap-2 mb-3"></div>
 <div id="racha-resultado-list" class="space-y-3 mb-4"></div>
 <div class="flex gap-3">
 <button onclick="confirmarMinhaParte()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
@@ -810,7 +812,54 @@ renderRachaItens();
 openModal('racha-itens-modal');
 }
 
+
+function renderPessoasChips(containerId, fromResultado) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  // "Você" nunca pode ser removido
+  container.innerHTML = rachaPessoas.map((p, i) => {
+    const isVoce = i === 0;
+    const removeBtn = isVoce ? '' : `<button onclick="rachaRemovePersonFrom(${i}, ${fromResultado ? 'true' : 'false'})" class="ml-1 text-red-400 hover:text-red-300 font-bold leading-none" style="font-size:0.85rem">×</button>`;
+    return `<span class="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold ${isVoce ? 'bg-orange-500/20 text-orange-400 border border-orange-500/40' : 'bg-white/8 text-gray-300 border border-white/15'}">${escapeHtml(p)}${removeBtn}</span>`;
+  }).join('');
+}
+
+function rachaRemovePersonFrom(idx, fromResultado) {
+  if (rachaPessoas.length <= 2) {
+    // Não pode ficar com menos de 2
+    return;
+  }
+  const removed = rachaPessoas[idx];
+  rachaPessoas.splice(idx, 1);
+  rachaAtribuicoes = rachaAtribuicoes.map(a => {
+    if (a.owner === removed) return { owner: 'Você' };
+    if (a.splitValor) {
+      const sv = { ...a.splitValor };
+      const val = sv[removed] || 0;
+      delete sv[removed];
+      sv['Você'] = (sv['Você'] || 0) + val;
+      return { splitValor: sv };
+    }
+    if (a.split) {
+      const sp = { ...a.split };
+      const qty = sp[removed] || 0;
+      delete sp[removed];
+      sp['Você'] = (sp['Você'] || 0) + qty;
+      return { split: sp };
+    }
+    return a;
+  });
+  if (fromResultado) {
+    rachaCalcular();
+    renderPessoasChips('racha-resultado-pessoas-chips', true);
+  } else {
+    renderRachaItens();
+    renderPessoasChips('racha-itens-pessoas-chips', false);
+  }
+}
+
 function renderRachaItens() {
+renderPessoasChips('racha-itens-pessoas-chips', false);
 const list = document.getElementById('racha-itens-list');
 list.innerHTML = consumption.map((item, idx) => {
 const atr = rachaAtribuicoes[idx];
@@ -1098,6 +1147,7 @@ ${t.gorjeta > 0 ? `<div class="flex justify-between"><span>Gorjeta (10%)</span><
 
 closeModal('racha-itens-modal');
 openModal('racha-resultado-modal');
+renderPessoasChips('racha-resultado-pessoas-chips', true);
 }
 
 function confirmarMinhaParte() {
