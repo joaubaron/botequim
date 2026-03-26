@@ -1390,7 +1390,7 @@ const atr = rachaAtribuicoes[idx];
 	? `<button onclick="rachaOpenSplit(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.split ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-500 hover:border-yellow-400/50'}"><i class="fas fa-cut"></i></button>`
 	: '';
 	const splitValorBtnInline = `<button onclick="rachaOpenSplitValor(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.splitValor ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-white/10 text-gray-500 hover:border-green-400/50'}"><i class="fas fa-coins"></i></button>`;
-	rachaBtnsLine = `<div class="flex items-center gap-1 mt-1 flex-wrap">${personBtns}${splitBtn}${splitValorBtnInline}</div>`;
+	rachaBtnsLine = `<div class="flex items-center gap-3 mt-1 flex-wrap">${personBtns}${splitBtn}${splitValorBtnInline}</div>`;
 }
 
 list.innerHTML += `
