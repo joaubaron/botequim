@@ -855,14 +855,20 @@ function rachaRemovePersonFrom(idx, fromResultado) {
   }
   const removed = rachaPessoas[idx];
   rachaPessoas.splice(idx, 1);
-  rachaAtribuicoes = rachaAtribuicoes.map(a => {
+  rachaAtribuicoes = rachaAtribuicoes.map((a, idx) => {
     if (a.owner === removed) return { owner: 'Você' };
     if (a.splitValor) {
-      const sv = { ...a.splitValor };
-      const val = sv[removed] || 0;
-      delete sv[removed];
-      sv['Você'] = (sv['Você'] || 0) + val;
-      return { splitValor: sv };
+      // redistribui igualmente o total do item entre os que ficaram
+      const item = consumption[idx];
+      const totalItem = item ? item.qty * item.price : 0;
+      const pessoas = rachaPessoas; // já atualizado (removed foi removido)
+      const parteIgual = parseFloat((totalItem / pessoas.length).toFixed(2));
+      const novo = {};
+      pessoas.forEach(p => { novo[p] = parteIgual; });
+      const soma = pessoas.reduce((s, p) => s + novo[p], 0);
+      const diff = parseFloat((totalItem - soma).toFixed(2));
+      if (Math.abs(diff) >= 0.01) novo[pessoas[0]] = parseFloat((novo[pessoas[0]] + diff).toFixed(2));
+      return { splitValor: novo };
     }
     if (a.split) {
       const sp = { ...a.split };
@@ -1375,13 +1381,9 @@ if (newName && !isNaN(newPrice) && newPrice > 0 && !isNaN(newQty) && newQty > 0)
 consumption[editingIndex].name = newName;
 consumption[editingIndex].price = newPrice;
 consumption[editingIndex].qty = newQty;
-// Atualiza divisão proporcionalmente se splitValor; invalida se split
-if (rachaAtribuicoes[editingIndex]) {
-if (rachaAtribuicoes[editingIndex].splitValor) {
-recalcularSplitValor(editingIndex);
-} else if (rachaAtribuicoes[editingIndex].split) {
+// Invalida split e splitValor se qty ou price mudaram e há racha ativo
+if (rachaAtribuicoes[editingIndex] && (rachaAtribuicoes[editingIndex].split || rachaAtribuicoes[editingIndex].splitValor)) {
 rachaAtribuicoes[editingIndex] = { owner: 'Você' };
-}
 }
 editingIndex = null;
 closeModal('edit-modal');
@@ -1729,33 +1731,11 @@ addItem(true);
 if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
 }
 
-function recalcularSplitValor(idx) {
-const atr = rachaAtribuicoes[idx];
-if (!atr || !atr.splitValor) return;
-const item = consumption[idx];
-const novoTotal = item.qty * item.price;
-const totalAnterior = Object.values(atr.splitValor).reduce((s, v) => s + v, 0);
-if (totalAnterior <= 0) return;
-const pessoas = Object.keys(atr.splitValor);
-const novo = {};
-pessoas.forEach(p => {
-novo[p] = parseFloat(((atr.splitValor[p] / totalAnterior) * novoTotal).toFixed(2));
-});
-// corrige arredondamento na primeira pessoa
-const soma = pessoas.reduce((s, p) => s + novo[p], 0);
-const diff = parseFloat((novoTotal - soma).toFixed(2));
-if (Math.abs(diff) >= 0.01) novo[pessoas[0]] = parseFloat((novo[pessoas[0]] + diff).toFixed(2));
-rachaAtribuicoes[idx] = { splitValor: novo };
-}
-
 function incrementItem(idx) { 
 consumption[idx].qty += 1;
-if (rachaAtribuicoes[idx]) {
-if (rachaAtribuicoes[idx].splitValor) {
-recalcularSplitValor(idx);
-} else if (rachaAtribuicoes[idx].split) {
+// invalida split e splitValor — distribuição ficaria errada com novo valor/qtd
+if (rachaAtribuicoes[idx] && (rachaAtribuicoes[idx].split || rachaAtribuicoes[idx].splitValor)) {
 rachaAtribuicoes[idx] = { owner: 'Você' };
-}
 }
 updateCalculos(); 
 }
@@ -1763,12 +1743,9 @@ updateCalculos();
 function decrementItem(idx) {
 if (consumption[idx].qty > 1) {
 consumption[idx].qty -= 1;
-if (rachaAtribuicoes[idx]) {
-if (rachaAtribuicoes[idx].splitValor) {
-recalcularSplitValor(idx);
-} else if (rachaAtribuicoes[idx].split) {
+// invalida split e splitValor — distribuição ficaria errada com novo valor/qtd
+if (rachaAtribuicoes[idx] && (rachaAtribuicoes[idx].split || rachaAtribuicoes[idx].splitValor)) {
 rachaAtribuicoes[idx] = { owner: 'Você' };
-}
 }
 updateCalculos();
 } else {
