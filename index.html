@@ -1580,76 +1580,107 @@ document.getElementById('validation-modal').classList.add('active');
 
 // Função para mostrar o menu de exemplos
 const examples = {
-'🍺 Choppes e Cervejas': [
-{ name: 'Chope Pilsen 300ml', price: 12.00 },
-{ name: 'Chope Weiss 300ml', price: 16.00 },
+'🍺 Choppes': [
+{ name: 'Chope Pilsen 300ml', price: 13.00 },
+{ name: 'Chope Pilsen 500ml', price: 18.00 },
+{ name: 'Chope Weiss 300ml', price: 17.00 },
 { name: 'Chope IPA 300ml', price: 18.00 },
 { name: 'Chope Stout 300ml', price: 18.00 },
-{ name: 'Chope 500ml', price: 18.00 },
-{ name: 'Chope Torre 2L', price: 65.00 },
-{ name: 'Long Neck', price: 14.00 }
+{ name: 'Long Neck Nacional', price: 14.00 },
+{ name: 'Long Neck Importada', price: 22.00 }
 ],
+
 '🍹 Drinks': [
-{ name: 'Caipirinha', price: 22.00 },
-{ name: 'Caipiroska', price: 24.00 },
+{ name: 'Caipirinha (limão)', price: 22.00 },
+{ name: 'Caipiroska (vodka)', price: 24.00 },
 { name: 'Gin Tônica', price: 28.00 },
 { name: 'Mojito', price: 26.00 },
-{ name: 'Dose de Whisky', price: 22.00 },
-{ name: 'Dose de Cachaça', price: 12.00 }
+{ name: 'Aperol Spritz', price: 30.00 },
+{ name: 'Whisky Dose', price: 22.00 },
+{ name: 'Cachaça Dose', price: 10.00 }
 ],
+
 '🥤 Não Alcoólicos': [
-{ name: 'Refrigerante Lata', price: 8.00 },
+{ name: 'Refrigerante Lata', price: 7.00 },
+{ name: 'Refrigerante 600ml', price: 10.00 },
 { name: 'Suco Natural', price: 12.00 },
-{ name: 'Água Mineral', price: 6.00 },
-{ name: 'Água com Gás', price: 7.00 },
-{ name: 'Chá Gelado', price: 10.00 }
+{ name: 'Água Mineral', price: 5.00 },
+{ name: 'Água com Gás', price: 6.00 }
 ],
+
 '🍟 Porções': [
-{ name: 'Batata Frita', price: 38.00 },
-{ name: 'Linguiça Blumenau', price: 55.00 },
-{ name: 'Frango a Passarinho', price: 48.00 },
-{ name: 'Torresmo', price: 42.00 },
-{ name: 'Isca de Tilápia', price: 52.00 },
-{ name: 'Bolinho de Linguiça', price: 52.00 },
-{ name: 'Calabresa Acebolada', price: 48.00 },
-{ name: 'Polenta Frita', price: 32.00 },
-{ name: 'Mandioca', price: 35.00 }
+{ name: 'Batata Frita', price: 35.00 },
+{ name: 'Batata com Cheddar e Bacon', price: 38.00 },
+{ name: 'Calabresa Acebolada', price: 45.00 },
+{ name: 'Frango à Passarinho', price: 48.00 },
+{ name: 'Torresmo Crocante', price: 42.00 },
+{ name: 'Isca de Tilápia', price: 55.00 },
+{ name: 'Polenta Frita', price: 30.00 },
+{ name: 'Mandioca Frita', price: 32.00 }
 ],
+
 '🥟 Pastéis': [
-{ name: 'Pastel de Carne', price: 12.00 },
-{ name: 'Pastel de Queijo', price: 12.00 },
-{ name: 'Pastel de Frango', price: 12.00 },
-{ name: 'Pastel de Pizza', price: 14.00 },
-{ name: 'Pastel de Camarão', price: 18.00 }
+{ name: 'Pastel de Carne', price: 10.00 },
+{ name: 'Pastel de Queijo', price: 10.00 },
+{ name: 'Pastel de Frango', price: 11.00 },
+{ name: 'Pastel de Pizza', price: 12.00 },
+{ name: 'Pastel de Camarão', price: 16.00 }
 ],
+
 '🍔 Lanches': [
-{ name: 'Hambúrguer Artesanal', price: 42.00 },
-{ name: 'X-Salada', price: 28.00 },
-{ name: 'X-Bacon', price: 32.00 },
-{ name: 'X-Tudo', price: 45.00 },
-{ name: 'Hot Dog', price: 22.00 }
+{ name: 'Hambúrguer Artesanal', price: 38.00 },
+{ name: 'X-Salada', price: 26.00 },
+{ name: 'X-Bacon', price: 30.00 },
+{ name: 'X-Tudo', price: 40.00 },
+{ name: 'Hot Dog Especial', price: 20.00 }
 ],
-'🍝 Pratos Principais': [
-{ name: 'Picanha Suína', price: 49.90 },
-{ name: 'Alcatra Grelhada', price: 89.90 },
+
+'🍝 Comida Italiana': [
+{ name: 'Spaghetti à Bolonhesa', price: 45.00 },
+{ name: 'Fettuccine ao Molho Branco', price: 48.00 },
+{ name: 'Lasanha Tradicional', price: 55.00 },
+{ name: 'Risoto de Funghi', price: 62.00 },
+{ name: 'Risoto de Camarão', price: 65.00 }
+],
+
+'🍣 Sushi': [
+{ name: 'Combinado Sushi 10–12 peças', price: 75.00 },
+{ name: 'Temaki Salmão', price: 32.00 },
+{ name: 'Hot Roll (8 unidades)', price: 28.00 },
+{ name: 'Sashimi Salmão (10 fatias)', price: 60.00 }
+],
+
+'🥩 Pratos Principais': [
+{ name: 'Filé de Frango Grelhado', price: 45.00 },
+{ name: 'Parmegiana de Frango', price: 55.00 },
+{ name: 'Alcatra Grelhada', price: 79.90 },
 { name: 'Entrecot Grelhado', price: 89.90 },
-{ name: 'Frango Grelhado', price: 49.90 }
+{ name: 'Filé de Peixe', price: 65.00 }
 ],
-'🥓 Petiscos': [
-{ name: 'Mussarela Sticks', price: 49.90 },
-{ name: 'Pork&Chips', price: 69.90 },
-{ name: 'Schnitzel', price: 49.90 },
-{ name: 'Bolinho de Carne seca', price: 49.90 },
-{ name: 'Batata Belga', price: 35.90 }
+
+'🍽️ Pratos Típicos': [
+{ name: 'Eisbein', price: 95.00 },
+{ name: 'Schweinshaxe', price: 110.00 },
+{ name: 'Kassler com chucrute e batatas', price: 78.00 },
+{ name: 'Schnitzel', price: 65.00 },
+{ name: 'Bratwurst com purê e chucrute', price: 58.00 },
+{ name: 'Currywurst com batata frita', price: 55.00 },
+{ name: 'Salsichão alemão grelhado', price: 68.00 },
+{ name: 'Spätzle ao molho cremoso', price: 42.00 },
+{ name: 'Batata Rösti', price: 48.00 }
 ],
+
 '🍕 Pizzas': [
-{ name: 'Pizza Média', price: 65.00 },
-{ name: 'Pizza Grande', price: 85.00 }
+{ name: 'Pizza Média (2 sabores)', price: 70.00 },
+{ name: 'Pizza Grande (2 sabores)', price: 90.00 },
+{ name: 'Pizza Família', price: 105.00 }
 ],
+
 '🍰 Sobremesas': [
-{ name: 'Pudim', price: 18.00 },
-{ name: 'Brownie com Sorvete', price: 24.00 },
-{ name: 'Petit Gateau', price: 28.00 }
+{ name: 'Pudim Caseiro', price: 16.00 },
+{ name: 'Brownie com Sorvete', price: 22.00 },
+{ name: 'Petit Gateau', price: 26.00 },
+{ name: 'Sundae Simples', price: 18.00 }
 ]
 };
 
