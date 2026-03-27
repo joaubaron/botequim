@@ -2061,19 +2061,27 @@ async function compartilharComandaImagem() {
     // Clona o conteúdo
     const clone = comandaWrap.cloneNode(true);
     clone.style.height = 'auto';
+    clone.style.maxHeight = 'none';
     clone.style.overflow = 'visible';
+    clone.style.overflowY = 'visible';
     tempContainer.appendChild(clone);
     document.body.appendChild(tempContainer);
     
     try {
-        // Aguarda o clone ser inserido
-        await new Promise(resolve => setTimeout(resolve, 50));
+        // Aguarda o clone ser inserido e renderizado completamente
+        await new Promise(resolve => setTimeout(resolve, 150));
         
         const canvas = await html2canvas(tempContainer, {
             backgroundColor: '#f5f0e8',
             scale: 2,
             useCORS: true,
-            logging: false
+            logging: false,
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: tempContainer.scrollWidth,
+            windowHeight: tempContainer.scrollHeight,
+            height: tempContainer.scrollHeight,
+            width: tempContainer.scrollWidth
         });
         
         canvas.toBlob(async (blob) => {
