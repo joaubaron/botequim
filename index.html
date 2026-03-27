@@ -2042,43 +2042,61 @@ let _comandaFromHistory = false;
 async function compartilharComandaImagem() {
     const actions = document.getElementById('comanda-actions');
     const closeBtn = document.querySelector('.comanda-close-btn');
-    const modal = document.getElementById('comanda-modal');
-    const modalContent = modal.querySelector('.modal-content');
     const comandaWrap = document.getElementById('comanda-content');
-    
-    // Salva estilo original
-    const originalOverflow = modalContent.style.overflow;
-    const originalHeight = modalContent.style.height;
-    const originalMaxHeight = modalContent.style.maxHeight;
-    
-    // Ajusta para capturar todo conteúdo
-    modalContent.style.overflow = 'visible';
-    modalContent.style.height = 'auto';
-    modalContent.style.maxHeight = 'none';
     
     actions.style.display = 'none';
     closeBtn.style.display = 'none';
     
+    // Cria um container temporário para captura
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'fixed';
+    tempContainer.style.top = '-9999px';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.width = `${comandaWrap.scrollWidth}px`;
+    tempContainer.style.backgroundColor = '#f5f0e8';
+    tempContainer.style.padding = '24px 20px 20px';
+    tempContainer.style.fontFamily = "'Courier Prime', 'Courier New', monospace";
+    
+    // Clona o conteúdo
+    const clone = comandaWrap.cloneNode(true);
+    clone.style.height = 'auto';
+    clone.style.overflow = 'visible';
+    tempContainer.appendChild(clone);
+    document.body.appendChild(tempContainer);
+    
     try {
-        // Aguarda um frame para o layout se ajustar
-        await new Promise(resolve => requestAnimationFrame(resolve));
+        await new Promise(resolve => setTimeout(resolve, 50));
         
-        const canvas = await html2canvas(comandaWrap, {
+        const canvas = await html2canvas(tempContainer, {
             backgroundColor: '#f5f0e8',
             scale: 2,
             useCORS: true,
-            logging: false,
-            windowWidth: comandaWrap.scrollWidth,
-            windowHeight: comandaWrap.scrollHeight,
-            onclone: (clonedDoc, element) => {
-                // Garante que no clone também tenha altura total
-                const clonedWrap = element;
-                if (clonedWrap) {
-                    clonedWrap.style.height = 'auto';
-                    clonedWrap.style.overflow = 'visible';
-                }
-            }
+            logging: false
         });
+        
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], 'comanda-botequim.png', { type: 'image/png' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file], title: 'Comanda Botequim' });
+            } else {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'comanda-botequim.png';
+                a.click();
+                URL.revokeObjectURL(a.href);
+            }
+        }, 'image/png');
+    } catch(e) {
+        if (e.name !== 'AbortError') {
+            alert('Não foi possível compartilhar. Tente novamente.');
+        }
+        console.error(e);
+    } finally {
+        document.body.removeChild(tempContainer);
+        actions.style.display = 'flex';
+        closeBtn.style.display = '';
+    }
+}
         
         canvas.toBlob(async (blob) => {
             const file = new File([blob], 'comanda-botequim.png', { type: 'image/png' });
