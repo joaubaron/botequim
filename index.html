@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
+<head>5
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Botequim - Gestão de Conta</title>
@@ -2040,33 +2040,67 @@ event.target.classList.remove('active');
 let _comandaFromHistory = false;
 
 async function compartilharComandaImagem() {
-const actions = document.getElementById('comanda-actions');
-const closeBtn = document.querySelector('.comanda-close-btn');
-actions.style.display = 'none';
-closeBtn.style.display = 'none';
-try {
-const el = document.getElementById('comanda-content');
-const canvas = await html2canvas(el, { backgroundColor: '#f5f0e8', scale: 2, useCORS: true, logging: false });
-canvas.toBlob(async (blob) => {
-const file = new File([blob], 'comanda-botequim.png', { type: 'image/png' });
-if (navigator.canShare && navigator.canShare({ files: [file] })) {
-await navigator.share({ files: [file], title: 'Comanda Botequim' });
-} else {
-const a = document.createElement('a');
-a.href = URL.createObjectURL(blob);
-a.download = 'comanda-botequim.png';
-a.click();
+    const actions = document.getElementById('comanda-actions');
+    const closeBtn = document.querySelector('.comanda-close-btn');
+    const comandaWrap = document.getElementById('comanda-content');
+    
+    // Oculta botões temporariamente
+    actions.style.display = 'none';
+    closeBtn.style.display = 'none';
+    
+    // Cria um container temporário para captura
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'fixed';
+    tempContainer.style.top = '-9999px';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.backgroundColor = '#f5f0e8';
+    tempContainer.style.fontFamily = "'Courier Prime', 'Courier New', monospace";
+    tempContainer.style.padding = '24px 20px 20px';
+    tempContainer.style.width = `${comandaWrap.scrollWidth}px`;
+    
+    // Clona o conteúdo
+    const clone = comandaWrap.cloneNode(true);
+    clone.style.height = 'auto';
+    clone.style.overflow = 'visible';
+    tempContainer.appendChild(clone);
+    document.body.appendChild(tempContainer);
+    
+    try {
+        // Aguarda o clone ser inserido
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+        const canvas = await html2canvas(tempContainer, {
+            backgroundColor: '#f5f0e8',
+            scale: 2,
+            useCORS: true,
+            logging: false
+        });
+        
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], 'comanda-botequim.png', { type: 'image/png' });
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({ files: [file], title: 'Comanda Botequim' });
+            } else {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'comanda-botequim.png';
+                a.click();
+                URL.revokeObjectURL(a.href);
+            }
+        }, 'image/png');
+    } catch(e) {
+        if (e.name !== 'AbortError') {
+            alert('Não foi possível compartilhar. Tente novamente.');
+        }
+        console.error(e);
+    } finally {
+        // Remove container temporário
+        document.body.removeChild(tempContainer);
+        // Restaura botões
+        actions.style.display = 'flex';
+        closeBtn.style.display = '';
+    }
 }
-}, 'image/png');
-} catch(e) {
-if (e.name !== 'AbortError') {
-alert('Não foi possível compartilhar. Tente novamente.');
-}
-console.error(e);
-}
-finally { actions.style.display = 'flex'; closeBtn.style.display = ''; }
-}
-
 function openComanda() {
 _comandaFromHistory = false;
 const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
