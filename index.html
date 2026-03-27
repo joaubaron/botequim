@@ -1817,7 +1817,7 @@ body.innerHTML = itens.map((item, idx) => `
 <div data-cat="${escapeHtml(cat)}" data-idx="${idx}"
 class="example-item flex justify-between items-center bg-white/5 rounded-xl px-4 py-3 mb-2 cursor-pointer hover:bg-white/10 transition-all"
 style="border-left: 2px solid #ff9800;">
-<span class="text-sm font-semibold text-white">${escapeHtml(item.name)}</span>
+<span class="text-[12px] font-semibold text-white">${escapeHtml(item.name)}</span>
 <span class="text-orange-400 font-bold text-sm whitespace-nowrap pl-3">R$ ${item.price.toFixed(2)}</span>
 </div>
 `).join('');
