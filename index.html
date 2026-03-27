@@ -2076,7 +2076,7 @@ const unitLine = item.qty > 1
 : '';
 itemsHtml += `
 <div style="margin-bottom:6px">
-<div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.80rem">
+<div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.82rem">
 <span>${item.qty}x ${escapeHtml(item.name)}</span>
 <span>R$ ${rowTotal}</span>
 </div>
@@ -2267,7 +2267,7 @@ const rowTotal = (item.qty * item.price).toFixed(2);
 // Sempre mostra "Nome R$ total"
 itemsHtml += `
 <div style="margin-bottom:6px">
-<div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.80rem">
+<div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.82rem">
 <span>${escapeHtml(item.name)}</span>
 <span>R$ ${rowTotal}</span>
 </div>`;
