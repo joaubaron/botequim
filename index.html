@@ -1375,8 +1375,8 @@ if (newName && !isNaN(newPrice) && newPrice > 0 && !isNaN(newQty) && newQty > 0)
 consumption[editingIndex].name = newName;
 consumption[editingIndex].price = newPrice;
 consumption[editingIndex].qty = newQty;
-// Invalida split se qty mudou e há racha ativo
-if (rachaAtribuicoes[editingIndex] && rachaAtribuicoes[editingIndex].split) {
+// Invalida split e splitValor se qty ou price mudaram e há racha ativo
+if (rachaAtribuicoes[editingIndex] && (rachaAtribuicoes[editingIndex].split || rachaAtribuicoes[editingIndex].splitValor)) {
 rachaAtribuicoes[editingIndex] = { owner: 'Você' };
 }
 editingIndex = null;
@@ -1727,8 +1727,8 @@ if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
 
 function incrementItem(idx) { 
 consumption[idx].qty += 1;
-// se havia split, invalida — distribuição ficaria errada
-if (rachaAtribuicoes[idx] && rachaAtribuicoes[idx].split) {
+// invalida split e splitValor — distribuição ficaria errada com novo valor/qtd
+if (rachaAtribuicoes[idx] && (rachaAtribuicoes[idx].split || rachaAtribuicoes[idx].splitValor)) {
 rachaAtribuicoes[idx] = { owner: 'Você' };
 }
 updateCalculos(); 
@@ -1737,8 +1737,8 @@ updateCalculos();
 function decrementItem(idx) {
 if (consumption[idx].qty > 1) {
 consumption[idx].qty -= 1;
-// se havia split, invalida — distribuição ficaria errada
-if (rachaAtribuicoes[idx] && rachaAtribuicoes[idx].split) {
+// invalida split e splitValor — distribuição ficaria errada com novo valor/qtd
+if (rachaAtribuicoes[idx] && (rachaAtribuicoes[idx].split || rachaAtribuicoes[idx].splitValor)) {
 rachaAtribuicoes[idx] = { owner: 'Você' };
 }
 updateCalculos();
