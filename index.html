@@ -2072,7 +2072,7 @@ let itemsHtml = '';
 displayItems.forEach(item => {
 const rowTotal = (item.qty * item.price).toFixed(2);
 const unitLine = item.qty > 1
-? `<div style="font-size:0.80rem;color:#888;margin-top:-2px;line-height:1">${item.qty} x R$ ${item.price.toFixed(2)}</div>`
+? `<div style="font-size:0.82rem;color:#888;margin-top:-2px;line-height:1">${item.qty} x R$ ${item.price.toFixed(2)}</div>`
 : '';
 itemsHtml += `
 <div style="margin-bottom:6px">
@@ -2134,13 +2134,13 @@ document.getElementById('comanda-content').innerHTML = `
 </div>
 ${itemsHtml}
 <hr class="comanda-dashed">
-<div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:4px">
+<div style="display:flex;justify-content:space-between;font-size:0.77rem;margin-bottom:4px">
 <span>CONSUMO</span><span>R$ ${displaySubtotal.toFixed(2)}</span>
 </div>
-${tip > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:4px"><span>GORJETA (10%)</span><span>R$ ${tip.toFixed(2)}</span></div>` : ''}
-${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:4px"><span>COUVERT</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
+${tip > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.77rem;margin-bottom:4px"><span>GORJETA (10%)</span><span>R$ ${tip.toFixed(2)}</span></div>` : ''}
+${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.77rem;margin-bottom:4px"><span>COUVERT</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
 <hr class="comanda-dashed">
-<div style="display:flex;justify-content:space-between;font-size:0.95rem;font-weight:700">
+<div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700">
 <span>TOTAL</span><span>R$ ${displayTotal.toFixed(2)}</span>
 </div>
 ${rachaHistHtml}
@@ -2275,7 +2275,7 @@ itemsHtml += `
 // Se qtd > 1, mostra linha unitária
 if (item.qty > 1) {
 itemsHtml += `
-<div style="font-size:0.80rem;color:#888;margin-top:-2px;line-height:1">${item.qty} x R$ ${item.price.toFixed(2)}</div>`;
+<div style="font-size:0.82rem;color:#888;margin-top:-2px;line-height:1">${item.qty} x R$ ${item.price.toFixed(2)}</div>`;
 }
 
 itemsHtml += `</div>`;
@@ -2357,15 +2357,15 @@ document.getElementById('comanda-content').innerHTML = `
 </div>
 ${itemsHtml}
 <hr class="comanda-dashed">
-<div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:4px">
+<div style="display:flex;justify-content:space-between;font-size:0.77rem;margin-bottom:4px">
 <span>CONSUMO</span><span>R$ ${subtotal.toFixed(2)}</span>
 </div>
 
-${hasTip ? `<div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:4px"><span>GORJETA (10%)</span><span>R$ ${tip.toFixed(2)}</span></div>` : ''}
-${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:4px"><span>COUVERT</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
+${hasTip ? `<div style="display:flex;justify-content:space-between;font-size:0.77rem;margin-bottom:4px"><span>GORJETA (10%)</span><span>R$ ${tip.toFixed(2)}</span></div>` : ''}
+${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.77rem;margin-bottom:4px"><span>COUVERT</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
 
 <hr class="comanda-dashed">
-<div style="display:flex;justify-content:space-between;font-size:0.95rem;font-weight:700">
+<div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700">
 <span>TOTAL</span><span>R$ ${total.toFixed(2)}</span>
 </div>
 ${rachaHtml}
