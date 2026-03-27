@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-<head>
+<head>5
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Botequim - Gestão de Conta</title>
@@ -855,14 +855,20 @@ function rachaRemovePersonFrom(idx, fromResultado) {
   }
   const removed = rachaPessoas[idx];
   rachaPessoas.splice(idx, 1);
-  rachaAtribuicoes = rachaAtribuicoes.map(a => {
+  rachaAtribuicoes = rachaAtribuicoes.map((a, idx) => {
     if (a.owner === removed) return { owner: 'Você' };
     if (a.splitValor) {
-      const sv = { ...a.splitValor };
-      const val = sv[removed] || 0;
-      delete sv[removed];
-      sv['Você'] = (sv['Você'] || 0) + val;
-      return { splitValor: sv };
+      // redistribui igualmente o total do item entre os que ficaram
+      const item = consumption[idx];
+      const totalItem = item ? item.qty * item.price : 0;
+      const pessoas = rachaPessoas; // já atualizado (removed foi removido)
+      const parteIgual = parseFloat((totalItem / pessoas.length).toFixed(2));
+      const novo = {};
+      pessoas.forEach(p => { novo[p] = parteIgual; });
+      const soma = pessoas.reduce((s, p) => s + novo[p], 0);
+      const diff = parseFloat((totalItem - soma).toFixed(2));
+      if (Math.abs(diff) >= 0.01) novo[pessoas[0]] = parseFloat((novo[pessoas[0]] + diff).toFixed(2));
+      return { splitValor: novo };
     }
     if (a.split) {
       const sp = { ...a.split };
@@ -1741,7 +1747,6 @@ const novo = {};
 pessoas.forEach(p => {
 novo[p] = parseFloat(((atr.splitValor[p] / totalAnterior) * novoTotal).toFixed(2));
 });
-// corrige arredondamento na primeira pessoa
 const soma = pessoas.reduce((s, p) => s + novo[p], 0);
 const diff = parseFloat((novoTotal - soma).toFixed(2));
 if (Math.abs(diff) >= 0.01) novo[pessoas[0]] = parseFloat((novo[pessoas[0]] + diff).toFixed(2));
