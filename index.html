@@ -2206,6 +2206,14 @@ async function compartilharComandaImagem() {
     clone.style.overflowY = 'visible';
     tempContainer.appendChild(clone);
     document.body.appendChild(tempContainer);
+
+    // Reduz fontes apenas na imagem gerada (não afeta a comanda na tela)
+    clone.querySelectorAll('[style*="font-size"]').forEach(el => {
+        const match = el.style.fontSize.match(/([\d.]+)rem/);
+        if (match) {
+            el.style.fontSize = (parseFloat(match[1]) * 0.78) + 'rem';
+        }
+    });
     
     try {
         // Aguarda o clone ser inserido e renderizado completamente
