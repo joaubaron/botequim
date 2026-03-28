@@ -1,6 +1,6 @@
 // ⚠️ Atualize a versão a cada deploy
 
-const CACHE_VERSION = '25.03.2026-1400';
+const CACHE_VERSION = '28.03.2026-1829';
 const CACHE_NAME = `botequim-${CACHE_VERSION}`;
 const OFFLINE_URL = './index.html';
 
