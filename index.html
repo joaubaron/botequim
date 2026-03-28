@@ -2211,7 +2211,7 @@ async function compartilharComandaImagem() {
     clone.querySelectorAll('[style*="font-size"]').forEach(el => {
         const match = el.style.fontSize.match(/([\d.]+)rem/);
         if (match) {
-            el.style.fontSize = (parseFloat(match[1]) * 0.78) + 'rem';
+            el.style.fontSize = (parseFloat(match[1]) * 0.85) + 'rem';
         }
     });
     
