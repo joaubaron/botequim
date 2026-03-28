@@ -458,14 +458,10 @@ Cancelar
 <i class="fas fa-exclamation-triangle text-yellow-400 text-2xl"></i>
 </div>
 <div>
-<div class="text-sm text-gray-400">Nenhuma conta aberta.</div>
-<div class="text-xs text-gray-500 mt-1">Adicione um item para começar automaticamente.</div>
+<div class="text-sm text-gray-400">Adicione um item primeiro.</div>
 </div>
-<button onclick="closeModal('validation-modal'); openBarNameModal()" class="w-3/4 py-3 rounded-xl text-sm font-bold btn-accent mx-auto block">
-<i class="fas fa-store mr-1"></i> Abrir conta
-</button>
-<button onclick="closeModal('validation-modal')" class="text-xs text-gray-500 underline">
-Fechar
+<button onclick="closeModal('validation-modal')" class="w-1/2 py-3 rounded-xl text-sm font-bold btn-accent mx-auto block">
+OK
 </button>
 </div>
 </div>
@@ -1888,8 +1884,9 @@ const examples = {
 
 function quickAddExample() {
 if (!currentBarName) {
-openBarNameModal();
-return;
+currentBarName = 'Minha conta';
+localStorage.setItem('botequim_bar_name', currentBarName);
+updateResumoTitulo();
 }
 let examplesModal = document.getElementById('examples-modal');
 if (!examplesModal) {
