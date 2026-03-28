@@ -201,7 +201,32 @@ white-space: nowrap;
 .tooltip:hover .tooltiptext {
 visibility: visible;
 }
-/* Estilos do modal comanda */
+/* Toast de feedback */
+#toast {
+position: fixed;
+bottom: 90px;
+left: 50%;
+transform: translateX(-50%) translateY(20px);
+background: #1e2d1e;
+color: #4ade80;
+border: 1px solid #4ade8055;
+padding: 12px 20px;
+border-radius: 12px;
+font-size: 0.85rem;
+font-weight: 600;
+z-index: 9999;
+opacity: 0;
+transition: opacity 0.3s ease, transform 0.3s ease;
+pointer-events: none;
+white-space: nowrap;
+box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+#toast.show {
+opacity: 1;
+transform: translateX(-50%) translateY(0);
+}
+
+
 .comanda-wrap {
 font-family: 'Courier Prime', 'Courier New', monospace;
 color: #1a1a1a;
@@ -237,7 +262,7 @@ Gerencie sua conta 🪪
 </div>
 <div class="flex gap-2 self-start">
 <div class="text-2xl cursor-pointer" onclick="showHistory()">
-<i class="fas fa-chart-line" style="position:relative; top:11px;"></i>
+<i class="fas fa-history" style="position:relative; top:11px;"></i>
 </div>
 
 </div>
@@ -252,13 +277,17 @@ Gerencie sua conta 🪪
 <button onclick="openRachaModal()" class="text-yellow-400 text-xs font-bold border border-orange-900/50 px-3 py-2 rounded whitespace-nowrap">
 <i class="fas fa-users"></i> Dividir conta
 </button>
-<button onclick="clearItems()" class="text-red-500 text-xs font-bold border border-orange-900/50 px-3 py-2 rounded whitespace-nowrap">
-<i class="fas fa-check-circle"></i> Fechar a conta
+<button onclick="clearItems()" class="text-red-500 text-xs font-bold px-3 py-2 rounded whitespace-nowrap ml-auto" style="border: 1px dashed rgba(239,68,68,0.4);">
+<i class="fas fa-check-circle"></i> Fechar
 </button>
 </div>
 
 
 <div id="items-list" class="space-y-0 mb-6 max-h-96 overflow-y-auto"></div>
+
+<div id="empty-hint" class="text-center py-4 mb-2">
+<p class="text-gray-600 text-xs">👆 Digite o primeiro item para começar</p>
+</div>
 
 <div id="no-bar-placeholder" onclick="openBarNameModal()" class="hidden cursor-pointer text-center py-6 rounded-xl border border-dashed border-orange-500/40 mb-6">
 <i class="fas fa-store text-orange-500 text-2xl mb-2 block"></i>
@@ -429,11 +458,14 @@ Cancelar
 <i class="fas fa-exclamation-triangle text-yellow-400 text-2xl"></i>
 </div>
 <div>
-
-<div class="text-sm text-gray-400">Conta encerrada. Abra uma nova antes.</div>
+<div class="text-sm text-gray-400">Nenhuma conta aberta.</div>
+<div class="text-xs text-gray-500 mt-1">Adicione um item para começar automaticamente.</div>
 </div>
-<button onclick="closeModal('validation-modal')" class="w-1/2 py-3 rounded-xl text-sm font-bold btn-accent mx-auto block">
-OK, entendi
+<button onclick="closeModal('validation-modal'); openBarNameModal()" class="w-3/4 py-3 rounded-xl text-sm font-bold btn-accent mx-auto block">
+<i class="fas fa-store mr-1"></i> Abrir conta
+</button>
+<button onclick="closeModal('validation-modal')" class="text-xs text-gray-500 underline">
+Fechar
 </button>
 </div>
 </div>
@@ -462,7 +494,7 @@ Cancelar
 <div id="history-modal" class="modal">
 <div class="modal-content">
 <div class="flex justify-between items-center mb-4">
-<h3 class="text-xl font-bold text-orange-500"><i class="fas fa-chart-line"></i> Histórico</h3>
+<h3 class="text-xl font-bold text-orange-500"><i class="fas fa-history"></i> Histórico</h3>
 <button onclick="closeModal('history-modal')" aria-label="Fechar" class="text-2xl">&times;</button>
 </div>
 <div id="history-list" class="space-y-2 max-h-96 overflow-y-auto" style="overflow-x:hidden;"></div>
@@ -544,8 +576,13 @@ onkeypress="if(event.key==='Enter') rachaAddPerson()">
 </div>
 <div id="racha-pessoas-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto"></div>
 <div class="flex gap-3 mt-2">
+<button onclick="rachaDividirIgualmente()" class="flex-1 py-3 rounded-xl text-sm font-bold" style="background:rgba(250,204,21,0.15);color:#facc15;border:1px solid rgba(250,204,21,0.3);">
+<i class="fas fa-equals mr-1"></i> Dividir igualmente
+</button>
+</div>
+<div class="flex gap-3 mt-2">
 <button onclick="rachaProximo()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
-Dividir
+Personalizar divisão
 </button>
 <button onclick="closeModal('racha-pessoas-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
 Cancelar
@@ -562,6 +599,7 @@ Cancelar
 <button onclick="closeModal('racha-itens-modal'); openModal('racha-pessoas-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
 </div>
 <div id="racha-itens-pessoas-chips" class="flex flex-wrap gap-2 mb-3"></div>
+<p class="text-xs text-gray-500 mb-3"><i class="fas fa-info-circle mr-1"></i>Sem atribuição = dividido igualmente. Toque em um item para personalizar.</p>
 <div id="racha-itens-list" class="space-y-3 mb-4 overflow-y-auto" style="max-height:50vh;"></div>
 <div class="flex gap-3 mt-2">
 <button onclick="rachaCalcular()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
@@ -590,7 +628,7 @@ Voltar
 <div id="racha-resultado-list" class="space-y-3 mb-4"></div>
 <div class="flex gap-3">
 <button onclick="confirmarMinhaParte()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
-<i class="fas fa-check mr-1"></i> Dividir a conta
+<i class="fas fa-check mr-1"></i> Confirmar minha parte
 </button>
 </div>
 </div>
@@ -627,6 +665,9 @@ Cancelar
 <p id="racha-split-valor-total-label" class="text-xs text-orange-400 font-bold mb-4"></p>
 <div id="racha-split-valor-inputs" class="space-y-3 mb-2"></div>
 <div id="racha-split-valor-restante" class="text-xs text-center mb-3"></div>
+<button onclick="rachaSplitValorIgual()" class="w-full py-2 rounded-xl text-xs font-bold mb-3" style="background:rgba(250,204,21,0.1);color:#facc15;border:1px solid rgba(250,204,21,0.25);">
+<i class="fas fa-equals mr-1"></i> Dividir igualmente
+</button>
 <div class="flex gap-3 mt-2">
 <button onclick="rachaSplitValorConfirm()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
 <i class="fas fa-check mr-1"></i> Confirmar
@@ -692,8 +733,9 @@ Cancelar
 </div>
 </div>
 
+<div id="toast"></div>
+
 <script>
-// ---- RACHA ----
 let rachaPessoas = []; // ex: ['Você', 'João']
 let rachaAtribuicoes = []; // por item: { owner: 'Você' } ou { split: {Você:1, João:1} }
 let rachaSplitItemIdx = null;
@@ -701,6 +743,13 @@ let rachaSplitValues = {};
 
 function openModal(id) {
 document.getElementById(id).classList.add('active');
+}
+
+function showToast(msg) {
+const toast = document.getElementById('toast');
+toast.textContent = msg;
+toast.classList.add('show');
+setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
 function openRachaModal() {
@@ -836,43 +885,80 @@ renderRachaItens();
 openModal('racha-itens-modal');
 }
 
+function rachaDividirIgualmente() {
+if (rachaPessoas.length < 2) {
+document.getElementById('racha-alert-modal').classList.add('active');
+return;
+}
+// Distribui todos os itens igualmente por valor entre todas as pessoas
+rachaAtribuicoes = consumption.map(item => {
+const totalItem = item.qty * item.price;
+const parteIgual = parseFloat((totalItem / rachaPessoas.length).toFixed(2));
+const splitValor = {};
+rachaPessoas.forEach(p => { splitValor[p] = parteIgual; });
+// corrige arredondamento no primeiro
+const soma = rachaPessoas.reduce((s, p) => s + splitValor[p], 0);
+const diff = parseFloat((totalItem - soma).toFixed(2));
+if (Math.abs(diff) >= 0.01) splitValor[rachaPessoas[0]] = parseFloat((splitValor[rachaPessoas[0]] + diff).toFixed(2));
+return { splitValor };
+});
+closeModal('racha-pessoas-modal');
+rachaCalcular();
+}
+
 
 function renderPessoasChips(containerId, fromResultado) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  // "Você" nunca pode ser removido
   container.innerHTML = rachaPessoas.map((p, i) => {
-    const isVoce = i === 0;
-    const removeBtn = isVoce ? '' : `<button onclick="rachaRemovePersonFrom(${i}, ${fromResultado ? 'true' : 'false'})" class="ml-1 text-red-400 hover:text-red-300 font-bold leading-none" style="font-size:0.85rem">×</button>`;
-    return `<span class="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold ${isVoce ? 'bg-orange-500/20 text-orange-400 border border-orange-500/40' : 'bg-white/8 text-gray-300 border border-white/15'}">${escapeHtml(p)}${removeBtn}</span>`;
+    if (i === 0) {
+      return `<span style="display:inline-flex;align-items:center;font-size:0.8rem;font-weight:700;color:#fb923c;margin-right:16px">${escapeHtml(p)}</span>`;
+    }
+    return `<span style="display:inline-flex;align-items:center;gap:6px;font-size:0.8rem;font-weight:700;color:#d1d5db;margin-right:16px">${escapeHtml(p)}<button data-remove-idx="${i}" data-from-resultado="${fromResultado ? '1' : '0'}" style="background:none;border:none;color:#f87171;font-size:1.2rem;font-weight:bold;cursor:pointer;padding:0 4px;">×</button></span>`;
   }).join('');
+  container.querySelectorAll('button[data-remove-idx]').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      var pessoaIdx = parseInt(btn.getAttribute('data-remove-idx'));
+      var fromRes = btn.getAttribute('data-from-resultado') === '1';
+      rachaRemovePersonFrom(pessoaIdx, fromRes);
+    });
+  });
 }
 
-function rachaRemovePersonFrom(idx, fromResultado) {
+function rachaRemovePersonFrom(pessoaIdx, fromResultado) {
   if (rachaPessoas.length <= 2) {
-    // Não pode ficar com menos de 2
+    // Só sobra "Você" — reseta a divisão e fecha os modais
+    rachaPessoas = ['Você'];
+    rachaAtribuicoes = consumption.map(function() { return { owner: 'Você' }; });
+    meuTotalRacha = null;
+    localStorage.removeItem('botequim_meu_total_racha');
+    localStorage.removeItem('botequim_racha_pessoas');
+    localStorage.removeItem('botequim_racha_atribuicoes');
+    closeModal('racha-resultado-modal');
+    closeModal('racha-itens-modal');
+    updateCalculos();
     return;
   }
-  const removed = rachaPessoas[idx];
-  rachaPessoas.splice(idx, 1);
-  rachaAtribuicoes = rachaAtribuicoes.map((a, idx) => {
+  var removed = rachaPessoas[pessoaIdx];
+  rachaPessoas.splice(pessoaIdx, 1);
+  rachaAtribuicoes = rachaAtribuicoes.map(function(a, itemIdx) {
     if (a.owner === removed) return { owner: 'Você' };
     if (a.splitValor) {
-      // redistribui igualmente o total do item entre os que ficaram
-      const item = consumption[idx];
-      const totalItem = item ? item.qty * item.price : 0;
-      const pessoas = rachaPessoas; // já atualizado (removed foi removido)
-      const parteIgual = parseFloat((totalItem / pessoas.length).toFixed(2));
-      const novo = {};
-      pessoas.forEach(p => { novo[p] = parteIgual; });
-      const soma = pessoas.reduce((s, p) => s + novo[p], 0);
-      const diff = parseFloat((totalItem - soma).toFixed(2));
-      if (Math.abs(diff) >= 0.01) novo[pessoas[0]] = parseFloat((novo[pessoas[0]] + diff).toFixed(2));
+      var item = consumption[itemIdx];
+      var totalItem = item ? item.qty * item.price : 0;
+      var parteIgual = parseFloat((totalItem / rachaPessoas.length).toFixed(2));
+      var novo = {};
+      rachaPessoas.forEach(function(p) { novo[p] = parteIgual; });
+      var soma = rachaPessoas.reduce(function(s, p) { return s + novo[p]; }, 0);
+      var diff = parseFloat((totalItem - soma).toFixed(2));
+      if (Math.abs(diff) >= 0.01) novo[rachaPessoas[0]] = parseFloat((novo[rachaPessoas[0]] + diff).toFixed(2));
       return { splitValor: novo };
     }
     if (a.split) {
-      const sp = { ...a.split };
-      const qty = sp[removed] || 0;
+      var sp = Object.assign({}, a.split);
+      var qty = sp[removed] || 0;
       delete sp[removed];
       sp['Você'] = (sp['Você'] || 0) + qty;
       return { split: sp };
@@ -909,9 +995,9 @@ class="px-2 py-1 rounded-lg text-xs font-bold border transition-all ${atr.owner 
 >${escapeHtml(p)}</button>
 `).join('');
 const splitBtn = item.qty > 1
-? `<button onclick="rachaOpenSplit(${idx})" class="px-2 py-1 rounded-lg text-xs font-bold border transition-all ${atr.split ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-400'}"><i class="fas fa-cut"></i> Dividir</button>`
+? `<button onclick="rachaOpenSplit(${idx})" class="px-2 py-1 rounded-lg text-xs font-bold border transition-all ${atr.split ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-400'}"><i class="fas fa-cut mr-1"></i>÷ Qtd</button>`
 : '';
-const splitValorBtn = `<button onclick="rachaOpenSplitValor(${idx})" class="px-2 py-1 rounded-lg text-xs font-bold border transition-all ${atr.splitValor ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-white/10 text-gray-400'}"><i class="fas fa-coins"></i> R$</button>`;
+const splitValorBtn = `<button onclick="rachaOpenSplitValor(${idx})" class="px-2 py-1 rounded-lg text-xs font-bold border transition-all ${atr.splitValor ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-white/10 text-gray-400'}"><i class="fas fa-coins mr-1"></i>÷ R$</button>`;
 return `
 <div class="bg-white/5 rounded-xl p-3">
 <div class="flex justify-between items-start mb-2">
@@ -1123,6 +1209,18 @@ function rachaSplitValorChange(person, rawVal, idx) {
 	}
 }
 
+function rachaSplitValorIgual() {
+const idx = rachaSplitValorItemIdx;
+const item = consumption[idx];
+const totalItem = item.qty * item.price;
+const parteIgual = parseFloat((totalItem / rachaPessoas.length).toFixed(2));
+rachaPessoas.forEach(p => { rachaSplitValorValues[p] = parteIgual; });
+const soma = rachaPessoas.reduce((s, p) => s + rachaSplitValorValues[p], 0);
+const diff = parseFloat((totalItem - soma).toFixed(2));
+if (Math.abs(diff) >= 0.01) rachaSplitValorValues[rachaPessoas[0]] = parseFloat((rachaSplitValorValues[rachaPessoas[0]] + diff).toFixed(2));
+renderSplitValorInputs(idx);
+}
+
 function rachaSplitValorConfirm() {
 const idx = rachaSplitValorItemIdx;
 const item = consumption[idx];
@@ -1221,6 +1319,7 @@ meuTotalRacha = consumoVoce + couvert + gorjetaVoce;
 localStorage.setItem('botequim_meu_total_racha', meuTotalRacha);
 closeModal('racha-resultado-modal');
 updateCalculos();
+showToast(`✅ Sua parte: R$ ${meuTotalRacha.toFixed(2).replace('.', ',')} — salvo na tela principal`);
 }
 
 function desfazerRacha() {
@@ -1304,12 +1403,14 @@ if (savedTip === '1') document.getElementById('in-tip').checked = true;
 let currentBarName = localStorage.getItem('botequim_bar_name') || '';
 
 let openedFromClear = false;
+let _pendingItem = null;
 
 function openBarNameModal(fromClear) {
 openedFromClear = !!fromClear;
 const input = document.getElementById('bar-name-input');
 input.value = currentBarName;
 document.getElementById('barname-modal').classList.add('active');
+setTimeout(() => { input.focus(); input.select(); }, 100);
 }
 
 function confirmBarName() {
@@ -1335,6 +1436,16 @@ currentBarName = newName;
 localStorage.setItem('botequim_bar_name', newName);
 updateResumoTitulo();
 }
+if (_pendingItem) {
+consumption.push(_pendingItem);
+_pendingItem = null;
+document.getElementById('in-name').value = '';
+document.getElementById('in-qty').value = '';
+document.getElementById('in-price').value = '';
+_addingItem = true;
+updateCalculos();
+_addingItem = false;
+}
 }
 
 function updateResumoTitulo() {
@@ -1346,21 +1457,28 @@ titulo.innerHTML = text;
 
 const sub = document.getElementById('header-subtitle');
 if (sub) {
-if (currentBarName) {
+if (currentBarName && currentBarName !== 'Minha conta') {
 sub.innerHTML = '<i class="fas fa-store mr-1"></i> ' + escapeHtml(currentBarName);
 sub.style.marginLeft = '10px';
+sub.style.cursor = '';
+sub.onclick = null;
+} else if (currentBarName === 'Minha conta') {
+sub.innerHTML = '<i class="fas fa-store mr-1"></i> Minha conta <span style="font-size:11px;color:#f97316;margin-left:6px;text-decoration:underline">renomear</span>';
+sub.style.marginLeft = '10px';
+sub.style.cursor = 'pointer';
+sub.onclick = () => openBarNameModal();
 } else {
 sub.innerHTML = 'Gerencie sua conta <i class="fas fa-id-card ml-2"></i>';
-sub.style.marginLeft = '0';  // Remove quando não tem nome do bar
+sub.style.marginLeft = '0';
+sub.onclick = null;
 }
 }
 toggleInputArea();
 }
 
 function toggleInputArea() {
-const hasBar = !!currentBarName;
-document.getElementById('input-area').style.display = hasBar ? '' : 'none';
-document.getElementById('no-bar-placeholder').classList.toggle('hidden', hasBar);
+document.getElementById('input-area').style.display = '';
+document.getElementById('no-bar-placeholder').classList.add('hidden');
 }
 
 function startEdit(idx) {
@@ -1403,6 +1521,9 @@ const list = document.getElementById('items-list');
 const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
 const hasTip = document.getElementById('in-tip').checked;
 
+const hint = document.getElementById('empty-hint');
+if (hint) hint.style.display = consumption.length === 0 ? '' : 'none';
+
 list.innerHTML = '';
 let subtotalItems = 0;
 
@@ -1436,7 +1557,7 @@ const atr = rachaAtribuicoes[idx];
 	const splitBtn = item.qty > 1
 	? `<button onclick="rachaOpenSplit(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.split ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-500 hover:border-yellow-400/50'}"><i class="fas fa-cut"></i></button>`
 	: '';
-	const splitValorBtnInline = `<button onclick="rachaOpenSplitValor(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.splitValor ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-white/10 text-gray-500 hover:border-green-400/50'}"><i class="fas fa-coins"></i></button>`;
+	const splitValorBtnInline = `<button onclick="rachaOpenSplitValor(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.splitValor ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-white/10 text-gray-500 hover:border-green-400/50'}"><i class="fas fa-coins mr-1"></i>÷ R$</button>`;
 	rachaBtnsLine = `<div class="flex items-center gap-3 mt-1 flex-wrap">${personBtns}${splitBtn}${splitValorBtnInline}</div>`;
 }
 
@@ -1538,8 +1659,14 @@ return div.innerHTML;
 
 function addItem(noFocus) {
 if (!currentBarName) {
-if (!document.getElementById('barname-modal').classList.contains('active')) {
+const nameEl = document.getElementById('in-name');
+const priceEl = document.getElementById('in-price');
+const qtyEl = document.getElementById('in-qty');
+if (nameEl.value.trim() && parseFloat(priceEl.value) > 0) {
+_pendingItem = { name: nameEl.value.trim(), qty: parseInt(qtyEl.value) || 1, price: parseFloat(priceEl.value) };
 openBarNameModal();
+} else {
+document.getElementById('validation-modal').classList.add('active');
 }
 return;
 }
@@ -2007,6 +2134,7 @@ localStorage.removeItem('botequim_couvert');
 localStorage.removeItem('botequim_tip');
 closeModal('clear-modal');
 updateCalculos();
+showToast('✅ Conta fechada e salva no histórico!');
 }
 
 function calculateTotal() {
