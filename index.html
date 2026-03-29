@@ -1941,7 +1941,8 @@ if (rachaAtribuicoes[idx]) {
 if (rachaAtribuicoes[idx].splitValor) {
 recalcularSplitValor(idx);
 } else if (rachaAtribuicoes[idx].split) {
-rachaAtribuicoes[idx] = { owner: 'Você' };
+rachaAtribuicoes[idx].split['Você'] = (rachaAtribuicoes[idx].split['Você'] || 0) + 1;
+showToast('⚠️ Unidade extra atribuída a Você — ajuste se necessário.');
 }
 }
 updateCalculos(); 
