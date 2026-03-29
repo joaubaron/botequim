@@ -148,23 +148,7 @@ backdrop-filter: blur(4px);
 display: flex;
 }
 
-#barname-modal .modal-content {
-position: relative;
-overflow: hidden;
-}
 
-#barname-modal .modal-content::before {
-content: '';
-position: absolute;
-inset: 0;
-background: url('bar-bg.webp') center/cover no-repeat;
-z-index: 0;
-}
-
-#barname-modal .modal-content > * {
-position: relative;
-z-index: 1;
-}
 
 .modal-content {
 background: #1e1e2e;
@@ -256,9 +240,12 @@ z-index: 10;
 <img src="botequim-modal.png" alt="Logo" class="h-[50px] object-contain">
 </h1>
 
-<p id="header-subtitle" class="text-gray-400 mt-1" style="font-size:15px">
-Gerencie sua conta 🪪
+<p id="header-subtitle" class="text-gray-400 mt-1 flex items-center gap-2 flex-wrap" style="font-size:15px">
+<span>Gerencie sua conta 🪪</span>
+<button onclick="openBarNameModal()" class="text-orange-400 text-xs font-bold border border-orange-500/40 px-2 py-1 rounded-lg whitespace-nowrap">Nomear</button>
 </p>
+
+
 </div>
 <div class="flex gap-2 self-start">
 <div class="text-2xl cursor-pointer" onclick="showHistory()">
@@ -290,7 +277,7 @@ Gerencie sua conta 🪪
  🍻 Digite o primeiro item ou escolha no cardápio.
 </p>
 </div>
-	
+
 <div id="no-bar-placeholder" onclick="openBarNameModal()" class="hidden cursor-pointer text-center py-6 rounded-xl border border-dashed border-orange-500/40 mb-6">
 <i class="fas fa-store text-orange-500 text-2xl mb-2 block"></i>
 <span class="text-orange-400 font-semibold text-sm">Toque para abrir uma nova conta.</span>
@@ -298,7 +285,7 @@ Gerencie sua conta 🪪
 
 <div id="input-area">
 <div class="flex gap-2 mb-6">
-<input id="in-name" type="text" placeholder="Item (ex: Cerveja)" class="text-sm p-2 rounded enter-submit" style="flex: 3; min-width: 0;" onfocus="this.select()">
+<input id="in-name" type="text" placeholder="Item (ex: Cerveja)" class="text-sm p-2 rounded enter-submit" style="flex: 3; min-width: 0;" onfocus="if(!currentBarName){ openBarNameModal(); this.blur(); } else { this.select(); }">
 <input id="in-qty" type="number" inputmode="numeric" placeholder="Qt" class="text-sm p-2 rounded text-center enter-submit" style="width: 55px;" onfocus="this.select()">
 <input id="in-price" type="number" inputmode="decimal" step="0.01" placeholder="R$" class="text-sm p-2 rounded text-center enter-submit" style="width: 65px;" onfocus="this.select()">
 <button onclick="addItem()" aria-label="Adicionar item" class="btn-accent rounded font-bold text-xl" style="width: 45px; display: flex; align-items: center; justify-content: center;">
@@ -397,6 +384,21 @@ onkeypress="if(event.key==='Enter') addPessoaInlineAndRecalculate()">
 </div>
 
 <!-- Modal Remover Item -->
+<div id="barname-modal" class="modal">
+<div class="modal-content" style="width:320px">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-base font-bold text-orange-500"><i class="fas fa-store mr-2"></i>Nome do bar</h3>
+<button onclick="closeModal('barname-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
+</div>
+<input id="bar-name-input" type="text" placeholder="Ex: Boteco do Zé" maxlength="40"
+class="w-full p-3 rounded-xl text-sm mb-4"
+onkeypress="if(event.key==='Enter') confirmBarName()">
+<button onclick="confirmBarName()" class="w-full py-3 rounded-xl text-sm font-bold btn-accent">
+<i class="fas fa-check mr-1"></i> Confirmar
+</button>
+</div>
+</div>
+
 <div id="remove-modal" class="modal">
 <div class="modal-content" style="width:320px">
 <div class="flex flex-col items-center text-center gap-4 py-2">
@@ -540,21 +542,7 @@ Cancelar
 </div>
 </div>
 
-<div id="barname-modal" class="modal">
-<div class="modal-content flex flex-col justify-end" style="width:340px; height:400px;">
-<div class="mb-4">
-<input id="bar-name-input" type="text" placeholder="Digite o nome do bar ou restaurante" maxlength="40"
-class="p-3 rounded-xl text-sm text-center"
-style="width: calc(100% - 30px); margin: 0 auto; display: block;"
-onkeypress="if(event.key==='Enter') confirmBarName()">
-<div class="flex gap-3 w-full mt-4">
-<button onclick="confirmBarName()" class="w-1/2 py-3 rounded-xl text-sm font-bold btn-accent mx-auto block">
-<i class="fas fa-check mr-1"></i> Abrir a conta
-</button>
-</div>
-</div>
-</div>
-</div>
+
 
 <!-- Modal Racha - Passo 1: Pessoas -->
 <div id="racha-pessoas-modal" class="modal">
@@ -1414,18 +1402,16 @@ setTimeout(() => { input.focus(); input.select(); }, 100);
 function confirmBarName() {
 const val = document.getElementById('bar-name-input').value.trim();
 if (!val) {
-document.getElementById('bar-name-input').style.borderColor = '#f44336';
-document.getElementById('bar-name-input').placeholder = 'Digite o nome do bar!';
-setTimeout(() => {
-document.getElementById('bar-name-input').style.borderColor = '';
-document.getElementById('bar-name-input').placeholder = 'Digite o nome do bar ou restaurante';
-}, 2000);
+const input = document.getElementById('bar-name-input');
+input.style.borderColor = '#f44336';
+setTimeout(() => { input.style.borderColor = ''; }, 2000);
 return;
 }
 currentBarName = val;
 localStorage.setItem('botequim_bar_name', currentBarName);
 updateResumoTitulo();
 closeModal('barname-modal');
+setTimeout(() => { document.getElementById('in-name').focus(); }, 100);
 if (openedFromClear) {
 openedFromClear = false;
 const newName = currentBarName;
@@ -1455,21 +1441,14 @@ titulo.innerHTML = text;
 
 const sub = document.getElementById('header-subtitle');
 if (sub) {
-if (currentBarName && currentBarName !== 'Minha conta') {
-sub.innerHTML = '<i class="fas fa-store mr-1"></i> ' + escapeHtml(currentBarName);
-sub.style.marginLeft = '10px';
-sub.style.cursor = '';
-sub.onclick = null;
-} else if (currentBarName === 'Minha conta') {
-sub.innerHTML = '<i class="fas fa-store mr-1"></i> Minha conta <span style="font-size:11px;color:#f97316;margin-left:6px;text-decoration:underline">renomear</span>';
-sub.style.marginLeft = '10px';
-sub.style.cursor = 'pointer';
-sub.onclick = () => openBarNameModal();
+const btns = `<button onclick="openBarNameModal()" class="text-orange-400 text-xs font-bold border border-orange-500/40 px-2 py-1 rounded-lg whitespace-nowrap">Nomear</button>`;
+if (currentBarName) {
+sub.innerHTML = `<span><i class="fas fa-store mr-1"></i> ${escapeHtml(currentBarName)}</span> ${btns}`;
 } else {
-sub.innerHTML = 'Gerencie sua conta <i class="fas fa-id-card ml-2"></i>';
+sub.innerHTML = `<span>Gerencie sua conta 🪪</span> ${btns}`;
+}
 sub.style.marginLeft = '0';
 sub.onclick = null;
-}
 }
 toggleInputArea();
 }
@@ -2299,7 +2278,7 @@ document.getElementById('progress-fill').style.visibility = '';
 }
 
 window.onclick = function(event) {
-if (event.target.classList.contains('modal') && event.target.id !== 'barname-modal') {
+if (event.target.classList.contains('modal')) {
 event.target.classList.remove('active');
 }
 };
