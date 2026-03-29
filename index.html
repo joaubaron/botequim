@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap">
-<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.tailwindcss.com/3.4.1?plugins=forms,typography,aspect-ratio,container-queries"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -258,23 +258,23 @@ z-index: 10;
 <div class="card p-2 mb-6">
 <div class="flex justify-start items-center mb-2 gap-2">
 <button onclick="quickAddExample()" class="text-orange-500 text-xs font-bold border border-orange-900/50 px-3 py-2 rounded whitespace-nowrap">
-<i class="fas fa-plus-circle"></i> Cardápio
+<i class="fas fa-bolt"></i> Cardápio
 </button>
 <button onclick="openRachaModal()" class="text-yellow-400 text-xs font-bold border border-orange-900/50 px-3 py-2 rounded whitespace-nowrap">
 <i class="fas fa-users"></i> Dividir conta
 </button>
 <button onclick="clearItems()" class="text-red-500 text-xs font-bold px-3 py-2 rounded whitespace-nowrap ml-auto" style="border: 1px dashed rgba(239,68,68,0.4);">
-<i class="fas fa-check-circle"></i> Fechar
+<i class="fas fa-plus-circle"></i> Nova conta
 </button>
 </div>
 
 
 <div id="items-list" class="space-y-0 mb-6 max-h-96 overflow-y-auto"></div>
 
-<div id="empty-hint" class="text-center py-4 mb-6">
- <p class="text-gray-600 text-[13px] -mt-[20px] mb-0">
- 🍻 Digite primeiro um item ou escolha no cardápio.
-</p>
+<div id="empty-hint" class="text-center pt-4 mb-4">
+  <p class="text-gray-400 text-[13px] -mt-[25px]">
+    🍻 Digite primeiro um item ou escolha no cardápio.
+  </p>
 </div>
 
 <div id="no-bar-placeholder" onclick="openBarNameModal()" class="hidden cursor-pointer text-center py-6 rounded-xl border border-dashed border-orange-500/40 mb-6">
@@ -284,7 +284,7 @@ z-index: 10;
 
 <div id="input-area">
 <div class="flex gap-2 mb-6">
-<input id="in-name" type="text" placeholder="Item (ex: Cerveja)" class="text-sm p-2 rounded enter-submit" style="flex: 3; min-width: 0;" onfocus="if(!currentBarName){ openBarNameModal(); this.blur(); } else { this.select(); }">
+<input id="in-name" type="text" placeholder="Item (ex. Cerveja)" class="text-sm p-2 rounded enter-submit" style="flex: 3; min-width: 0;" onfocus="this.placeholder='Item (ex: Cerveja)'; this.select();">
 <input id="in-qty" type="number" inputmode="numeric" placeholder="Qt" class="text-sm p-2 rounded text-center enter-submit" style="width: 55px;" onfocus="this.select()">
 <input id="in-price" type="number" inputmode="decimal" step="0.01" placeholder="R$" class="text-sm p-2 rounded text-center enter-submit" style="width: 65px;" onfocus="this.select()">
 <button onclick="addItem()" aria-label="Adicionar item" class="btn-accent rounded font-bold text-xl" style="width: 45px; display: flex; align-items: center; justify-content: center;">
@@ -376,7 +376,10 @@ onkeypress="if(event.key==='Enter') addPessoaInlineAndRecalculate()">
 </div>
 </div>
 
-<div class="progress-bar mt-3">
+<div class="flex justify-between items-center mt-3 mb-1">
+<span style="font-size:9px; color: rgba(255,152,0,0.55); letter-spacing:0.05em;">CONSUMO</span>
+</div>
+<div class="progress-bar">
 <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
 </div>
 <div id="progress-scale" class="flex justify-between mt-1 px-0" style="font-size:9px; color: rgba(255,152,0,0.45);"></div>
@@ -567,7 +570,7 @@ onkeypress="if(event.key==='Enter') rachaAddPerson()">
 </div>
 <div class="flex gap-3 mt-2">
 <button onclick="rachaProximo()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
-Personalizar divisão
+Ajustar a divisão
 </button>
 <button onclick="closeModal('racha-pessoas-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
 Cancelar
@@ -584,7 +587,7 @@ Cancelar
 <button onclick="closeModal('racha-itens-modal'); openModal('racha-pessoas-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
 </div>
 <div id="racha-itens-pessoas-chips" class="flex flex-wrap gap-2 mb-3"></div>
-<p class="text-xs text-gray-500 mb-3"><i class="fas fa-info-circle mr-1"></i>Sem atribuição = dividido igualmente. Toque em um item para personalizar.</p>
+<p class="text-xs text-gray-400 mb-3"><i class="fas fa-info-circle mr-1"></i>Toque para personalizar</p>
 <div id="racha-itens-list" class="space-y-3 mb-4 overflow-y-auto" style="max-height:50vh;"></div>
 <div class="flex gap-3 mt-2">
 <button onclick="rachaCalcular()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
@@ -613,7 +616,7 @@ Voltar
 <div id="racha-resultado-list" class="space-y-3 mb-4"></div>
 <div class="flex gap-3">
 <button onclick="confirmarMinhaParte()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
-<i class="fas fa-check mr-1"></i> Confirmar minha parte
+<i class="fas fa-check mr-1"></i> Confirmar divisão
 </button>
 </div>
 </div>
@@ -712,7 +715,10 @@ Cancelar
 <button class="comanda-close-btn" aria-label="Fechar comanda" onclick="closeModal('comanda-modal')">✕</button>
 <div id="comanda-actions" style="background:#f5f0e8;padding:12px 20px 16px;display:flex;justify-content:center;gap:24px;border-top:1px dashed #ccc;">
 <button onclick="compartilharComandaImagem()" aria-label="Compartilhar comanda" title="" style="background:transparent;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;">
-<img src="https://cdn.jsdelivr.net/npm/simple-icons@v9/icons/whatsapp.svg" alt="WhatsApp" width="28" height="28">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="#25D366" xmlns="http://www.w3.org/2000/svg">
+<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+<path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.855L.057 23.882l6.198-1.448A11.934 11.934 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.894a9.893 9.893 0 01-5.031-1.378l-.361-.214-3.741.981 1-3.635-.235-.374A9.861 9.861 0 012.106 12C2.106 6.58 6.58 2.106 12 2.106S21.894 6.58 21.894 12 17.42 21.894 12 21.894z"/>
+</svg>
 </button>
 </div>
 </div>
@@ -1387,11 +1393,7 @@ if (savedTip === '1') document.getElementById('in-tip').checked = true;
 
 let currentBarName = localStorage.getItem('botequim_bar_name') || '';
 
-let openedFromClear = false;
-let _pendingItem = null;
-
-function openBarNameModal(fromClear) {
-openedFromClear = !!fromClear;
+function openBarNameModal() {
 const input = document.getElementById('bar-name-input');
 input.value = currentBarName;
 document.getElementById('barname-modal').classList.add('active');
@@ -1410,25 +1412,6 @@ currentBarName = val;
 localStorage.setItem('botequim_bar_name', currentBarName);
 updateResumoTitulo();
 closeModal('barname-modal');
-
-if (openedFromClear) {
-openedFromClear = false;
-const newName = currentBarName;
-confirmClearItems();
-currentBarName = newName;
-localStorage.setItem('botequim_bar_name', newName);
-updateResumoTitulo();
-}
-if (_pendingItem) {
-consumption.push(_pendingItem);
-_pendingItem = null;
-document.getElementById('in-name').value = '';
-document.getElementById('in-qty').value = '';
-document.getElementById('in-price').value = '';
-_addingItem = true;
-updateCalculos();
-_addingItem = false;
-}
 }
 
 function updateResumoTitulo() {
@@ -1499,6 +1482,13 @@ const hasTip = document.getElementById('in-tip').checked;
 const hint = document.getElementById('empty-hint');
 if (hint) hint.style.display = consumption.length === 0 ? '' : 'none';
 
+const btnRacha = document.querySelector('button[onclick="openRachaModal()"]');
+if (btnRacha) {
+  btnRacha.disabled = consumption.length === 0;
+  btnRacha.style.opacity = consumption.length === 0 ? '0.4' : '1';
+  btnRacha.style.cursor = consumption.length === 0 ? 'not-allowed' : '';
+}
+
 list.innerHTML = '';
 let subtotalItems = 0;
 
@@ -1507,7 +1497,7 @@ const totalRow = item.qty * item.price;
 subtotalItems += totalRow;
 
 const unitPriceDisplay = item.qty > 1 
-? `<div class="text-sm text-gray-400">unidade: R$ ${item.price.toFixed(2)}</div>` 
+? `<div class="text-sm text-gray-400"><span class="text-orange-500 font-bold">${item.qty}x</span> unidade: R$ ${item.price.toFixed(2)}</div>` 
 : '';
 
 // Racha ativo: linha 2 = info de divisão, linha 3 = botões de atribuição
@@ -1540,7 +1530,7 @@ list.innerHTML += `
 <div class="py-3 border-b border-white/10 ${_addingItem ? 'item-animate' : ''}">
 <!-- Linha 1: Qtd x Nome + Valor total -->
 <div class="flex items-center justify-between">
-<div class="text-base font-semibold"><span class="text-orange-500 font-bold">${item.qty}x</span> ${escapeHtml(item.name)}</div>
+<div class="text-base font-semibold">${escapeHtml(item.name)}</div>
 <div class="font-bold text-base text-white whitespace-nowrap pl-3">R$ ${totalRow.toFixed(2)}</div>
 </div>
 <!-- Linha 2: unidade (se qty>1) OU info divisão racha OU ambos -->
@@ -1633,18 +1623,6 @@ return div.innerHTML;
 }
 
 function addItem(noFocus) {
-if (!currentBarName) {
-const nameEl = document.getElementById('in-name');
-const priceEl = document.getElementById('in-price');
-const qtyEl = document.getElementById('in-qty');
-if (nameEl.value.trim() && parseFloat(priceEl.value) > 0) {
-_pendingItem = { name: nameEl.value.trim(), qty: parseInt(qtyEl.value) || 1, price: parseFloat(priceEl.value) };
-openBarNameModal();
-} else {
-document.getElementById('validation-modal').classList.add('active');
-}
-return;
-}
 const nameEl = document.getElementById('in-name');
 const qtyEl = document.getElementById('in-qty');
 const priceEl = document.getElementById('in-price');
@@ -1862,11 +1840,6 @@ const examples = {
 };
 
 function quickAddExample() {
-if (!currentBarName) {
-currentBarName = '';
-localStorage.setItem('botequim_bar_name', currentBarName);
-updateResumoTitulo();
-}
 let examplesModal = document.getElementById('examples-modal');
 if (!examplesModal) {
 examplesModal = document.createElement('div');
@@ -2002,10 +1975,6 @@ updateCalculos();
 
 function clearItems() {
 if (consumption.length === 0) return;
-if (!currentBarName) {
-openBarNameModal(true);
-return;
-}
 document.getElementById('clear-modal').classList.add('active');
 }
 
@@ -2176,7 +2145,7 @@ let itemsHtml = '';
 displayItems.forEach(item => {
 const rowTotal = (item.qty * item.price).toFixed(2);
 const unitLine = item.qty > 1
-? `<div style="font-size:0.82rem;color:#888;margin-top:-2px;line-height:1">${item.qty} x R$ ${item.price.toFixed(2)}</div>`
+? `<div style="font-size:0.82rem;color:#888;margin-top:-2px;line-height:1">${item.qty}x unidade: R$ ${item.price.toFixed(2)}</div>`
 : '';
 itemsHtml += `
 <div style="margin-bottom:6px">
@@ -2196,7 +2165,7 @@ const d = h.rachaSnapshot[p];
 const isVoce = p === 'Você';
 const subItens = d.items.map(i => {
 	const itemVal = i.valorFixo !== undefined ? i.valorFixo.toFixed(2) : (i.qty * i.price).toFixed(2);
-	const subLine = i.valorFixo !== undefined ? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">$ dividido</div>` : (i.qty > 1 ? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty}x R$ ${i.price.toFixed(2)}</div>` : '');
+	const subLine = i.valorFixo !== undefined ? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">$ dividido</div>` : (i.qty > 1 ? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty}x unidade: R$ ${i.price.toFixed(2)}</div>` : '');
 	return `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:6px">
 	<div><div style="margin-bottom:0px">${escapeHtml(i.name)}</div>${subLine}</div>
 	<span style="white-space:nowrap;padding-left:8px">R$ ${itemVal}</span>
@@ -2387,7 +2356,7 @@ itemsHtml += `
 // Se qtd > 1, mostra linha unitária
 if (item.qty > 1) {
 itemsHtml += `
-<div style="font-size:0.82rem;color:#888;margin-top:-2px;line-height:1">${item.qty} x R$ ${item.price.toFixed(2)}</div>`;
+<div style="font-size:0.82rem;color:#888;margin-top:-2px;line-height:1">${item.qty}x unidade: R$ ${item.price.toFixed(2)}</div>`;
 }
 
 itemsHtml += `</div>`;
@@ -2445,7 +2414,7 @@ ${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-siz
 return `
 <div style="margin-bottom:8px">
 <div style="display:flex;justify-content:space-between;font-size:0.9rem;font-weight:700;${isVoce ? 'color:#b35a00' : 'color:#222'}">
-<span>${isVoce ? 'VOCÊ' : p.toUpperCase()}</span>
+<span>${isVoce ? 'MINHA PARTE' : p.toUpperCase()}</span>
 <span>R$ ${totalP.toFixed(2)}</span>
 </div>
 ${subItens}${extras}
