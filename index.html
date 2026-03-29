@@ -242,7 +242,7 @@ z-index: 10;
 
 <p id="header-subtitle" class="text-gray-400 mt-1 flex items-center gap-2 flex-wrap" style="font-size:15px">
 <span>Gerencie sua conta 🪪</span>
-<button onclick="openBarNameModal()" class="text-orange-400 text-xs font-bold border border-orange-500/40 px-2 py-1 rounded-lg whitespace-nowrap">Nomear</button>
+<button onclick="openBarNameModal()" class="text-orange-400 text-xs font-bold border border-orange-500/40 px-2 py-1 rounded-lg whitespace-nowrap">Qual o bar?</button>
 </p>
 
 
@@ -1441,7 +1441,7 @@ titulo.innerHTML = text;
 
 const sub = document.getElementById('header-subtitle');
 if (sub) {
-const btns = `<button onclick="openBarNameModal()" class="text-orange-400 text-xs font-bold border border-orange-500/40 px-2 py-1 rounded-lg whitespace-nowrap">Nomear</button>`;
+const btns = `<button onclick="openBarNameModal()" class="text-orange-400 text-xs font-bold border border-orange-500/40 px-2 py-1 rounded-lg whitespace-nowrap">Qual o bar?</button>`;
 if (currentBarName) {
 sub.innerHTML = `<span><i class="fas fa-store mr-1"></i> ${escapeHtml(currentBarName)}</span> ${btns}`;
 } else {
