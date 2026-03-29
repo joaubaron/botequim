@@ -240,9 +240,8 @@ z-index: 10;
 <img src="botequim-modal.png" alt="Logo" class="h-[50px] object-contain">
 </h1>
 
-<p id="header-subtitle" class="text-gray-400 mt-1 flex items-center gap-2 flex-wrap" style="font-size:15px">
-<span>Gerencie sua conta 🪪</span>
-<button onclick="openBarNameModal()" class="text-orange-400 text-xs font-bold border border-orange-500/40 px-2 py-1 rounded-lg whitespace-nowrap">Qual o bar?</button>
+<p id="header-subtitle" class="text-gray-400 mt-1 flex items-baseline gap-2 flex-wrap" style="font-size:15px">
+<button onclick="openBarNameModal()" class="text-orange-400 text-xs font-bold border border-orange-500/40 px-2 py-1 rounded-lg whitespace-nowrap">Qual bar?</button>
 </p>
 
 
@@ -274,7 +273,7 @@ z-index: 10;
 
 <div id="empty-hint" class="text-center py-4 mb-6">
  <p class="text-gray-600 text-[14px] -mt-[20px] mb-0">
- 🍻 Digite primeiro o item ou escolha no cardápio.
+ 🍻 Digite o primeiro item ou escolha no cardápio.
 </p>
 </div>
 
@@ -387,7 +386,7 @@ onkeypress="if(event.key==='Enter') addPessoaInlineAndRecalculate()">
 <div id="barname-modal" class="modal">
 <div class="modal-content" style="width:320px">
 <div class="flex justify-between items-center mb-4">
-<h3 class="text-base font-bold text-orange-500"><i class="fas fa-store mr-2"></i>(Nome do bar)</h3>
+<h3 class="text-base font-bold text-orange-500"><i class="fas fa-store mr-2"></i>Nome do bar</h3>
 <button onclick="closeModal('barname-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
 </div>
 <input id="bar-name-input" type="text" placeholder="Ex: Boteco do Zé" maxlength="40"
@@ -1386,7 +1385,7 @@ if (savedCouvert) document.getElementById('in-couvert').value = savedCouvert;
 if (savedTip === '1') document.getElementById('in-tip').checked = true;
 })();
 
-let currentBarName = localStorage.getItem('botequim_bar_name') || '';
+let currentBarName = localStorage.getItem('botequim_bar_name') || 'Botequim';
 
 let openedFromClear = false;
 let _pendingItem = null;
@@ -1411,7 +1410,7 @@ currentBarName = val;
 localStorage.setItem('botequim_bar_name', currentBarName);
 updateResumoTitulo();
 closeModal('barname-modal');
-setTimeout(() => { document.getElementById('in-name').focus(); }, 100);
+
 if (openedFromClear) {
 openedFromClear = false;
 const newName = currentBarName;
@@ -1441,11 +1440,12 @@ titulo.innerHTML = text;
 
 const sub = document.getElementById('header-subtitle');
 if (sub) {
-const btns = `<button onclick="openBarNameModal()" class="text-orange-400 text-xs font-bold border border-orange-500/40 px-2 py-1 rounded-lg whitespace-nowrap">Qual o bar?</button>`;
 if (currentBarName) {
-sub.innerHTML = `<span><i class="fas fa-store mr-1"></i> ${escapeHtml(currentBarName)}</span> ${btns}`;
+const isDefault = currentBarName === 'Botequim';
+const link = isDefault ? ` <span onclick="openBarNameModal()" style="cursor:pointer;font-size:11px;color:#f97316">Nome do bar</span>` : '';
+sub.innerHTML = `<span onclick="openBarNameModal()" style="cursor:pointer" class="text-gray-300"><i class="fas fa-store mr-1"></i> ${escapeHtml(currentBarName)}</span>${link}`;
 } else {
-sub.innerHTML = `<span>Gerencie sua conta 🪪</span> ${btns}`;
+sub.innerHTML = `<button onclick="openBarNameModal()" class="text-orange-400 text-xs font-bold border border-orange-500/40 px-2 py-1 rounded-lg whitespace-nowrap">Qual bar?</button>`;
 }
 sub.style.marginLeft = '0';
 sub.onclick = null;
@@ -1865,7 +1865,7 @@ const examples = {
 
 function quickAddExample() {
 if (!currentBarName) {
-currentBarName = 'Minha conta';
+currentBarName = 'Botequim';
 localStorage.setItem('botequim_bar_name', currentBarName);
 updateResumoTitulo();
 }
@@ -2096,7 +2096,7 @@ localStorage.setItem('botequim_history', JSON.stringify(sessionHistory));
 }
 consumption = [];
 editingIndex = null;
-currentBarName = '';
+currentBarName = 'Botequim';
 meuTotalRacha = null;
 rachaPessoas = ['Você'];
 rachaAtribuicoes = [];
