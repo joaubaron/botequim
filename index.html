@@ -336,7 +336,7 @@ class="text-xs text-orange-400 font-bold flex items-center gap-1">
 <div class="border-t border-orange-500/30 mt-2 mb-4"></div>
 
 <h2 id="resumo-titulo" class="font-bold mb-5 text-gray-500 tracking-widest flex items-center justify-between gap-2">
-<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo da conta</span>
+<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo</span>
 <button onclick="window.open('https://joaubaron.github.io/botequim/', '_blank')" title="Abrir Botequim" class="text-orange-500 hover:text-orange-400 transition-colors" style="background:none;border:none;cursor:pointer;padding:0; line-height: 1;">
 <i class="fas fa-qrcode" style="font-size: 48px !important; display: inline-block !important; width: auto !important; height: auto !important;"></i>
 </button>
@@ -1462,8 +1462,8 @@ closeModal('barname-modal');
 function updateResumoTitulo() {
 const titulo = document.getElementById('resumo-titulo');
 const text = currentBarName
-? `<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo da conta — ${escapeHtml(currentBarName)}</span>`
-: '<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo da conta</span>';
+? `<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo — ${escapeHtml(currentBarName)}</span>`
+: '<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo</span>';
 const qrBtn = `<button onclick="abrirQRCode()" title="QR Code do App" style="background:none;border:none;cursor:pointer;padding:0;color:#f97316;"><i class="fas fa-qrcode" style="font-size:1.15rem;"></i></button>`;
 titulo.innerHTML = text + qrBtn;
 
