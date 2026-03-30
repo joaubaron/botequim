@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap">
 <script src="https://cdn.tailwindcss.com/3.4.1?plugins=forms,typography,aspect-ratio,container-queries"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 body { 
@@ -331,6 +332,9 @@ class="text-xs text-orange-400 font-bold flex items-center gap-1">
 
 <h2 id="resumo-titulo" class="text-sm font-bold mb-5 text-gray-500 tracking-widest flex items-center justify-between gap-2">
 <span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo da conta</span>
+<button onclick="window.open('https://joaubaron.github.io/botequim/', '_blank')" title="Abrir Botequim" class="text-orange-500 hover:text-orange-400 transition-colors" style="background:none;border:none;cursor:pointer;padding:0;">
+  <i class="fas fa-qrcode" style="font-size:1.15rem;"></i>
+</button>
 </h2>
 
 <div id="add-pessoa-inline-panel" class="hidden mt-2 mb-4" style="display:none">
@@ -347,24 +351,25 @@ onkeypress="if(event.key==='Enter') addPessoaInlineAndRecalculate()">
 </div>
 
 <div class="space-y-2 border-b border-gray-700/50 pb-4 mb-4">
-<div class="flex justify-between text-sm text-gray-300 py-1">
+<div class="flex justify-between text-sm text-gray-300 py-0 leading-4">
 <span><i class="fas fa-shopping-cart"></i> Consumo:</span> 
 <span id="res-items">R$ 0,00</span>
 </div>
 
-<div class="flex justify-between text-sm text-gray-300 py-1">
+<div class="flex justify-between text-sm text-gray-300 py-0 leading-4">
 <span><i class="fas fa-heart"></i> Gorjeta (10%):</span> 
 <span id="res-tip">R$ 0,00</span>
 </div>
 
-<div id="res-couvert-row" class="flex justify-between text-sm text-gray-300 py-1">
+<div id="res-couvert-row" class="flex justify-between text-sm text-gray-300 py-0 leading-4">
 <span><i class="fas fa-music"></i> Couvert:</span> 
 <span id="res-items-couvert">R$ 0,00</span>
 </div>
+</div>
 
 </div>
 
-<div class="flex justify-between items-center mt-0">
+<div class="flex justify-between items-center -mt-4">
 <span class="text-xl font-bold"><i class="fas fa-coins"></i> TOTAL:</span>
 <span id="grand-total" class="text-2xl font-black text-orange-500">R$ 0,00</span>
 </div>
@@ -1441,7 +1446,8 @@ const titulo = document.getElementById('resumo-titulo');
 const text = currentBarName
 ? `<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo da conta — ${escapeHtml(currentBarName)}</span>`
 : '<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo da conta</span>';
-titulo.innerHTML = text;
+const qrBtn = `<button onclick="abrirQRCode()" title="QR Code do App" style="background:none;border:none;cursor:pointer;padding:0;color:#f97316;"><i class="fas fa-qrcode" style="font-size:1.15rem;"></i></button>`;
+titulo.innerHTML = text + qrBtn;
 
 const sub = document.getElementById('header-subtitle');
 if (sub) {
@@ -2486,8 +2492,26 @@ ${rachaHtml}
 document.getElementById('comanda-modal').classList.add('active');
 }
 
+function gerarQRCodeModal() {
+const qrDiv = document.getElementById('qrcode-modal');
+if (!qrDiv) return;
+qrDiv.innerHTML = '';
+new QRCode(qrDiv, {
+text: "https://joaubaron.github.io/botequim/",
+width: 190,
+height: 190,
+colorDark: "#000000",
+colorLight: "#ffffff",
+correctLevel: QRCode.CorrectLevel.H
+});
+}
+
+function abrirQRCode() {
+document.getElementById('modal-qrcode').style.display = 'flex';
+setTimeout(gerarQRCodeModal, 100);
+}
+
 updateResumoTitulo();
-updateCalculos();
 
 if ('serviceWorker' in navigator) {
 window.addEventListener('load', () => {
@@ -2495,6 +2519,17 @@ navigator.serviceWorker.register('./sw.js');
 });
 }
 </script>
+
+<!-- Modal QR Code -->
+<div id="modal-qrcode" onclick="if(event.target===this)this.style.display='none';" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:10002; backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+<div style="background:#1e1e2e; border-radius:20px; padding:24px 20px; text-align:center; max-width:300px; width:85%;">
+  <div style="background:#ffffff; padding:15px; border-radius:16px; margin:0 auto 16px; display:inline-flex; justify-content:center;">
+    <div id="qrcode-modal" style="background:white; padding:4px; border-radius:5px;"></div>
+  </div>
+  <p style="margin:0 0 16px; font-size:14px; color:#e0e0e0;">Escaneia e acesse o <strong style="color:#ff9800;">Botequim</strong>!</p>
+  <button onclick="document.getElementById('modal-qrcode').style.display='none';" style="padding:8px 24px; border:none; border-radius:10px; font-size:13px; font-weight:bold; cursor:pointer; background:#ff9800; color:#000;">Fechar</button>
+</div>
+</div>
 
 </body>
 </html>
