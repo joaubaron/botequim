@@ -2278,10 +2278,12 @@ async function compartilharComandaImagem() {
     const actions = document.getElementById('comanda-actions');
     const closeBtn = document.querySelector('.comanda-close-btn');
     const comandaWrap = document.getElementById('comanda-content');
-    
-    // Oculta botões temporariamente
-    actions.style.display = 'none';
-    closeBtn.style.display = 'none';
+    const shareBtn = actions.querySelector('button');
+    const shareBtnOriginal = shareBtn.innerHTML;
+
+    // Bloqueia botão e exibe feedback
+    shareBtn.disabled = true;
+    shareBtn.innerHTML = '<span style="font-size:12px;color:#555;font-family:sans-serif">Gerando...</span>';
     
     // Cria um container temporário para captura
     const tempContainer = document.createElement('div');
@@ -2313,7 +2315,11 @@ async function compartilharComandaImagem() {
     try {
         // Aguarda o clone ser inserido e renderizado completamente
         await new Promise(resolve => setTimeout(resolve, 150));
-        
+
+        // Oculta botões apenas na hora de capturar
+        actions.style.display = 'none';
+        closeBtn.style.display = 'none';
+
         const canvas = await html2canvas(tempContainer, {
             backgroundColor: '#f5f0e8',
             scale: 2,
@@ -2350,6 +2356,9 @@ async function compartilharComandaImagem() {
         // Restaura botões
         actions.style.display = 'flex';
         closeBtn.style.display = '';
+        // Restaura botão de compartilhar
+        shareBtn.disabled = false;
+        shareBtn.innerHTML = shareBtnOriginal;
     }
 }
 function openComanda() {
