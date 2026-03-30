@@ -229,6 +229,12 @@ background: none; border: none; font-size: 1.4rem;
 color: #555; cursor: pointer; font-family: monospace;
 z-index: 10;
 }
+#resumo-titulo button i.fa-qrcode {
+font-size: 25px !important;
+display: inline-block !important;
+width: auto !important;
+height: auto !important;
+}
 
 </style>
 </head>
@@ -244,7 +250,6 @@ z-index: 10;
 <p id="header-subtitle" class="text-gray-400 mt-1 flex items-baseline gap-2 flex-wrap" style="font-size:15px">
 <span onclick="openBarNameModal()" style="cursor:pointer;font-size:13px;color:#f97316;margin-left:10px">Digite o nome do bar</span>
 </p>
-
 
 </div>
 <div class="flex gap-2 self-start">
@@ -330,10 +335,10 @@ class="text-xs text-orange-400 font-bold flex items-center gap-1">
 
 <div class="border-t border-orange-500/30 mt-2 mb-4"></div>
 
-<h2 id="resumo-titulo" class="text-sm font-bold mb-5 text-gray-500 tracking-widest flex items-center justify-between gap-2">
+<h2 id="resumo-titulo" class="font-bold mb-5 text-gray-500 tracking-widest flex items-center justify-between gap-2">
 <span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo da conta</span>
-<button onclick="window.open('https://joaubaron.github.io/botequim/', '_blank')" title="Abrir Botequim" class="text-orange-500 hover:text-orange-400 transition-colors" style="background:none;border:none;cursor:pointer;padding:0;">
-<i class="fas fa-qrcode" style="font-size:1.15rem;"></i>
+<button onclick="window.open('https://joaubaron.github.io/botequim/', '_blank')" title="Abrir Botequim" class="text-orange-500 hover:text-orange-400 transition-colors" style="background:none;border:none;cursor:pointer;padding:0; line-height: 1;">
+<i class="fas fa-qrcode" style="font-size: 48px !important; display: inline-block !important; width: auto !important; height: auto !important;"></i>
 </button>
 </h2>
 
