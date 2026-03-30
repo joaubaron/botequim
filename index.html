@@ -273,9 +273,9 @@ z-index: 10;
 <div id="items-list" class="space-y-0 mb-6 max-h-96 overflow-y-auto"></div>
 
 <div id="empty-hint" class="text-center pt-4 mb-4">
-  <p class="text-gray-400 text-[13px] -mt-[25px]">
-    🍻 Digite primeiro um item ou escolha no cardápio.
-  </p>
+<p class="text-gray-400 text-[13px] -mt-[25px]">
+🍻 Digite primeiro um item ou escolha no cardápio.
+</p>
 </div>
 
 <div id="no-bar-placeholder" onclick="openBarNameModal()" class="hidden cursor-pointer text-center py-6 rounded-xl border border-dashed border-orange-500/40 mb-6">
@@ -333,7 +333,7 @@ class="text-xs text-orange-400 font-bold flex items-center gap-1">
 <h2 id="resumo-titulo" class="text-sm font-bold mb-5 text-gray-500 tracking-widest flex items-center justify-between gap-2">
 <span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo da conta</span>
 <button onclick="window.open('https://joaubaron.github.io/botequim/', '_blank')" title="Abrir Botequim" class="text-orange-500 hover:text-orange-400 transition-colors" style="background:none;border:none;cursor:pointer;padding:0;">
-  <i class="fas fa-qrcode" style="font-size:1.15rem;"></i>
+<i class="fas fa-qrcode" style="font-size:1.15rem;"></i>
 </button>
 </h2>
 
@@ -859,32 +859,32 @@ if (rachaPessoas.find(p => p.toLowerCase() === name.toLowerCase())) {
 if (input) input.value = '';
 return;
 }
-	rachaPessoas.push(name);
-	const totalPessoas = rachaPessoas.length;
-	// redistribui igualmente todos os itens ao adicionar nova pessoa
-	rachaAtribuicoes = rachaAtribuicoes.map((a, idx) => {
-		const item = consumption[idx];
-		const totalItem = item ? item.qty * item.price : 0;
-		if (a.splitValor) {
-			// redistribui igualmente entre todas as pessoas
-			const parteIgual = parseFloat((totalItem / totalPessoas).toFixed(2));
-			const novo = {};
-			rachaPessoas.forEach(p => { novo[p] = parteIgual; });
-			// corrige arredondamento na primeira pessoa
-			const soma = rachaPessoas.reduce((s, p) => s + novo[p], 0);
-			const diff = parseFloat((totalItem - soma).toFixed(2));
-			novo[rachaPessoas[0]] = parseFloat((novo[rachaPessoas[0]] + diff).toFixed(2));
-			return { splitValor: novo };
-		}
-		if (a.split) {
-			// redistribui qtd igualmente (1 cada, modo split por quantidade)
-			const novo = {};
-			rachaPessoas.forEach(p => { novo[p] = a.split[p] || 0; });
-			novo[name] = 0;
-			return { split: novo };
-		}
-		return a;
-	});
+rachaPessoas.push(name);
+const totalPessoas = rachaPessoas.length;
+// redistribui igualmente todos os itens ao adicionar nova pessoa
+rachaAtribuicoes = rachaAtribuicoes.map((a, idx) => {
+const item = consumption[idx];
+const totalItem = item ? item.qty * item.price : 0;
+if (a.splitValor) {
+// redistribui igualmente entre todas as pessoas
+const parteIgual = parseFloat((totalItem / totalPessoas).toFixed(2));
+const novo = {};
+rachaPessoas.forEach(p => { novo[p] = parteIgual; });
+// corrige arredondamento na primeira pessoa
+const soma = rachaPessoas.reduce((s, p) => s + novo[p], 0);
+const diff = parseFloat((totalItem - soma).toFixed(2));
+novo[rachaPessoas[0]] = parseFloat((novo[rachaPessoas[0]] + diff).toFixed(2));
+return { splitValor: novo };
+}
+if (a.split) {
+// redistribui qtd igualmente (1 cada, modo split por quantidade)
+const novo = {};
+rachaPessoas.forEach(p => { novo[p] = a.split[p] || 0; });
+novo[name] = 0;
+return { split: novo };
+}
+return a;
+});
 if (input) input.value = '';
 // fecha o painel inline
 document.getElementById('add-pessoa-inline-panel').style.display = 'none';
@@ -926,70 +926,70 @@ rachaCalcular();
 
 
 function renderPessoasChips(containerId, fromResultado) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  container.innerHTML = rachaPessoas.map((p, i) => {
-    if (i === 0) {
-      return `<span style="display:inline-flex;align-items:center;font-size:0.8rem;font-weight:700;color:#fb923c;margin-right:16px">${escapeHtml(p)}</span>`;
-    }
-    return `<span style="display:inline-flex;align-items:center;gap:6px;font-size:0.8rem;font-weight:700;color:#d1d5db;margin-right:16px">${escapeHtml(p)}<button data-remove-idx="${i}" data-from-resultado="${fromResultado ? '1' : '0'}" style="background:none;border:none;color:#f87171;font-size:1.2rem;font-weight:bold;cursor:pointer;padding:0 4px;">×</button></span>`;
-  }).join('');
-  container.querySelectorAll('button[data-remove-idx]').forEach(function(btn) {
-    btn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      e.preventDefault();
-      var pessoaIdx = parseInt(btn.getAttribute('data-remove-idx'));
-      var fromRes = btn.getAttribute('data-from-resultado') === '1';
-      rachaRemovePersonFrom(pessoaIdx, fromRes);
-    });
-  });
+const container = document.getElementById(containerId);
+if (!container) return;
+container.innerHTML = rachaPessoas.map((p, i) => {
+if (i === 0) {
+return `<span style="display:inline-flex;align-items:center;font-size:0.8rem;font-weight:700;color:#fb923c;margin-right:16px">${escapeHtml(p)}</span>`;
+}
+return `<span style="display:inline-flex;align-items:center;gap:6px;font-size:0.8rem;font-weight:700;color:#d1d5db;margin-right:16px">${escapeHtml(p)}<button data-remove-idx="${i}" data-from-resultado="${fromResultado ? '1' : '0'}" style="background:none;border:none;color:#f87171;font-size:1.2rem;font-weight:bold;cursor:pointer;padding:0 4px;">×</button></span>`;
+}).join('');
+container.querySelectorAll('button[data-remove-idx]').forEach(function(btn) {
+btn.addEventListener('click', function(e) {
+e.stopPropagation();
+e.preventDefault();
+var pessoaIdx = parseInt(btn.getAttribute('data-remove-idx'));
+var fromRes = btn.getAttribute('data-from-resultado') === '1';
+rachaRemovePersonFrom(pessoaIdx, fromRes);
+});
+});
 }
 
 function rachaRemovePersonFrom(pessoaIdx, fromResultado) {
-  if (rachaPessoas.length <= 2) {
-    // Só sobra "Você" — reseta a divisão e fecha os modais
-    rachaPessoas = ['Você'];
-    rachaAtribuicoes = consumption.map(function() { return { owner: 'Você' }; });
-    meuTotalRacha = null;
-    localStorage.removeItem('botequim_meu_total_racha');
-    localStorage.removeItem('botequim_racha_pessoas');
-    localStorage.removeItem('botequim_racha_atribuicoes');
-    closeModal('racha-resultado-modal');
-    closeModal('racha-itens-modal');
-    updateCalculos();
-    return;
-  }
-  var removed = rachaPessoas[pessoaIdx];
-  rachaPessoas.splice(pessoaIdx, 1);
-  rachaAtribuicoes = rachaAtribuicoes.map(function(a, itemIdx) {
-    if (a.owner === removed) return { owner: 'Você' };
-    if (a.splitValor) {
-      var item = consumption[itemIdx];
-      var totalItem = item ? item.qty * item.price : 0;
-      var parteIgual = parseFloat((totalItem / rachaPessoas.length).toFixed(2));
-      var novo = {};
-      rachaPessoas.forEach(function(p) { novo[p] = parteIgual; });
-      var soma = rachaPessoas.reduce(function(s, p) { return s + novo[p]; }, 0);
-      var diff = parseFloat((totalItem - soma).toFixed(2));
-      if (Math.abs(diff) >= 0.01) novo[rachaPessoas[0]] = parseFloat((novo[rachaPessoas[0]] + diff).toFixed(2));
-      return { splitValor: novo };
-    }
-    if (a.split) {
-      var sp = Object.assign({}, a.split);
-      var qty = sp[removed] || 0;
-      delete sp[removed];
-      sp['Você'] = (sp['Você'] || 0) + qty;
-      return { split: sp };
-    }
-    return a;
-  });
-  if (fromResultado) {
-    rachaCalcular();
-    renderPessoasChips('racha-resultado-pessoas-chips', true);
-  } else {
-    renderRachaItens();
-    renderPessoasChips('racha-itens-pessoas-chips', false);
-  }
+if (rachaPessoas.length <= 2) {
+// Só sobra "Você" — reseta a divisão e fecha os modais
+rachaPessoas = ['Você'];
+rachaAtribuicoes = consumption.map(function() { return { owner: 'Você' }; });
+meuTotalRacha = null;
+localStorage.removeItem('botequim_meu_total_racha');
+localStorage.removeItem('botequim_racha_pessoas');
+localStorage.removeItem('botequim_racha_atribuicoes');
+closeModal('racha-resultado-modal');
+closeModal('racha-itens-modal');
+updateCalculos();
+return;
+}
+var removed = rachaPessoas[pessoaIdx];
+rachaPessoas.splice(pessoaIdx, 1);
+rachaAtribuicoes = rachaAtribuicoes.map(function(a, itemIdx) {
+if (a.owner === removed) return { owner: 'Você' };
+if (a.splitValor) {
+var item = consumption[itemIdx];
+var totalItem = item ? item.qty * item.price : 0;
+var parteIgual = parseFloat((totalItem / rachaPessoas.length).toFixed(2));
+var novo = {};
+rachaPessoas.forEach(function(p) { novo[p] = parteIgual; });
+var soma = rachaPessoas.reduce(function(s, p) { return s + novo[p]; }, 0);
+var diff = parseFloat((totalItem - soma).toFixed(2));
+if (Math.abs(diff) >= 0.01) novo[rachaPessoas[0]] = parseFloat((novo[rachaPessoas[0]] + diff).toFixed(2));
+return { splitValor: novo };
+}
+if (a.split) {
+var sp = Object.assign({}, a.split);
+var qty = sp[removed] || 0;
+delete sp[removed];
+sp['Você'] = (sp['Você'] || 0) + qty;
+return { split: sp };
+}
+return a;
+});
+if (fromResultado) {
+rachaCalcular();
+renderPessoasChips('racha-resultado-pessoas-chips', true);
+} else {
+renderRachaItens();
+renderPessoasChips('racha-itens-pessoas-chips', false);
+}
 }
 
 function renderRachaItens() {
@@ -1184,47 +1184,47 @@ restEl.innerHTML = `<span class="text-red-400">Excede em R$ ${Math.abs(restante)
 }
 
 function rachaSplitValorChange(person, rawVal, idx) {
-	const val = parseFloat(rawVal) || 0;
-	rachaSplitValorValues[person] = parseFloat(val.toFixed(2));
-	const item = consumption[idx];
-	const totalItem = item.qty * item.price;
-	
-	// Redistribui o restante igualmente entre as outras pessoas
-	const outrasPessoas = rachaPessoas.filter(p => p !== person);
-	const valorPessoaEditada = rachaSplitValorValues[person];
-	const restante = totalItem - valorPessoaEditada;
-	
-	if (outrasPessoas.length > 0 && restante >= 0) {
-		const parteIgual = parseFloat((restante / outrasPessoas.length).toFixed(2));
-		outrasPessoas.forEach(p => { rachaSplitValorValues[p] = parteIgual; });
-		// Corrige arredondamento na primeira pessoa da lista
-		const somaOutras = outrasPessoas.reduce((s, p) => s + rachaSplitValorValues[p], 0);
-		const diff = parseFloat((restante - somaOutras).toFixed(2));
-		if (Math.abs(diff) > 0.001) {
-			rachaSplitValorValues[outrasPessoas[0]] = parseFloat((rachaSplitValorValues[outrasPessoas[0]] + diff).toFixed(2));
-		}
-	}
-	
-	// Atualiza os inputs das outras pessoas (sem re-renderizar tudo para manter foco)
-	rachaPessoas.forEach((p, i) => {
-		if (p !== person) {
-			const el = document.getElementById(`split-valor-input-${i}`);
-			if (el) el.value = (rachaSplitValorValues[p] || 0).toFixed(2);
-		}
-	});
-	
-	// Atualiza status
-	const totalAtribuido = rachaPessoas.reduce((s, p) => s + (rachaSplitValorValues[p] || 0), 0);
-	const diff = parseFloat((totalItem - totalAtribuido).toFixed(2));
-	const restEl = document.getElementById('racha-split-valor-restante');
-	if (!restEl) return;
-	if (Math.abs(diff) < 0.01) {
-		restEl.innerHTML = `<span class="text-green-400 font-bold">&#10003; Tudo distribuído</span>`;
-	} else if (diff > 0) {
-		restEl.innerHTML = `<span class="text-yellow-400">Falta R$ ${diff.toFixed(2)}</span>`;
-	} else {
-		restEl.innerHTML = `<span class="text-red-400">Excede em R$ ${Math.abs(diff).toFixed(2)}</span>`;
-	}
+const val = parseFloat(rawVal) || 0;
+rachaSplitValorValues[person] = parseFloat(val.toFixed(2));
+const item = consumption[idx];
+const totalItem = item.qty * item.price;
+
+// Redistribui o restante igualmente entre as outras pessoas
+const outrasPessoas = rachaPessoas.filter(p => p !== person);
+const valorPessoaEditada = rachaSplitValorValues[person];
+const restante = totalItem - valorPessoaEditada;
+
+if (outrasPessoas.length > 0 && restante >= 0) {
+const parteIgual = parseFloat((restante / outrasPessoas.length).toFixed(2));
+outrasPessoas.forEach(p => { rachaSplitValorValues[p] = parteIgual; });
+// Corrige arredondamento na primeira pessoa da lista
+const somaOutras = outrasPessoas.reduce((s, p) => s + rachaSplitValorValues[p], 0);
+const diff = parseFloat((restante - somaOutras).toFixed(2));
+if (Math.abs(diff) > 0.001) {
+rachaSplitValorValues[outrasPessoas[0]] = parseFloat((rachaSplitValorValues[outrasPessoas[0]] + diff).toFixed(2));
+}
+}
+
+// Atualiza os inputs das outras pessoas (sem re-renderizar tudo para manter foco)
+rachaPessoas.forEach((p, i) => {
+if (p !== person) {
+const el = document.getElementById(`split-valor-input-${i}`);
+if (el) el.value = (rachaSplitValorValues[p] || 0).toFixed(2);
+}
+});
+
+// Atualiza status
+const totalAtribuido = rachaPessoas.reduce((s, p) => s + (rachaSplitValorValues[p] || 0), 0);
+const diff = parseFloat((totalItem - totalAtribuido).toFixed(2));
+const restEl = document.getElementById('racha-split-valor-restante');
+if (!restEl) return;
+if (Math.abs(diff) < 0.01) {
+restEl.innerHTML = `<span class="text-green-400 font-bold">&#10003; Tudo distribuído</span>`;
+} else if (diff > 0) {
+restEl.innerHTML = `<span class="text-yellow-400">Falta R$ ${diff.toFixed(2)}</span>`;
+} else {
+restEl.innerHTML = `<span class="text-red-400">Excede em R$ ${Math.abs(diff).toFixed(2)}</span>`;
+}
 }
 
 function rachaSplitValorIgual() {
@@ -1512,9 +1512,9 @@ if (hint) hint.style.display = consumption.length === 0 ? '' : 'none';
 
 const btnRacha = document.querySelector('button[onclick="openRachaModal()"]');
 if (btnRacha) {
-  btnRacha.disabled = consumption.length === 0;
-  btnRacha.style.opacity = consumption.length === 0 ? '0.4' : '1';
-  btnRacha.style.cursor = consumption.length === 0 ? 'not-allowed' : '';
+btnRacha.disabled = consumption.length === 0;
+btnRacha.style.opacity = consumption.length === 0 ? '0.4' : '1';
+btnRacha.style.cursor = consumption.length === 0 ? 'not-allowed' : '';
 }
 
 list.innerHTML = '';
@@ -1533,25 +1533,25 @@ let rachaOwnerLine = '';  // linha 2: "✂ Você:1, Kiko:1" ou "💰 Você: R$10
 let rachaBtnsLine = '';   // linha 3: [Você] [Kiko] [✂] [💰]
 if (meuTotalRacha !== null && rachaAtribuicoes[idx]) {
 const atr = rachaAtribuicoes[idx];
-	if (atr.splitValor) {
-	const parts = Object.entries(atr.splitValor).filter(([,v]) => v > 0).map(([k,v]) => `${k}: R$${v.toFixed(2)}`).join(', ');
-	rachaOwnerLine = `<div class="text-xs mt-0.5" style="color:#4ade80"><i class="fas fa-coins mr-1"></i>${parts}</div>`;
-	} else if (atr.split) {
-	const parts = Object.entries(atr.split).filter(([,v]) => v > 0).map(([k,v]) => `${k}:${v}`).join(', ');
-	rachaOwnerLine = `<div class="text-xs mt-0.5 text-yellow-400"><i class="fas fa-cut mr-1"></i>${parts}</div>`;
-	} else {
-	// dono único: não mostra linha extra — o botão ativo já indica quem é
-	rachaOwnerLine = '';
-	}
-	const personBtns = rachaPessoas.map(p => {
-	const isActive = !atr.split && !atr.splitValor && atr.owner === p;
-	return `<button onclick="rachaSetOwner(${idx},'${escapeHtml(p)}')" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${isActive ? 'border-orange-500 text-orange-400 bg-orange-500/15' : 'border-white/10 text-gray-500 hover:border-orange-400/50'}">${escapeHtml(p)}</button>`;
-	}).join('');
-	const splitBtn = item.qty > 1
-	? `<button onclick="rachaOpenSplit(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.split ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-500 hover:border-yellow-400/50'}"><i class="fas fa-cut"></i></button>`
-	: '';
-	const splitValorBtnInline = `<button onclick="rachaOpenSplitValor(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.splitValor ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-white/10 text-gray-500 hover:border-green-400/50'}"><i class="fas fa-coins mr-1"></i>÷ R$</button>`;
-	rachaBtnsLine = `<div class="flex items-center gap-3 mt-1 flex-wrap">${personBtns}${splitBtn}${splitValorBtnInline}</div>`;
+if (atr.splitValor) {
+const parts = Object.entries(atr.splitValor).filter(([,v]) => v > 0).map(([k,v]) => `${k}: R$${v.toFixed(2)}`).join(', ');
+rachaOwnerLine = `<div class="text-xs mt-0.5" style="color:#4ade80"><i class="fas fa-coins mr-1"></i>${parts}</div>`;
+} else if (atr.split) {
+const parts = Object.entries(atr.split).filter(([,v]) => v > 0).map(([k,v]) => `${k}:${v}`).join(', ');
+rachaOwnerLine = `<div class="text-xs mt-0.5 text-yellow-400"><i class="fas fa-cut mr-1"></i>${parts}</div>`;
+} else {
+// dono único: não mostra linha extra — o botão ativo já indica quem é
+rachaOwnerLine = '';
+}
+const personBtns = rachaPessoas.map(p => {
+const isActive = !atr.split && !atr.splitValor && atr.owner === p;
+return `<button onclick="rachaSetOwner(${idx},'${escapeHtml(p)}')" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${isActive ? 'border-orange-500 text-orange-400 bg-orange-500/15' : 'border-white/10 text-gray-500 hover:border-orange-400/50'}">${escapeHtml(p)}</button>`;
+}).join('');
+const splitBtn = item.qty > 1
+? `<button onclick="rachaOpenSplit(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.split ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-500 hover:border-yellow-400/50'}"><i class="fas fa-cut"></i></button>`
+: '';
+const splitValorBtnInline = `<button onclick="rachaOpenSplitValor(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.splitValor ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-white/10 text-gray-500 hover:border-green-400/50'}"><i class="fas fa-coins mr-1"></i>÷ R$</button>`;
+rachaBtnsLine = `<div class="flex items-center gap-3 mt-1 flex-wrap">${personBtns}${splitBtn}${splitValorBtnInline}</div>`;
 }
 
 list.innerHTML += `
@@ -1590,28 +1590,28 @@ document.getElementById('res-couvert-row').style.display = couvert > 0 ? '' : 'n
 document.getElementById('res-tip').innerHTML = `R$ ${tipValue.toFixed(2)}`;
 document.getElementById('grand-total').innerHTML = `R$ ${finalTotal.toFixed(2)}`;
 
-	// Controla visibilidade dos botões de racha (Editar divisão / Desfazer / + Pessoa)
-	const rachaAcoesBar = document.getElementById('racha-acoes-bar');
-	if (rachaAcoesBar) {
-		rachaAcoesBar.style.display = meuTotalRacha !== null ? '' : 'none';
-	}
+// Controla visibilidade dos botões de racha (Editar divisão / Desfazer / + Pessoa)
+const rachaAcoesBar = document.getElementById('racha-acoes-bar');
+if (rachaAcoesBar) {
+rachaAcoesBar.style.display = meuTotalRacha !== null ? '' : 'none';
+}
 
-	// Minha parte (racha) — recalcula dinamicamente
-	const minhaParteBox = document.getElementById('minha-parte-box');
-	if (meuTotalRacha !== null) {
-	// Recalcula sempre com base nos itens e atribuições atuais
-	let consumoVoce = 0;
-	consumption.forEach((item, idx) => {
-	const atr = rachaAtribuicoes[idx];
-	if (!atr) return;
-	if (atr.splitValor) {
-	consumoVoce += atr.splitValor['Você'] || 0;
-	} else if (atr.split) {
-	consumoVoce += (atr.split['Você'] || 0) * item.price;
-	} else if (atr.owner === 'Você') {
-	consumoVoce += item.qty * item.price;
-	}
-	});
+// Minha parte (racha) — recalcula dinamicamente
+const minhaParteBox = document.getElementById('minha-parte-box');
+if (meuTotalRacha !== null) {
+// Recalcula sempre com base nos itens e atribuições atuais
+let consumoVoce = 0;
+consumption.forEach((item, idx) => {
+const atr = rachaAtribuicoes[idx];
+if (!atr) return;
+if (atr.splitValor) {
+consumoVoce += atr.splitValor['Você'] || 0;
+} else if (atr.split) {
+consumoVoce += (atr.split['Você'] || 0) * item.price;
+} else if (atr.owner === 'Você') {
+consumoVoce += item.qty * item.price;
+}
+});
 const gorjetaVoce = hasTip ? consumoVoce * 0.10 : 0;
 meuTotalRacha = consumoVoce + couvert + gorjetaVoce;
 localStorage.setItem('botequim_meu_total_racha', meuTotalRacha);
@@ -1687,184 +1687,184 @@ document.getElementById('validation-modal').classList.add('active');
 }
 
 const examples = {
-  '🥔 Batatas Rösti': [
-    { name: 'Bacon com Champignon', price: 79.90 },
-    { name: 'Batata Rösti Costela Assada', price: 85.90 },
-    { name: 'Batata Rösti Costelinha', price: 85.90 },
-    { name: 'Carne Seca', price: 89.90 },
-    { name: 'Da Terra', price: 89.90 },
-    { name: 'Frango com Catupiry', price: 89.90 },
-    { name: 'Italiana 4 Queijos', price: 89.90 },
-    { name: 'Linguiça Blumenau', price: 85.90 },
-    { name: 'Mignon com Cheddar', price: 85.90 }
-  ],
+'🥔 Batatas Rösti': [
+{ name: 'Bacon com Champignon', price: 79.90 },
+{ name: 'Batata Rösti Costela Assada', price: 85.90 },
+{ name: 'Batata Rösti Costelinha', price: 85.90 },
+{ name: 'Carne Seca', price: 89.90 },
+{ name: 'Da Terra', price: 89.90 },
+{ name: 'Frango com Catupiry', price: 89.90 },
+{ name: 'Italiana 4 Queijos', price: 89.90 },
+{ name: 'Linguiça Blumenau', price: 85.90 },
+{ name: 'Mignon com Cheddar', price: 85.90 }
+],
 
-  '🍹 Bebidas': [
-    { name: 'Água', price: 6.00 },
-    { name: 'Cachaça', price: 15.00 },
-    { name: 'Caipiras', price: 28.90 },
-    { name: 'Campari Tonic Orange', price: 35.00 },
-    { name: 'Chá Gelado', price: 10.00 },
-    { name: 'Chivas Regal', price: 35.00 },
-    { name: 'Cuba Libre', price: 28.00 },
-    { name: 'Energético', price: 18.00 },
-    { name: 'Gin Melancita', price: 35.00 },
-    { name: 'Gin Tônica', price: 30.00 },
-    { name: 'Gin Tropical', price: 35.00 },
-    { name: 'Jack Coke', price: 35.00 },
-    { name: "Jack Daniel's", price: 39.00 },
-    { name: 'Jager Bomb', price: 35.00 },
-    { name: 'Jägermeister', price: 20.00 },
-    { name: 'Johnnie Walker Black Label', price: 39.00 },
-    { name: 'Johnnie Walker Red Label', price: 29.00 },
-    { name: 'Licor de Cerveja', price: 20.00 },
-    { name: 'Limonada Suíça', price: 12.00 },
-    { name: 'Refrigerante', price: 8.00 },
-    { name: 'Steinhager', price: 18.00 },
-    { name: 'Suco de Lata', price: 8.00 },
-    { name: 'Suco Natural', price: 10.00 },
-    { name: 'Suco Polpa', price: 10.00 },
-    { name: 'Tequila', price: 20.00 },
-    { name: 'Underberg (Brasilberg)', price: 18.00 },
-    { name: 'Vodka Absolut', price: 30.00 },
-    { name: 'Vodka Kalvelage', price: 20.00 },
-    { name: 'Vodka Smirnoff', price: 22.00 }
-  ],
+'🍹 Bebidas': [
+{ name: 'Água', price: 6.00 },
+{ name: 'Cachaça', price: 15.00 },
+{ name: 'Caipiras', price: 28.90 },
+{ name: 'Campari Tonic Orange', price: 35.00 },
+{ name: 'Chá Gelado', price: 10.00 },
+{ name: 'Chivas Regal', price: 35.00 },
+{ name: 'Cuba Libre', price: 28.00 },
+{ name: 'Energético', price: 18.00 },
+{ name: 'Gin Melancita', price: 35.00 },
+{ name: 'Gin Tônica', price: 30.00 },
+{ name: 'Gin Tropical', price: 35.00 },
+{ name: 'Jack Coke', price: 35.00 },
+{ name: "Jack Daniel's", price: 39.00 },
+{ name: 'Jager Bomb', price: 35.00 },
+{ name: 'Jägermeister', price: 20.00 },
+{ name: 'Johnnie Walker Black Label', price: 39.00 },
+{ name: 'Johnnie Walker Red Label', price: 29.00 },
+{ name: 'Licor de Cerveja', price: 20.00 },
+{ name: 'Limonada Suíça', price: 12.00 },
+{ name: 'Refrigerante', price: 8.00 },
+{ name: 'Steinhager', price: 18.00 },
+{ name: 'Suco de Lata', price: 8.00 },
+{ name: 'Suco Natural', price: 10.00 },
+{ name: 'Suco Polpa', price: 10.00 },
+{ name: 'Tequila', price: 20.00 },
+{ name: 'Underberg (Brasilberg)', price: 18.00 },
+{ name: 'Vodka Absolut', price: 30.00 },
+{ name: 'Vodka Kalvelage', price: 20.00 },
+{ name: 'Vodka Smirnoff', price: 22.00 }
+],
 
-  '🍺 Chopes': [
-    { name: '5 Elementos Isaac Mango', price: 25.00 },
-    { name: 'Alles Blau Strong Golden Ale', price: 15.00 },
-    { name: 'Bamberg Schwarzbier', price: 12.00 },
-    { name: 'Biertal Taix Tolo Tche', price: 15.00 },
-    { name: 'Big Jack Strong Ale', price: 10.00 },
-    { name: 'Big John Bearskin Hat', price: 16.00 },
-    { name: 'Birrificio Blub Fiore', price: 15.00 },
-    { name: 'Brewteco Overhop', price: 15.00 },
-    { name: 'Capivara Little IPA', price: 13.00 },
-    { name: 'Costa Esmeralda Vinho', price: 14.00 },
-    { name: 'Dádiva 10 Anos', price: 16.00 },
-    { name: 'Delirium Red', price: 29.00 },
-    { name: 'Delirium Tremens', price: 29.00 },
-    { name: 'Donkey Head Citranela', price: 12.00 },
-    { name: 'Frida Blond Ale', price: 13.00 },
-    { name: 'Gost’s Muninn Porter', price: 16.00 },
-    { name: 'Indigo El Peacharine', price: 14.00 },
-    { name: 'Ipê Roxo', price: 13.00 },
-    { name: 'Japas Oishii', price: 15.00 },
-    { name: 'Königs Bier RIS', price: 11.00 },
-    { name: 'Macuca Bala de Coco', price: 10.00 },
-    { name: 'Maestro Morango e Pitaya', price: 15.00 },
-    { name: 'Nefasta Exilada', price: 14.00 },
-    { name: 'Nordus Equinócio', price: 15.00 },
-    { name: 'Notorious Maracutaya', price: 15.00 },
-    { name: 'Octopus Midnight Blues', price: 15.00 },
-    { name: 'Pakas Dark Sour', price: 15.00 },
-    { name: 'Pilsen', price: 12.00 },
-    { name: 'Schornstein Bock', price: 16.00 },
-    { name: 'Sour Pêssego', price: 14.00 },
-    { name: 'Trilha Double Trópicos', price: 17.00 },
-    { name: 'Trilha Mar', price: 15.00 },
-    { name: 'Undertap Mergulho Sem Fim', price: 18.00 },
-    { name: 'Verace Double Vera', price: 17.00 },
-    { name: 'Vila Weissbier', price: 13.00 },
-    { name: 'Walfanger Albert', price: 10.00 },
-    { name: 'Walfanger Sebastian', price: 10.00 },
-    { name: 'Zuid Grizette Zappa', price: 17.00 }
-  ],
+'🍺 Chopes': [
+{ name: '5 Elementos Isaac Mango', price: 25.00 },
+{ name: 'Alles Blau Strong Golden Ale', price: 15.00 },
+{ name: 'Bamberg Schwarzbier', price: 12.00 },
+{ name: 'Biertal Taix Tolo Tche', price: 15.00 },
+{ name: 'Big Jack Strong Ale', price: 10.00 },
+{ name: 'Big John Bearskin Hat', price: 16.00 },
+{ name: 'Birrificio Blub Fiore', price: 15.00 },
+{ name: 'Brewteco Overhop', price: 15.00 },
+{ name: 'Capivara Little IPA', price: 13.00 },
+{ name: 'Costa Esmeralda Vinho', price: 14.00 },
+{ name: 'Dádiva 10 Anos', price: 16.00 },
+{ name: 'Delirium Red', price: 29.00 },
+{ name: 'Delirium Tremens', price: 29.00 },
+{ name: 'Donkey Head Citranela', price: 12.00 },
+{ name: 'Frida Blond Ale', price: 13.00 },
+{ name: 'Gost’s Muninn Porter', price: 16.00 },
+{ name: 'Indigo El Peacharine', price: 14.00 },
+{ name: 'Ipê Roxo', price: 13.00 },
+{ name: 'Japas Oishii', price: 15.00 },
+{ name: 'Königs Bier RIS', price: 11.00 },
+{ name: 'Macuca Bala de Coco', price: 10.00 },
+{ name: 'Maestro Morango e Pitaya', price: 15.00 },
+{ name: 'Nefasta Exilada', price: 14.00 },
+{ name: 'Nordus Equinócio', price: 15.00 },
+{ name: 'Notorious Maracutaya', price: 15.00 },
+{ name: 'Octopus Midnight Blues', price: 15.00 },
+{ name: 'Pakas Dark Sour', price: 15.00 },
+{ name: 'Pilsen', price: 12.00 },
+{ name: 'Schornstein Bock', price: 16.00 },
+{ name: 'Sour Pêssego', price: 14.00 },
+{ name: 'Trilha Double Trópicos', price: 17.00 },
+{ name: 'Trilha Mar', price: 15.00 },
+{ name: 'Undertap Mergulho Sem Fim', price: 18.00 },
+{ name: 'Verace Double Vera', price: 17.00 },
+{ name: 'Vila Weissbier', price: 13.00 },
+{ name: 'Walfanger Albert', price: 10.00 },
+{ name: 'Walfanger Sebastian', price: 10.00 },
+{ name: 'Zuid Grizette Zappa', price: 17.00 }
+],
 
-  '🥨 Pratos Típicos': [
-    { name: 'Banquete Alemão', price: 321.90 },
-    { name: 'Bratwurst', price: 79.90 },
-    { name: 'Eisbein', price: 89.90 },
-    { name: 'Goulash com Cerveja', price: 82.90 },
-    { name: 'Hackepeter', price: 79.90 },
-    { name: 'Kassler', price: 79.90 },
-    { name: 'Marreco Recheado', price: 176.90 },
-    { name: 'Schlachtplatte', price: 198.90 },
-    { name: 'Wiener Schnitzel', price: 98.90 }
-  ],
+'🥨 Pratos Típicos': [
+{ name: 'Banquete Alemão', price: 321.90 },
+{ name: 'Bratwurst', price: 79.90 },
+{ name: 'Eisbein', price: 89.90 },
+{ name: 'Goulash com Cerveja', price: 82.90 },
+{ name: 'Hackepeter', price: 79.90 },
+{ name: 'Kassler', price: 79.90 },
+{ name: 'Marreco Recheado', price: 176.90 },
+{ name: 'Schlachtplatte', price: 198.90 },
+{ name: 'Wiener Schnitzel', price: 98.90 }
+],
 
-  '🍝 Massas': [
-    { name: 'Mac&Costela', price: 59.90 },
-    { name: 'Mac&Porkcheese', price: 52.90 },
-    { name: 'Massa à Bolonhesa', price: 49.90 },
-    { name: 'Massa ao Mignon e Cheddar', price: 59.90 },
-    { name: 'Massa ao Pesto Genovese', price: 49.90 },
-    { name: 'Massa Camarões ao Pesto', price: 69.90 },
-    { name: 'Massa Linguiça Blumenau', price: 49.90 },
-    { name: 'Massa Quatro Queijos', price: 59.90 },
-    { name: 'Ragú de Ossobuco', price: 59.90 }
-  ],
+'🍝 Massas': [
+{ name: 'Mac&Costela', price: 59.90 },
+{ name: 'Mac&Porkcheese', price: 52.90 },
+{ name: 'Massa à Bolonhesa', price: 49.90 },
+{ name: 'Massa ao Mignon e Cheddar', price: 59.90 },
+{ name: 'Massa ao Pesto Genovese', price: 49.90 },
+{ name: 'Massa Camarões ao Pesto', price: 69.90 },
+{ name: 'Massa Linguiça Blumenau', price: 49.90 },
+{ name: 'Massa Quatro Queijos', price: 59.90 },
+{ name: 'Ragú de Ossobuco', price: 59.90 }
+],
 
-  '🫓 Petiscos': [
-    { name: 'Alcatra Acebolada', price: 159.90 },
-    { name: 'Batata Belga', price: 49.90 },
-    { name: 'Batata Frita Palito', price: 42.90 },
-    { name: 'Bolinho de Carne Seca', price: 49.90 },
-    { name: 'Bolinho de Costela', price: 49.90 },
-    { name: 'Bolinho de Linguiça', price: 49.90 },
-    { name: 'Calabresa com Fritas', price: 79.90 },
-    { name: 'Chicken Fries', price: 59.90 },
-    { name: 'Combinado Bier Vila', price: 189.90 },
-    { name: 'Currywurst', price: 69.90 },
-    { name: 'Fish&Chips', price: 79.90 },
-    { name: 'Frango com Fritas', price: 108.00 },
-    { name: 'Frango Crocante', price: 49.90 },
-    { name: 'Linguiça na Chapa', price: 92.90 },
-    { name: 'Mussarela Sticks', price: 49.90 },
-    { name: 'Petisco de Joelho', price: 82.90 },
-    { name: 'Pipoca de Linguiça', price: 36.90 },
-    { name: 'Polenta Frita', price: 45.90 },
-    { name: 'Pork&Chips', price: 69.90 },
-    { name: 'Provoleta Alemã', price: 79.90 },
-    { name: 'Salsicha Alemã', price: 72.90 },
-    { name: 'Tirinhas de Schnitzel à Panê', price: 49.90 },
-    { name: 'Torresmo de Rolo', price: 82.90 }
-  ],
+'🫓 Petiscos': [
+{ name: 'Alcatra Acebolada', price: 159.90 },
+{ name: 'Batata Belga', price: 49.90 },
+{ name: 'Batata Frita Palito', price: 42.90 },
+{ name: 'Bolinho de Carne Seca', price: 49.90 },
+{ name: 'Bolinho de Costela', price: 49.90 },
+{ name: 'Bolinho de Linguiça', price: 49.90 },
+{ name: 'Calabresa com Fritas', price: 79.90 },
+{ name: 'Chicken Fries', price: 59.90 },
+{ name: 'Combinado Bier Vila', price: 189.90 },
+{ name: 'Currywurst', price: 69.90 },
+{ name: 'Fish&Chips', price: 79.90 },
+{ name: 'Frango com Fritas', price: 108.00 },
+{ name: 'Frango Crocante', price: 49.90 },
+{ name: 'Linguiça na Chapa', price: 92.90 },
+{ name: 'Mussarela Sticks', price: 49.90 },
+{ name: 'Petisco de Joelho', price: 82.90 },
+{ name: 'Pipoca de Linguiça', price: 36.90 },
+{ name: 'Polenta Frita', price: 45.90 },
+{ name: 'Pork&Chips', price: 69.90 },
+{ name: 'Provoleta Alemã', price: 79.90 },
+{ name: 'Salsicha Alemã', price: 72.90 },
+{ name: 'Tirinhas de Schnitzel à Panê', price: 49.90 },
+{ name: 'Torresmo de Rolo', price: 82.90 }
+],
 
-  '🥩 Pratos Principais': [
-    { name: 'Alcatra', price: 78.90 },
-    { name: 'Alcatra Grelhada', price: 189.90 },
-    { name: 'Entrecot Grelhado', price: 189.90 },
-    { name: 'Frango', price: 43.90 },
-    { name: 'Picanha Suína', price: 43.90 }
-  ],
+'🥩 Pratos Principais': [
+{ name: 'Alcatra', price: 78.90 },
+{ name: 'Alcatra Grelhada', price: 189.90 },
+{ name: 'Entrecot Grelhado', price: 189.90 },
+{ name: 'Frango', price: 43.90 },
+{ name: 'Picanha Suína', price: 43.90 }
+],
 
-  '🧒 Pratos Kids': [
-    { name: 'Alcatra Kids', price: 39.90 },
-    { name: 'Frango Kids', price: 35.90 },
-    { name: 'Mac&Cheese Kids', price: 35.90 },
-    { name: 'Spaghetti Bolonhesa Kids', price: 34.90 }
-  ],
+'🧒 Pratos Kids': [
+{ name: 'Alcatra Kids', price: 39.90 },
+{ name: 'Frango Kids', price: 35.90 },
+{ name: 'Mac&Cheese Kids', price: 35.90 },
+{ name: 'Spaghetti Bolonhesa Kids', price: 34.90 }
+],
 
-  '🍛 Risotos': [
-    { name: 'Risoto Camarão Vila', price: 79.90 },
-    { name: 'Risoto de Pato', price: 59.90 },
-    { name: 'Risoto Linguiça Blumenau', price: 49.90 },
-    { name: 'Risoto Pollo, Tomate Confit', price: 49.90 },
-    { name: 'Risoto Vegetariano', price: 47.90 }
-  ],
+'🍛 Risotos': [
+{ name: 'Risoto Camarão Vila', price: 79.90 },
+{ name: 'Risoto de Pato', price: 59.90 },
+{ name: 'Risoto Linguiça Blumenau', price: 49.90 },
+{ name: 'Risoto Pollo, Tomate Confit', price: 49.90 },
+{ name: 'Risoto Vegetariano', price: 47.90 }
+],
 
-  '🥗 Saladas': [
-    { name: 'Espaço Vila', price: 31.90 },
-    { name: 'Salada Caesar', price: 31.90 },
-    { name: 'Vila Germânica', price: 31.90 }
-  ],
+'🥗 Saladas': [
+{ name: 'Espaço Vila', price: 31.90 },
+{ name: 'Salada Caesar', price: 31.90 },
+{ name: 'Vila Germânica', price: 31.90 }
+],
 
-  '🥪 Sanduíches': [
-    { name: 'Sanduíche de Costela', price: 48.90 },
-    { name: 'Sanduíche de Costelinha', price: 48.90 },
-    { name: 'Sanduíche de Frango', price: 48.90 },
-    { name: 'Sanduíche de Schnitzel', price: 48.90 },
-    { name: 'Smash Burger', price: 31.90 }
-  ],
+'🥪 Sanduíches': [
+{ name: 'Sanduíche de Costela', price: 48.90 },
+{ name: 'Sanduíche de Costelinha', price: 48.90 },
+{ name: 'Sanduíche de Frango', price: 48.90 },
+{ name: 'Sanduíche de Schnitzel', price: 48.90 },
+{ name: 'Smash Burger', price: 31.90 }
+],
 
-  '🍰 Sobremesas': [
-    { name: 'Apfel Strudel', price: 34.90 },
-    { name: 'Brownie com Sorvete', price: 34.90 },
-    { name: 'Petit Gateau', price: 34.90 },
-    { name: 'Rote Grütze com Sorvete', price: 34.90 }
-  ]
+'🍰 Sobremesas': [
+{ name: 'Apfel Strudel', price: 34.90 },
+{ name: 'Brownie com Sorvete', price: 34.90 },
+{ name: 'Petit Gateau', price: 34.90 },
+{ name: 'Rote Grütze com Sorvete', price: 34.90 }
+]
 };
 
 function quickAddExample() {
@@ -2016,50 +2016,50 @@ let histItems, histSubtotal, rachaSnapshot;
 if (meuTotalRacha !== null && rachaAtribuicoes.length === consumption.length) {
 histItems = [];
 histSubtotal = 0;
-	consumption.forEach((item, idx) => {
-	const atr = rachaAtribuicoes[idx];
-	if (atr.splitValor) {
-	const val = atr.splitValor['Você'] || 0;
-	if (val > 0) {
-	histItems.push({ name: item.name, qty: item.qty, price: item.price, valorFixo: val });
-	histSubtotal += val;
-	}
-	} else {
-	let myQty = 0;
-	if (atr.split) myQty = atr.split['Você'] || 0;
-	else if (atr.owner === 'Você') myQty = item.qty;
-	if (myQty > 0) {
-	histItems.push({ name: item.name, qty: myQty, price: item.price });
-	histSubtotal += myQty * item.price;
-	}
-	}
-	});
+consumption.forEach((item, idx) => {
+const atr = rachaAtribuicoes[idx];
+if (atr.splitValor) {
+const val = atr.splitValor['Você'] || 0;
+if (val > 0) {
+histItems.push({ name: item.name, qty: item.qty, price: item.price, valorFixo: val });
+histSubtotal += val;
+}
+} else {
+let myQty = 0;
+if (atr.split) myQty = atr.split['Você'] || 0;
+else if (atr.owner === 'Você') myQty = item.qty;
+if (myQty > 0) {
+histItems.push({ name: item.name, qty: myQty, price: item.price });
+histSubtotal += myQty * item.price;
+}
+}
+});
 // snapshot completo por pessoa para a comanda do histórico
 rachaSnapshot = {};
 rachaPessoas.forEach(p => { rachaSnapshot[p] = { consumo: 0, items: [] }; });
-	consumption.forEach((item, idx) => {
-	const atr = rachaAtribuicoes[idx];
-	if (atr.splitValor) {
-	rachaPessoas.forEach(p => {
-	const val = atr.splitValor[p] || 0;
-	if (val > 0) {
-	rachaSnapshot[p].consumo += val;
-	rachaSnapshot[p].items.push({ name: item.name, qty: item.qty, price: item.price, valorFixo: val });
-	}
-	});
-	} else if (atr.split) {
-	rachaPessoas.forEach(p => {
-	const qty = atr.split[p] || 0;
-	if (qty > 0) {
-	rachaSnapshot[p].consumo += qty * item.price;
-	rachaSnapshot[p].items.push({ name: item.name, qty, price: item.price });
-	}
-	});
-	} else {
-	rachaSnapshot[atr.owner].consumo += item.qty * item.price;
-	rachaSnapshot[atr.owner].items.push({ name: item.name, qty: item.qty, price: item.price });
-	}
-	});
+consumption.forEach((item, idx) => {
+const atr = rachaAtribuicoes[idx];
+if (atr.splitValor) {
+rachaPessoas.forEach(p => {
+const val = atr.splitValor[p] || 0;
+if (val > 0) {
+rachaSnapshot[p].consumo += val;
+rachaSnapshot[p].items.push({ name: item.name, qty: item.qty, price: item.price, valorFixo: val });
+}
+});
+} else if (atr.split) {
+rachaPessoas.forEach(p => {
+const qty = atr.split[p] || 0;
+if (qty > 0) {
+rachaSnapshot[p].consumo += qty * item.price;
+rachaSnapshot[p].items.push({ name: item.name, qty, price: item.price });
+}
+});
+} else {
+rachaSnapshot[atr.owner].consumo += item.qty * item.price;
+rachaSnapshot[atr.owner].items.push({ name: item.name, qty: item.qty, price: item.price });
+}
+});
 rachaPessoas.forEach(p => {
 const gorj = hasTipVal ? rachaSnapshot[p].consumo * 0.10 : 0;
 rachaSnapshot[p].gorjeta = gorj;
@@ -2192,13 +2192,13 @@ const linhas = pessoas.map(p => {
 const d = h.rachaSnapshot[p];
 const isVoce = p === 'Você';
 const subItens = d.items.map(i => {
-	const itemVal = i.valorFixo !== undefined ? i.valorFixo.toFixed(2) : (i.qty * i.price).toFixed(2);
-	const subLine = i.valorFixo !== undefined ? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">$ dividido</div>` : (i.qty > 1 ? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty}x unidade: R$ ${i.price.toFixed(2)}</div>` : '');
-	return `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:6px">
-	<div><div style="margin-bottom:0px">${escapeHtml(i.name)}</div>${subLine}</div>
-	<span style="white-space:nowrap;padding-left:8px">R$ ${itemVal}</span>
-	</div>`;
-	}).join('');
+const itemVal = i.valorFixo !== undefined ? i.valorFixo.toFixed(2) : (i.qty * i.price).toFixed(2);
+const subLine = i.valorFixo !== undefined ? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">$ dividido</div>` : (i.qty > 1 ? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty}x unidade: R$ ${i.price.toFixed(2)}</div>` : '');
+return `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:6px">
+<div><div style="margin-bottom:0px">${escapeHtml(i.name)}</div>${subLine}</div>
+<span style="white-space:nowrap;padding-left:8px">R$ ${itemVal}</span>
+</div>`;
+}).join('');
 const extras = `
 ${d.couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Couvert</span><span>R$ ${d.couvert.toFixed(2)}</span></div>` : ''}
 ${d.gorjeta > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Gorjeta (10%)</span><span>R$ ${d.gorjeta.toFixed(2)}</span></div>` : ''}`;
@@ -2281,91 +2281,91 @@ event.target.classList.remove('active');
 let _comandaFromHistory = false;
 
 async function compartilharComandaImagem() {
-    const actions = document.getElementById('comanda-actions');
-    const closeBtn = document.querySelector('.comanda-close-btn');
-    const comandaWrap = document.getElementById('comanda-content');
-    const shareBtn = actions.querySelector('button');
-    const shareBtnOriginal = shareBtn.innerHTML;
+const actions = document.getElementById('comanda-actions');
+const closeBtn = document.querySelector('.comanda-close-btn');
+const comandaWrap = document.getElementById('comanda-content');
+const shareBtn = actions.querySelector('button');
+const shareBtnOriginal = shareBtn.innerHTML;
 
-    // Bloqueia botão e exibe feedback
-    shareBtn.disabled = true;
-    shareBtn.innerHTML = '<span style="font-size:12px;color:#555;font-family:sans-serif">Gerando...</span>';
-    
-    // Cria um container temporário para captura
-    const tempContainer = document.createElement('div');
-    tempContainer.style.position = 'fixed';
-    tempContainer.style.top = '-9999px';
-    tempContainer.style.left = '-9999px';
-    tempContainer.style.backgroundColor = '#f5f0e8';
-    tempContainer.style.fontFamily = "'Courier Prime', 'Courier New', monospace";
-    tempContainer.style.padding = '24px 20px 20px';
-    tempContainer.style.width = `${comandaWrap.scrollWidth}px`;
-    
-    // Clona o conteúdo
-    const clone = comandaWrap.cloneNode(true);
-    clone.style.height = 'auto';
-    clone.style.maxHeight = 'none';
-    clone.style.overflow = 'visible';
-    clone.style.overflowY = 'visible';
-    tempContainer.appendChild(clone);
-    document.body.appendChild(tempContainer);
+// Bloqueia botão e exibe feedback
+shareBtn.disabled = true;
+shareBtn.innerHTML = '<span style="font-size:12px;color:#555;font-family:sans-serif">Gerando...</span>';
 
-    // Reduz fontes apenas na imagem gerada (não afeta a comanda na tela)
-    clone.querySelectorAll('[style*="font-size"]').forEach(el => {
-        const match = el.style.fontSize.match(/([\d.]+)rem/);
-        if (match) {
-            el.style.fontSize = (parseFloat(match[1]) * 0.85) + 'rem';
-        }
-    });
-    
-    try {
-        // Aguarda o clone ser inserido e renderizado completamente
-        await new Promise(resolve => setTimeout(resolve, 150));
+// Cria um container temporário para captura
+const tempContainer = document.createElement('div');
+tempContainer.style.position = 'fixed';
+tempContainer.style.top = '-9999px';
+tempContainer.style.left = '-9999px';
+tempContainer.style.backgroundColor = '#f5f0e8';
+tempContainer.style.fontFamily = "'Courier Prime', 'Courier New', monospace";
+tempContainer.style.padding = '24px 20px 20px';
+tempContainer.style.width = `${comandaWrap.scrollWidth}px`;
 
-        // Oculta botões apenas na hora de capturar
-        actions.style.display = 'none';
-        closeBtn.style.display = 'none';
+// Clona o conteúdo
+const clone = comandaWrap.cloneNode(true);
+clone.style.height = 'auto';
+clone.style.maxHeight = 'none';
+clone.style.overflow = 'visible';
+clone.style.overflowY = 'visible';
+tempContainer.appendChild(clone);
+document.body.appendChild(tempContainer);
 
-        const canvas = await html2canvas(tempContainer, {
-            backgroundColor: '#f5f0e8',
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            scrollX: 0,
-            scrollY: 0,
-            windowWidth: tempContainer.scrollWidth,
-            windowHeight: tempContainer.scrollHeight,
-            height: tempContainer.scrollHeight,
-            width: tempContainer.scrollWidth
-        });
-        
-        canvas.toBlob(async (blob) => {
-            const file = new File([blob], 'comanda-botequim.png', { type: 'image/png' });
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({ files: [file], title: 'Comanda Botequim' });
-            } else {
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = 'comanda-botequim.png';
-                a.click();
-                URL.revokeObjectURL(a.href);
-            }
-        }, 'image/png');
-    } catch(e) {
-        if (e.name !== 'AbortError') {
-            alert('Não foi possível compartilhar. Tente novamente.');
-        }
-        console.error(e);
-    } finally {
-        // Remove container temporário
-        document.body.removeChild(tempContainer);
-        // Restaura botões
-        actions.style.display = 'flex';
-        closeBtn.style.display = '';
-        // Restaura botão de compartilhar
-        shareBtn.disabled = false;
-        shareBtn.innerHTML = shareBtnOriginal;
-    }
+// Reduz fontes apenas na imagem gerada (não afeta a comanda na tela)
+clone.querySelectorAll('[style*="font-size"]').forEach(el => {
+const match = el.style.fontSize.match(/([\d.]+)rem/);
+if (match) {
+el.style.fontSize = (parseFloat(match[1]) * 0.85) + 'rem';
+}
+});
+
+try {
+// Aguarda o clone ser inserido e renderizado completamente
+await new Promise(resolve => setTimeout(resolve, 150));
+
+// Oculta botões apenas na hora de capturar
+actions.style.display = 'none';
+closeBtn.style.display = 'none';
+
+const canvas = await html2canvas(tempContainer, {
+backgroundColor: '#f5f0e8',
+scale: 2,
+useCORS: true,
+logging: false,
+scrollX: 0,
+scrollY: 0,
+windowWidth: tempContainer.scrollWidth,
+windowHeight: tempContainer.scrollHeight,
+height: tempContainer.scrollHeight,
+width: tempContainer.scrollWidth
+});
+
+canvas.toBlob(async (blob) => {
+const file = new File([blob], 'comanda-botequim.png', { type: 'image/png' });
+if (navigator.canShare && navigator.canShare({ files: [file] })) {
+await navigator.share({ files: [file], title: 'Comanda Botequim' });
+} else {
+const a = document.createElement('a');
+a.href = URL.createObjectURL(blob);
+a.download = 'comanda-botequim.png';
+a.click();
+URL.revokeObjectURL(a.href);
+}
+}, 'image/png');
+} catch(e) {
+if (e.name !== 'AbortError') {
+alert('Não foi possível compartilhar. Tente novamente.');
+}
+console.error(e);
+} finally {
+// Remove container temporário
+document.body.removeChild(tempContainer);
+// Restaura botões
+actions.style.display = 'flex';
+closeBtn.style.display = '';
+// Restaura botão de compartilhar
+shareBtn.disabled = false;
+shareBtn.innerHTML = shareBtnOriginal;
+}
 }
 function openComanda() {
 _comandaFromHistory = false;
@@ -2405,46 +2405,46 @@ const totaisPessoa = {};
 const itensPessoa = {};
 rachaPessoas.forEach(p => { totaisPessoa[p] = 0; itensPessoa[p] = []; });
 consumption.forEach((item, idx) => {
-	const atr = rachaAtribuicoes[idx];
-	if (atr.splitValor) {
-	rachaPessoas.forEach(p => {
-	const val = atr.splitValor[p] || 0;
-	if (val > 0) {
-	totaisPessoa[p] += val;
-	itensPessoa[p].push({ name: item.name, qty: item.qty, price: item.price, valorFixo: val });
-	}
-	});
-	} else if (atr.split) {
-	rachaPessoas.forEach(p => {
-	const qty = atr.split[p] || 0;
-	if (qty > 0) {
-	totaisPessoa[p] += qty * item.price;
-	itensPessoa[p].push({ name: item.name, qty, price: item.price });
-	}
-	});
-	} else {
-	totaisPessoa[atr.owner] += item.qty * item.price;
-	itensPessoa[atr.owner].push({ name: item.name, qty: item.qty, price: item.price });
-	}
-	});
+const atr = rachaAtribuicoes[idx];
+if (atr.splitValor) {
+rachaPessoas.forEach(p => {
+const val = atr.splitValor[p] || 0;
+if (val > 0) {
+totaisPessoa[p] += val;
+itensPessoa[p].push({ name: item.name, qty: item.qty, price: item.price, valorFixo: val });
+}
+});
+} else if (atr.split) {
+rachaPessoas.forEach(p => {
+const qty = atr.split[p] || 0;
+if (qty > 0) {
+totaisPessoa[p] += qty * item.price;
+itensPessoa[p].push({ name: item.name, qty, price: item.price });
+}
+});
+} else {
+totaisPessoa[atr.owner] += item.qty * item.price;
+itensPessoa[atr.owner].push({ name: item.name, qty: item.qty, price: item.price });
+}
+});
 const linhas = rachaPessoas.map(p => {
 const gorj = hasTip ? totaisPessoa[p] * 0.10 : 0;
 const totalP = totaisPessoa[p] + couvert + gorj;
 const isVoce = p === 'Você';
 const subItens = itensPessoa[p].map(i => {
-	const itemTotal = i.valorFixo !== undefined ? i.valorFixo.toFixed(2) : (i.qty * i.price).toFixed(2);
-	let html = `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:6px">
-	<div>${escapeHtml(i.name)}`;
-	if (i.valorFixo !== undefined) {
-	html += `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">$ dividido</div>`;
-	} else if (i.qty > 1) {
-	html += `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty} x R$ ${i.price.toFixed(2)}</div>`;
-	}
-	html += `</div>
-	<span style="white-space:nowrap;padding-left:8px">R$ ${itemTotal}</span>
-	</div>`;
-	return html;
-	}).join('');
+const itemTotal = i.valorFixo !== undefined ? i.valorFixo.toFixed(2) : (i.qty * i.price).toFixed(2);
+let html = `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:6px">
+<div>${escapeHtml(i.name)}`;
+if (i.valorFixo !== undefined) {
+html += `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">$ dividido</div>`;
+} else if (i.qty > 1) {
+html += `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty} x R$ ${i.price.toFixed(2)}</div>`;
+}
+html += `</div>
+<span style="white-space:nowrap;padding-left:8px">R$ ${itemTotal}</span>
+</div>`;
+return html;
+}).join('');
 const extras = `
 ${gorj > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Gorjeta (10%)</span><span>R$ ${gorj.toFixed(2)}</span></div>` : ''}
 ${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Couvert</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}`;
@@ -2523,11 +2523,11 @@ navigator.serviceWorker.register('./sw.js');
 <!-- Modal QR Code -->
 <div id="modal-qrcode" onclick="if(event.target===this)this.style.display='none';" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:10002; backdrop-filter:blur(4px); align-items:center; justify-content:center;">
 <div style="background:#1e1e2e; border-radius:20px; padding:24px 20px; text-align:center; max-width:300px; width:85%;">
-  <div style="background:#ffffff; padding:15px; border-radius:16px; margin:0 auto 16px; display:inline-flex; justify-content:center;">
-    <div id="qrcode-modal" style="background:white; padding:4px; border-radius:5px;"></div>
-  </div>
-  <p style="margin:0 0 16px; font-size:14px; color:#e0e0e0;">Escaneia e acesse o <strong style="color:#ff9800;">Botequim</strong>!</p>
-  <button onclick="document.getElementById('modal-qrcode').style.display='none';" style="padding:8px 24px; border:none; border-radius:10px; font-size:13px; font-weight:bold; cursor:pointer; background:#ff9800; color:#000;">Fechar</button>
+<div style="background:#ffffff; padding:15px; border-radius:16px; margin:0 auto 16px; display:inline-flex; justify-content:center;">
+<div id="qrcode-modal" style="background:white; padding:4px; border-radius:5px;"></div>
+</div>
+<p style="margin:0 0 16px; font-size:14px; color:#e0e0e0;">Escaneia e acesse o <strong style="color:#ff9800;">Botequim</strong>!</p>
+<button onclick="document.getElementById('modal-qrcode').style.display='none';" style="padding:8px 24px; border:none; border-radius:10px; font-size:13px; font-weight:bold; cursor:pointer; background:#ff9800; color:#000;">Fechar</button>
 </div>
 </div>
 
