@@ -14,7 +14,6 @@ const ESSENTIAL_ASSETS = [
 './comanda.png',
 './icon.png',
 './icon512.png',
-'./bar-bg.webp',
 './sw.js'
 ];
 
