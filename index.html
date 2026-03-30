@@ -579,8 +579,8 @@ Cancelar
 <div class="text-sm text-gray-400">A divisão será desfeita e<br>todas as atribuições perdidas.</div>
 </div>
 <div class="flex gap-3 w-full mt-1">
-<button onclick="desfazerRacha(); closeModal('desfazer-racha-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
-<i class="fas fa-undo mr-1"></i> Desfazer
+<button onclick="desfazerRachaEClose()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+    <i class="fas fa-undo mr-1"></i> Desfazer
 </button>
 <button onclick="closeModal('desfazer-racha-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
 Cancelar
@@ -1357,14 +1357,15 @@ updateCalculos();
 showToast(`✅ Sua parte: R$ ${meuTotalRacha.toFixed(2).replace('.', ',')} — salvo na tela principal`);
 }
 
-function desfazerRacha() {
-meuTotalRacha = null;
-rachaPessoas = ['Você'];
-rachaAtribuicoes = [];
-localStorage.removeItem('botequim_meu_total_racha');
-localStorage.removeItem('botequim_racha_pessoas');
-localStorage.removeItem('botequim_racha_atribuicoes');
-updateCalculos();
+function desfazerRachaEClose() {
+    closeModal('desfazer-racha-modal');
+    meuTotalRacha = null;
+    rachaPessoas = ['Você'];
+    rachaAtribuicoes = [];
+    localStorage.removeItem('botequim_meu_total_racha');
+    localStorage.removeItem('botequim_racha_pessoas');
+    localStorage.removeItem('botequim_racha_atribuicoes');
+    updateCalculos();
 }
 
 let consumption, sessionHistory;
