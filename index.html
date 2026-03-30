@@ -336,7 +336,7 @@ class="text-xs text-orange-400 font-bold flex items-center gap-1">
 <div class="border-t border-orange-500/30 mt-2 mb-4"></div>
 
 <h2 id="resumo-titulo" class="font-bold mb-5 text-gray-500 tracking-widest flex items-center justify-between gap-2">
-<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo</span>
+<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo da conta</span>
 <button onclick="window.open('https://joaubaron.github.io/botequim/', '_blank')" title="Abrir Botequim" class="text-orange-500 hover:text-orange-400 transition-colors" style="background:none;border:none;cursor:pointer;padding:0; line-height: 1;">
 <i class="fas fa-qrcode" style="font-size: 48px !important; display: inline-block !important; width: auto !important; height: auto !important;"></i>
 </button>
@@ -1462,8 +1462,8 @@ closeModal('barname-modal');
 function updateResumoTitulo() {
 const titulo = document.getElementById('resumo-titulo');
 const text = currentBarName
-? `<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo — ${escapeHtml(currentBarName)}</span>`
-: '<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo</span>';
+? `<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo da conta — ${escapeHtml(currentBarName)}</span>`
+: '<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo da conta</span>';
 const qrBtn = `<button onclick="abrirQRCode()" title="QR Code do App" style="background:none;border:none;cursor:pointer;padding:0;color:#f97316;"><i class="fas fa-qrcode" style="font-size:1.15rem;"></i></button>`;
 titulo.innerHTML = text + qrBtn;
 
@@ -2525,8 +2525,21 @@ correctLevel: QRCode.CorrectLevel.H
 }
 
 function abrirQRCode() {
-document.getElementById('modal-qrcode').style.display = 'flex';
-setTimeout(gerarQRCodeModal, 100);
+const modal = document.getElementById('modal-qrcode');
+modal.style.display = 'flex';
+modal.style.opacity = '0';
+gerarQRCodeModal();
+requestAnimationFrame(() => {
+requestAnimationFrame(() => {
+modal.style.opacity = '1';
+});
+});
+}
+
+function fecharQRCode() {
+const modal = document.getElementById('modal-qrcode');
+modal.style.opacity = '0';
+setTimeout(() => { modal.style.display = 'none'; }, 250);
 }
 
 updateResumoTitulo();
@@ -2540,13 +2553,13 @@ navigator.serviceWorker.register('./sw.js');
 </script>
 
 <!-- Modal QR Code -->
-<div id="modal-qrcode" onclick="if(event.target===this)this.style.display='none';" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:10002; backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+<div id="modal-qrcode" onclick="if(event.target===this)fecharQRCode();" style="display:none; opacity:0; transition:opacity 0.25s ease; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:10002; backdrop-filter:blur(4px); align-items:center; justify-content:center;">
 <div style="background:#1e1e2e; border-radius:20px; padding:24px 20px; text-align:center; max-width:300px; width:85%;">
 <div style="background:#ffffff; padding:15px; border-radius:16px; margin:0 auto 16px; display:inline-flex; justify-content:center;">
 <div id="qrcode-modal" style="background:white; padding:4px; border-radius:5px;"></div>
 </div>
 <p style="margin:0 0 16px; font-size:14px; color:#e0e0e0;">Escaneia e acesse o <strong style="color:#ff9800;">Botequim</strong>!</p>
-<button onclick="document.getElementById('modal-qrcode').style.display='none';" style="padding:8px 24px; border:none; border-radius:10px; font-size:13px; font-weight:bold; cursor:pointer; background:#ff9800; color:#000;">Fechar</button>
+<button onclick="fecharQRCode();" style="padding:8px 24px; border:none; border-radius:10px; font-size:13px; font-weight:bold; cursor:pointer; background:#ff9800; color:#000;">Fechar</button>
 </div>
 </div>
 
