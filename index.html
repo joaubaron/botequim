@@ -2067,7 +2067,7 @@ rachaSnapshot = null;
 }
 sessionHistory.unshift({
 date: new Date().toLocaleString(),
-bar: currentBarName,
+bar: currentBarName || 'Botequim',
 items: histItems,
 allItems: JSON.parse(JSON.stringify(consumption)),
 allSubtotal: subtotalVal,
