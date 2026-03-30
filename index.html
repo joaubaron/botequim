@@ -1446,7 +1446,7 @@ titulo.innerHTML = text;
 const sub = document.getElementById('header-subtitle');
 if (sub) {
 if (currentBarName) {
-sub.innerHTML = `<span onclick="openBarNameModal()" style="cursor:pointer;margin-left:10px" class="text-gray-300"> ${escapeHtml(currentBarName)}</span>`;
+sub.innerHTML = `<span onclick="openBarNameModal()" style="cursor:pointer;margin-left:10px" class="text-gray-300"><i class="fas fa-store mr-1"></i> ${escapeHtml(currentBarName)}</span>`;
 } else {
 sub.innerHTML = `<span onclick="openBarNameModal()" style="cursor:pointer;font-size:13px;color:#f97316;margin-left:10px">Digite o nome do bar</span>`;
 }
