@@ -258,7 +258,7 @@ z-index: 10;
 <div class="card p-2 mb-6">
 <div class="flex justify-start items-center mb-2 gap-2">
 <button onclick="quickAddExample()" class="text-orange-500 text-xs font-bold border border-orange-900/50 px-3 py-2 rounded whitespace-nowrap">
-<i class="fas fa-list mr-2"></i> Cardápio
+<i class="fas fa-bolt"></i> Cardápio
 </button>
 <button onclick="openRachaModal()" class="text-yellow-400 text-xs font-bold border border-orange-900/50 px-3 py-2 rounded whitespace-nowrap">
 <i class="fas fa-users"></i> Dividir conta
@@ -267,6 +267,7 @@ z-index: 10;
 <i class="fas fa-plus-circle"></i> Nova conta
 </button>
 </div>
+
 
 <div id="items-list" class="space-y-0 mb-6 max-h-96 overflow-y-auto"></div>
 
@@ -316,7 +317,7 @@ z-index: 10;
 class="text-xs text-white">
 Editar divisão
 </button>
-<button onclick="desfazerRacha()" 
+<button onclick="openModal('desfazer-racha-modal')" 
 class="text-xs text-white">
 Desfazer divisão
 </button>
@@ -544,6 +545,28 @@ Cancelar
 </div>
 
 
+
+<!-- Modal Confirmar Desfazer Divisão -->
+<div id="desfazer-racha-modal" class="modal">
+<div class="modal-content" style="width:320px">
+<div class="flex flex-col items-center text-center gap-4 py-2">
+<div class="w-14 h-14 rounded-full bg-red-500/15 flex items-center justify-center">
+<i class="fas fa-undo text-red-400 text-2xl"></i>
+</div>
+<div>
+<div class="text-sm text-gray-400">A divisão será desfeita e<br>todas as atribuições perdidas.</div>
+</div>
+<div class="flex gap-3 w-full mt-1">
+<button onclick="desfazerRacha(); closeModal('desfazer-racha-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+<i class="fas fa-undo mr-1"></i> Desfazer
+</button>
+<button onclick="closeModal('desfazer-racha-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+Cancelar
+</button>
+</div>
+</div>
+</div>
+</div>
 
 <!-- Modal Racha - Passo 1: Pessoas -->
 <div id="racha-pessoas-modal" class="modal">
