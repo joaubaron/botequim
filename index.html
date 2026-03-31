@@ -320,11 +320,11 @@ height: auto !important;
 <div class="card p-2 -mt-6">
 <div id="racha-acoes-bar" class="mt-2 flex flex-wrap justify-start gap-x-4 gap-y-2 items-center mb-4" style="display:none">
 <button onclick="closeModal('racha-resultado-modal'); renderRachaItens(); openModal('racha-itens-modal')" 
-class="text-xs text-white">
+class="text-xs text-yellow-400 font-bold">
 Editar divisão
 </button>
 <button onclick="openModal('desfazer-racha-modal')" 
-class="text-xs text-white">
+class="text-xs text-red-400 font-bold">
 Desfazer divisão
 </button>
 <button onclick="toggleAddPessoaInline()" id="btn-add-pessoa-inline"
@@ -580,7 +580,7 @@ Cancelar
 </div>
 <div class="flex gap-3 w-full mt-1">
 <button onclick="desfazerRachaEClose()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
-    <i class="fas fa-undo mr-1"></i> Desfazer
+<i class="fas fa-undo mr-1"></i> Desfazer
 </button>
 <button onclick="closeModal('desfazer-racha-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
 Cancelar
@@ -1358,14 +1358,14 @@ showToast(`✅ Sua parte: R$ ${meuTotalRacha.toFixed(2).replace('.', ',')} — s
 }
 
 function desfazerRachaEClose() {
-    closeModal('desfazer-racha-modal');
-    meuTotalRacha = null;
-    rachaPessoas = ['Você'];
-    rachaAtribuicoes = [];
-    localStorage.removeItem('botequim_meu_total_racha');
-    localStorage.removeItem('botequim_racha_pessoas');
-    localStorage.removeItem('botequim_racha_atribuicoes');
-    updateCalculos();
+closeModal('desfazer-racha-modal');
+meuTotalRacha = null;
+rachaPessoas = ['Você'];
+rachaAtribuicoes = [];
+localStorage.removeItem('botequim_meu_total_racha');
+localStorage.removeItem('botequim_racha_pessoas');
+localStorage.removeItem('botequim_racha_atribuicoes');
+updateCalculos();
 }
 
 let consumption, sessionHistory;
