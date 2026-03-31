@@ -149,8 +149,6 @@ backdrop-filter: blur(4px);
 display: flex;
 }
 
-
-
 .modal-content {
 background: #1e1e2e;
 border-radius: 20px;
@@ -210,7 +208,6 @@ box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 opacity: 1;
 transform: translateX(-50%) translateY(0);
 }
-
 
 .comanda-wrap {
 font-family: 'Courier Prime', 'Courier New', monospace;
@@ -273,7 +270,6 @@ height: auto !important;
 <i class="fas fa-plus-circle"></i> Nova conta
 </button>
 </div>
-
 
 <div id="items-list" class="space-y-0 mb-6 max-h-96 overflow-y-auto"></div>
 
@@ -403,7 +399,6 @@ onkeypress="if(event.key==='Enter') addPessoaInlineAndRecalculate()">
 <!-- Valores - mesma largura -->
 <div id="progress-scale" class="flex justify-between mt-1" style="font-size:9px; color: rgba(255,152,0,0.45); width: calc(100% - 16px); margin: 0 auto;">
 </div>
-
 
 <!-- Link da gorjeta - mesma largura -->
 <div class="text-right mt-2 mb-1" style="width: calc(100% - 16px); margin: 0 auto;">
@@ -575,8 +570,6 @@ Cancelar
 </div>
 </div>
 </div>
-
-
 
 <!-- Modal Confirmar Desfazer Divisão -->
 <div id="desfazer-racha-modal" class="modal">
@@ -945,7 +938,6 @@ return { splitValor };
 closeModal('racha-pessoas-modal');
 rachaCalcular();
 }
-
 
 function renderPessoasChips(containerId, fromResultado) {
 const container = document.getElementById(containerId);
@@ -1448,7 +1440,6 @@ input.value = currentBarName;
 document.getElementById('barname-modal').classList.add('active');
 setTimeout(() => { input.focus(); input.select(); }, 100);
 }
-
 
 function confirmBarName() {
 const val = document.getElementById('bar-name-input').value.trim();
