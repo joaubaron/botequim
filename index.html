@@ -1064,11 +1064,21 @@ const splitBtn = item.qty > 1
 ? `<button onclick="rachaOpenSplit(${idx})" class="px-2 py-1 rounded-lg text-xs font-bold border transition-all ${atr.split ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-400'}"><i class="fas fa-cut mr-1"></i>÷ Qtd</button>`
 : '';
 const splitValorBtn = `<button onclick="rachaOpenSplitValor(${idx})" class="px-2 py-1 rounded-lg text-xs font-bold border transition-all ${atr.splitValor ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-white/10 text-gray-400'}"><i class="fas fa-coins mr-1"></i>÷ R$</button>`;
+
+// Linha do nome e total
+const totalRow = (item.qty * item.price).toFixed(2);
+const unitDisplay = item.qty > 1 
+? `<div class="text-xs text-gray-400 mt-0.5">${item.qty}x unidade: R$ ${item.price.toFixed(2)}</div>`
+: '';
+
 return `
 <div class="bg-white/5 rounded-xl p-3">
-<div class="flex justify-between items-start mb-2">
-<span class="text-sm font-semibold"><span class="text-orange-400">${item.qty}x</span> ${escapeHtml(item.name)}</span>
-<span class="text-sm font-bold text-white">R$ ${(item.qty * item.price).toFixed(2)}</span>
+<div class="mb-2">
+<div class="flex justify-between items-start">
+<span class="text-sm font-semibold text-white">${escapeHtml(item.name)}</span>
+<span class="text-sm font-bold text-white">R$ ${totalRow}</span>
+</div>
+${unitDisplay}
 </div>
 <div class="text-xs mb-2 ${statusHtml.includes('R$') ? 'text-green-400' : 'text-yellow-400'}">${statusHtml}</div>
 <div class="flex flex-wrap gap-2">${personBtns}${splitBtn}${splitValorBtn}</div>
