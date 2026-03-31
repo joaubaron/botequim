@@ -1,6 +1,6 @@
 // ⚠️ Atualize a versão a cada deploy
 
-const CACHE_VERSION = '29.03.2026-2200';
+const CACHE_VERSION = '31.03.2026-1239';
 const CACHE_NAME = `botequim-${CACHE_VERSION}`;
 const OFFLINE_URL = './index.html';
 
@@ -22,7 +22,8 @@ const EXTERNAL_CACHE = [
 'https://cdn.tailwindcss.com/3.4.1?plugins=forms,typography,aspect-ratio,container-queries',
 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-'https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap'
+'https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap',
+'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'
 ];
 
 // Instalação com cache garantido
