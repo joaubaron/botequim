@@ -533,6 +533,29 @@ Cancelar
 </div>
 </div>
 
+<!-- Modal Confirmar Reabrir Conta do Histórico -->
+<div id="reopen-history-modal" class="modal">
+<div class="modal-content" style="width:320px">
+<div class="flex flex-col items-center text-center gap-4 py-2">
+<div class="w-14 h-14 rounded-full bg-orange-500/15 flex items-center justify-center">
+<i class="fas fa-undo-alt text-orange-400 text-2xl"></i>
+</div>
+<div>
+<div class="font-bold text-orange-400 text-sm mb-1" id="reopen-history-bar-name"></div>
+<div class="text-sm text-gray-400">Reabrir esta conta vai <span class="text-red-400 font-semibold">apagar a lista atual</span>.<br>Deseja continuar?</div>
+</div>
+<div class="flex gap-3 w-full mt-1">
+<button id="reopen-history-confirm-btn" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+<i class="fas fa-undo-alt mr-1"></i> Reabrir
+</button>
+<button onclick="closeModal('reopen-history-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+Cancelar
+</button>
+</div>
+</div>
+</div>
+</div>
+
 <!-- Modal Limpar Histórico -->
 <div id="clear-history-modal" class="modal">
 <div class="modal-content" style="width:320px">
@@ -2102,7 +2125,9 @@ couvert: couvertVal,
 tip: hasTipVal ? histSubtotal * 0.10 : 0,
 hasTip: hasTipVal,
 rachado: meuTotalRacha !== null,
-rachaSnapshot: rachaSnapshot
+rachaSnapshot: rachaSnapshot,
+rachaPessoasSaved: meuTotalRacha !== null ? JSON.parse(JSON.stringify(rachaPessoas)) : null,
+rachaAtribuicoesSaved: meuTotalRacha !== null ? JSON.parse(JSON.stringify(rachaAtribuicoes)) : null
 });
 if (sessionHistory.length > 100) sessionHistory.pop();
 localStorage.setItem('botequim_history', JSON.stringify(sessionHistory));
@@ -2154,9 +2179,14 @@ historyList.innerHTML = sessionHistory.map((h, idx) => `
 <div class="text-xs mt-1 text-gray-300">${h.itemsCount} itens | ${h.rachado ? '<span class="text-yellow-400">Minha parte: </span>' : 'Total: '}R$ ${h.total.toFixed(2)}</div>
 <div class="text-xs text-gray-500 truncate mt-1">${h.items.map(i => i.qty + 'x ' + i.name).join(', ')}</div>
 </div>
-<button onclick="event.stopPropagation(); deleteHistoryItem(${idx})" class="ml-2 mt-1 flex-shrink-0 w-7 h-7 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500/40 transition-colors" title="Apagar este registro">
+<div class="flex gap-1 ml-2 mt-1 flex-shrink-0">
+<button onclick="event.stopPropagation(); promptReopenHistory(${idx})" class="w-7 h-7 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center hover:bg-orange-500/40 transition-colors" title="Reabrir esta conta">
+<i class="fas fa-undo-alt text-xs"></i>
+</button>
+<button onclick="event.stopPropagation(); deleteHistoryItem(${idx})" class="w-7 h-7 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500/40 transition-colors" title="Apagar este registro">
 <i class="fas fa-trash-alt text-xs"></i>
 </button>
+</div>
 </div>
 </div>
 `).join('');
@@ -2176,6 +2206,63 @@ localStorage.setItem('botequim_history', JSON.stringify(sessionHistory));
 closeModal('delete-history-item-modal');
 showHistory();
 };
+}
+
+function promptReopenHistory(idx) {
+const h = sessionHistory[idx];
+document.getElementById('reopen-history-bar-name').textContent = h.bar || 'Botequim';
+document.getElementById('reopen-history-modal').classList.add('active');
+document.getElementById('reopen-history-confirm-btn').onclick = function() {
+reopenHistory(idx);
+};
+}
+
+function reopenHistory(idx) {
+const h = sessionHistory[idx];
+// Restaura os itens
+consumption = JSON.parse(JSON.stringify(h.allItems || h.items));
+currentBarName = h.bar || '';
+// Restaura couvert e gorjeta
+document.getElementById('in-couvert').value = h.couvert > 0 ? h.couvert : '';
+document.getElementById('in-tip').checked = !!h.hasTip;
+// Salva no localStorage
+localStorage.setItem('botequim_baron', JSON.stringify(consumption));
+localStorage.setItem('botequim_bar_name', currentBarName);
+// Restaura racha se existir
+if (h.rachado && h.rachaPessoasSaved && h.rachaAtribuicoesSaved) {
+rachaPessoas = JSON.parse(JSON.stringify(h.rachaPessoasSaved));
+rachaAtribuicoes = JSON.parse(JSON.stringify(h.rachaAtribuicoesSaved));
+// Recalcula meuTotalRacha
+const couvertVal = h.couvert || 0;
+const hasTipVal = !!h.hasTip;
+let consumoVoce = 0;
+consumption.forEach((item, i) => {
+const atr = rachaAtribuicoes[i];
+if (!atr) return;
+if (atr.splitValor) consumoVoce += atr.splitValor['Você'] || 0;
+else if (atr.split) consumoVoce += (atr.split['Você'] || 0) * item.price;
+else if (atr.owner === 'Você') consumoVoce += item.qty * item.price;
+});
+const gorjetaVoce = hasTipVal ? consumoVoce * 0.10 : 0;
+meuTotalRacha = consumoVoce + couvertVal + gorjetaVoce;
+localStorage.setItem('botequim_racha_pessoas', JSON.stringify(rachaPessoas));
+localStorage.setItem('botequim_racha_atribuicoes', JSON.stringify(rachaAtribuicoes));
+localStorage.setItem('botequim_meu_total_racha', meuTotalRacha);
+} else {
+// Sem racha ou histórico antigo sem dados salvos — limpa
+meuTotalRacha = null;
+rachaPessoas = ['Você'];
+rachaAtribuicoes = [];
+localStorage.removeItem('botequim_meu_total_racha');
+localStorage.removeItem('botequim_racha_pessoas');
+localStorage.removeItem('botequim_racha_atribuicoes');
+}
+// Fecha modais e atualiza tela
+closeModal('reopen-history-modal');
+closeModal('history-modal');
+updateResumoTitulo();
+updateCalculos();
+showToast('↩️ Conta reaberta! Edite como quiser.');
 }
 
 function showHistoryDetail(idx) {
@@ -2223,7 +2310,7 @@ ${d.gorjeta > 0 ? `<div style="display:flex;justify-content:space-between;font-s
 return `
 <div style="margin-bottom:8px">
 <div style="display:flex;justify-content:space-between;font-size:0.9rem;font-weight:700;${isVoce ? 'color:#b35a00' : 'color:#222'}">
-<span>${isVoce ? 'VOCÊ' : p.toUpperCase()}</span>
+<span>${isVoce ? 'MINHA PARTE' : p.toUpperCase()}</span>
 <span>R$ ${d.total.toFixed(2)}</span>
 </div>
 ${subItens}${extras}
