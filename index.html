@@ -393,7 +393,7 @@ onkeypress="if(event.key==='Enter') addPessoaInlineAndRecalculate()">
 <div class="flex justify-between items-center mt-3 mb-1" style="padding-left: 8px; padding-right: 8px;">
 <span style="font-size:9px; color: rgba(255,152,0,0.55); letter-spacing:0.05em;">CONSUMO</span>
 </div>
-	
+
 <!-- Barra de progresso - mesma largura -->
 <div class="progress-bar" style="width: calc(100% - 16px); margin: 0 auto;">
 
@@ -2181,7 +2181,7 @@ updateCalculos();
 closeModal('limpar-tela-modal');
 showToast('🧹 Lista limpa!');
 }
-	
+
 function calculateTotal() {
 const subtotal = consumption.reduce((sum, item) => sum + (item.qty * item.price), 0);
 const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
