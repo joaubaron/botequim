@@ -393,7 +393,7 @@ onkeypress="if(event.key==='Enter') addPessoaInlineAndRecalculate()">
 <div class="flex justify-between items-center mt-3 mb-1" style="padding-left: 8px; padding-right: 8px;">
 <span style="font-size:9px; color: rgba(255,152,0,0.55); letter-spacing:0.05em;">CONSUMO</span>
 </div>
-
+	
 <!-- Barra de progresso - mesma largura -->
 <div class="progress-bar" style="width: calc(100% - 16px); margin: 0 auto;">
 
@@ -405,7 +405,14 @@ onkeypress="if(event.key==='Enter') addPessoaInlineAndRecalculate()">
 </div>
 
 <!-- Link da gorjeta - mesma largura -->
-<div class="text-right mt-2 mb-1" style="width: calc(100% - 16px); margin: 0 auto;">
+<div class="flex justify-between items-center mb-1" style="width: calc(100% - 16px); margin: 15px auto 0;">
+
+<a href="https://www.instagram.com/joseaugustobaron/" 
+target="_blank" 
+rel="noopener noreferrer"
+style="font-size: 9px; text-decoration: none; color: #ff9800; opacity: 0.8;">
+2026 @baron
+</a>
 
 <a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2017/lei/L13419.htm" 
 target="_blank" 
@@ -2181,7 +2188,7 @@ updateCalculos();
 closeModal('limpar-tela-modal');
 showToast('🧹 Lista limpa!');
 }
-
+	
 function calculateTotal() {
 const subtotal = consumption.reduce((sum, item) => sum + (item.qty * item.price), 0);
 const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
