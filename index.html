@@ -251,11 +251,13 @@ height: auto !important;
 </p>
 
 </div>
-<div class="flex gap-2 self-start">
+<div class="flex gap-3 self-start">
 <div class="text-2xl cursor-pointer" onclick="showHistory()">
 <i class="fas fa-history" style="position:relative; top:11px;"></i>
 </div>
-
+<div class="text-2xl cursor-pointer text-red-400" onclick="limparTela()">
+<i class="fas fa-broom" style="position:relative; top:11px;"></i>
+</div>
 </div>
 </header>
 
@@ -2153,6 +2155,33 @@ updateCalculos();
 showToast('✅ Conta fechada e salva no histórico!');
 }
 
+function limparTela() {
+if (consumption.length === 0) return;
+document.getElementById('limpar-tela-modal').classList.add('active');
+}
+
+function confirmarLimparTela() {
+consumption = [];
+editingIndex = null;
+currentBarName = '';
+meuTotalRacha = null;
+rachaPessoas = ['Você'];
+rachaAtribuicoes = [];
+localStorage.removeItem('botequim_meu_total_racha');
+localStorage.removeItem('botequim_racha_pessoas');
+localStorage.removeItem('botequim_racha_atribuicoes');
+localStorage.removeItem('botequim_baron');
+localStorage.removeItem('botequim_bar_name');
+document.getElementById('in-couvert').value = '';
+document.getElementById('in-tip').checked = false;
+localStorage.removeItem('botequim_couvert');
+localStorage.removeItem('botequim_tip');
+updateResumoTitulo();
+updateCalculos();
+closeModal('limpar-tela-modal');
+showToast('🧹 Lista limpa!');
+}
+	
 function calculateTotal() {
 const subtotal = consumption.reduce((sum, item) => sum + (item.qty * item.price), 0);
 const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
@@ -2647,6 +2676,25 @@ navigator.serviceWorker.register('./sw.js');
 </div>
 <p style="margin:0 0 16px; font-size:14px; color:#e0e0e0;">Escaneia e acesse o <strong style="color:#ff9800;">Botequim</strong>!</p>
 <button onclick="fecharQRCode();" style="padding:8px 24px; border:none; border-radius:10px; font-size:13px; font-weight:bold; cursor:pointer; background:#ff9800; color:#000;">Fechar</button>
+</div>
+</div>
+
+<!-- Modal Confirmar Limpar Tela -->
+<div id="limpar-tela-modal" class="modal">
+<div class="modal-content" style="width:320px">
+<div class="flex flex-col items-center text-center gap-4 py-2">
+<div class="w-14 h-14 rounded-full bg-red-500/15 flex items-center justify-center">
+<i class="fas fa-broom text-red-400 text-2xl"></i>
+</div>
+<div>
+<div class="font-bold text-red-400 text-sm mb-1">Limpar lista</div>
+<div class="text-sm text-gray-400">Os itens serão apagados<br><span class="text-red-400 font-semibold">sem salvar no histórico</span>.</div>
+</div>
+<div class="flex gap-3 w-full mt-2">
+<button onclick="closeModal('limpar-tela-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">Cancelar</button>
+<button onclick="confirmarLimparTela()" class="flex-1 py-3 rounded-xl text-sm font-bold bg-red-500 text-white">Limpar</button>
+</div>
+</div>
 </div>
 </div>
 
