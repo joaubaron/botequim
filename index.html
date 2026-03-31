@@ -373,7 +373,8 @@ onkeypress="if(event.key==='Enter') addPessoaInlineAndRecalculate()">
 </div>
 </div>
 
-<div class="flex justify-between items-center -mt-4 px-2">
+<!-- TOTAL - manter o mesmo padding dos outros -->
+<div class="flex justify-between items-center -mt-4" style="padding-left: 8px; padding-right: 8px;">
 <span class="text-base font-bold"><i class="fas fa-coins"></i> TOTAL:</span>
 <span id="grand-total" class="text-lg font-black text-orange-500">R$ 0,00</span>
 </div>
@@ -385,17 +386,25 @@ onkeypress="if(event.key==='Enter') addPessoaInlineAndRecalculate()">
 </div>
 </div>
 
-<div class="flex justify-between items-center mt-3 mb-1 px-0">
+<!-- CONSUMO - ajustar para mesmo padding -->
+<div class="flex justify-between items-center mt-3 mb-1" style="padding-left: 8px; padding-right: 8px;">
 <span style="font-size:9px; color: rgba(255,152,0,0.55); letter-spacing:0.05em;">CONSUMO</span>
 </div>
-<div class="progress-bar">
+	
+<!-- Barra de progresso - mesma largura -->
+<div class="progress-bar" style="width: calc(100% - 16px); margin: 0 auto;">
+
 <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
 </div>
-<div id="progress-scale" class="flex justify-between mt-1 px-0" style="font-size:9px; color: rgba(255,152,0,0.45);"></div>
+
+<!-- Valores - mesma largura -->
+<div id="progress-scale" class="flex justify-between mt-1" style="font-size:9px; color: rgba(255,152,0,0.45); width: calc(100% - 16px); margin: 0 auto;">
 </div>
 
-<!-- Link da gorjeta embaixo da barra de consumo -->
-<div class="text-right mt-2 mb-1">
+
+<!-- Link da gorjeta - mesma largura -->
+<div class="text-right mt-2 mb-1" style="width: calc(100% - 16px); margin: 0 auto;">
+
 <a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2017/lei/L13419.htm" 
 target="_blank" 
 rel="noopener noreferrer"
