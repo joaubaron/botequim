@@ -2179,7 +2179,7 @@ historyList.innerHTML = sessionHistory.map((h, idx) => `
 <div class="text-xs mt-1 text-gray-300">${h.itemsCount} itens | ${h.rachado ? '<span class="text-yellow-400">Minha parte: </span>' : 'Total: '}R$ ${h.total.toFixed(2)}</div>
 <div class="text-xs text-gray-500 truncate mt-1">${h.items.map(i => i.qty + 'x ' + i.name).join(', ')}</div>
 </div>
-<div class="flex gap-1 ml-2 mt-1 flex-shrink-0">
+<div class="flex gap-3 ml-2 mt-1 flex-shrink-0">
 <button onclick="event.stopPropagation(); promptReopenHistory(${idx})" class="w-7 h-7 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center hover:bg-orange-500/40 transition-colors" title="Reabrir esta conta">
 <i class="fas fa-undo-alt text-xs"></i>
 </button>
