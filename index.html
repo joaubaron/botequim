@@ -1563,145 +1563,154 @@ document.getElementById('validation-modal').classList.add('active');
 }
 
 function updateCalculos() {
-const list = document.getElementById('items-list');
-const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
-const hasTip = document.getElementById('in-tip').checked;
+  const list = document.getElementById('items-list');
+  const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
+  const hasTip = document.getElementById('in-tip').checked;
 
-const hint = document.getElementById('empty-hint');
-if (hint) hint.style.display = consumption.length === 0 ? '' : 'none';
+  const hint = document.getElementById('empty-hint');
+  if (hint) hint.style.display = consumption.length === 0 ? '' : 'none';
 
-const btnRacha = document.querySelector('button[onclick="openRachaModal()"]');
-if (btnRacha) {
-btnRacha.disabled = consumption.length === 0;
-btnRacha.style.opacity = consumption.length === 0 ? '0.4' : '1';
-btnRacha.style.cursor = consumption.length === 0 ? 'not-allowed' : '';
-}
+  // Botão Dividir conta
+  const btnRacha = document.querySelector('button[onclick="openRachaModal()"]');
+  if (btnRacha) {
+    btnRacha.disabled = consumption.length === 0;
+    btnRacha.style.opacity = consumption.length === 0 ? '0.4' : '1';
+    btnRacha.style.cursor = consumption.length === 0 ? 'not-allowed' : 'pointer';
+  }
 
-list.innerHTML = '';
-let subtotalItems = 0;
+  // Botão Nova conta
+  const btnNovaConta = document.querySelector('button[onclick="clearItems()"]');
+  if (btnNovaConta) {
+    btnNovaConta.disabled = consumption.length === 0;
+    btnNovaConta.style.opacity = consumption.length === 0 ? '0.4' : '1';
+    btnNovaConta.style.cursor = consumption.length === 0 ? 'not-allowed' : 'pointer';
+  }
 
-consumption.forEach((item, idx) => {
-const totalRow = item.qty * item.price;
-subtotalItems += totalRow;
+  list.innerHTML = '';
+  let subtotalItems = 0;
 
-const unitPriceDisplay = item.qty > 1 
-? `<div class="text-sm text-gray-400"><span class="text-orange-500 font-bold">${item.qty}x</span> unidade: R$ ${item.price.toFixed(2)}</div>` 
-: '';
+  consumption.forEach((item, idx) => {
+    const totalRow = item.qty * item.price;
+    subtotalItems += totalRow;
 
-// Racha ativo: linha 2 = info de divisão, linha 3 = botões de atribuição
-let rachaOwnerLine = '';  // linha 2: "✂ Você:1, Kiko:1" ou "💰 Você: R$100, Kiko: R$100"
-let rachaBtnsLine = '';   // linha 3: [Você] [Kiko] [✂] [💰]
-if (meuTotalRacha !== null && rachaAtribuicoes[idx]) {
-const atr = rachaAtribuicoes[idx];
-if (atr.splitValor) {
-const parts = Object.entries(atr.splitValor).filter(([,v]) => v > 0).map(([k,v]) => `${k}: R$${v.toFixed(2)}`).join(', ');
-rachaOwnerLine = `<div class="text-xs mt-0.5" style="color:#4ade80"><i class="fas fa-coins mr-1"></i>${parts}</div>`;
-} else if (atr.split) {
-const parts = Object.entries(atr.split).filter(([,v]) => v > 0).map(([k,v]) => `${k}:${v}`).join(', ');
-rachaOwnerLine = `<div class="text-xs mt-0.5 text-yellow-400"><i class="fas fa-cut mr-1"></i>${parts}</div>`;
-} else {
-// dono único: não mostra linha extra — o botão ativo já indica quem é
-rachaOwnerLine = '';
-}
-const personBtns = rachaPessoas.map(p => {
-const isActive = !atr.split && !atr.splitValor && atr.owner === p;
-return `<button onclick="rachaSetOwner(${idx},'${escapeHtml(p)}')" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${isActive ? 'border-orange-500 text-orange-400 bg-orange-500/15' : 'border-white/10 text-gray-500 hover:border-orange-400/50'}">${escapeHtml(p)}</button>`;
-}).join('');
-const splitBtn = item.qty > 1
-? `<button onclick="rachaOpenSplit(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.split ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-500 hover:border-yellow-400/50'}"><i class="fas fa-cut"></i></button>`
-: '';
-const splitValorBtnInline = `<button onclick="rachaOpenSplitValor(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.splitValor ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-white/10 text-gray-500 hover:border-green-400/50'}"><i class="fas fa-coins mr-1"></i>÷ R$</button>`;
-rachaBtnsLine = `<div class="flex items-center gap-3 mt-1 flex-wrap">${personBtns}${splitBtn}${splitValorBtnInline}</div>`;
-}
+    const unitPriceDisplay = item.qty > 1 
+      ? `<div class="text-sm text-gray-400"><span class="text-orange-500 font-bold">${item.qty}x</span> unidade: R$ ${item.price.toFixed(2)}</div>` 
+      : '';
 
-list.innerHTML += `
-<div class="py-3 border-b border-white/10 ${_addingItem ? 'item-animate' : ''}">
-<!-- Linha 1: Qtd x Nome + Valor total -->
-<div class="flex items-center justify-between">
-<div class="text-base font-semibold">${escapeHtml(item.name)}</div>
-<div class="font-bold text-base text-white whitespace-nowrap pl-3">R$ ${totalRow.toFixed(2)}</div>
-</div>
-<!-- Linha 2: unidade (se qty>1) OU info divisão racha OU ambos -->
-${unitPriceDisplay}${rachaOwnerLine}
-<!-- Linha 3: Botões de atribuição racha (só se racha ativo) -->
-${rachaBtnsLine}
-<!-- Linha 4: Botões ação editar/−/+ -->
-<div class="flex items-center gap-3 mt-2">
-<button onclick="startEdit(${idx})" class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 text-green-400 hover:bg-green-500/20 transition-colors">
-<i class="fas fa-pencil-alt text-xs"></i>
-</button>
-<button onclick="decrementItem(${idx})" class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 transition-colors">
-<i class="fas fa-minus text-sm"></i>
-</button>
-<button onclick="incrementItem(${idx})" class="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 transition-colors">
-<i class="fas fa-plus text-sm"></i>
-</button>
-</div>
-</div>
-`;
-});
+    // Racha ativo: linha 2 = info de divisão, linha 3 = botões de atribuição
+    let rachaOwnerLine = '';  // linha 2: "✂ Você:1, Kiko:1" ou "💰 Você: R$100, Kiko: R$100"
+    let rachaBtnsLine = '';   // linha 3: [Você] [Kiko] [✂] [💰]
+    if (meuTotalRacha !== null && rachaAtribuicoes[idx]) {
+      const atr = rachaAtribuicoes[idx];
+      if (atr.splitValor) {
+        const parts = Object.entries(atr.splitValor).filter(([,v]) => v > 0).map(([k,v]) => `${k}: R$${v.toFixed(2)}`).join(', ');
+        rachaOwnerLine = `<div class="text-xs mt-0.5" style="color:#4ade80"><i class="fas fa-coins mr-1"></i>${parts}</div>`;
+      } else if (atr.split) {
+        const parts = Object.entries(atr.split).filter(([,v]) => v > 0).map(([k,v]) => `${k}:${v}`).join(', ');
+        rachaOwnerLine = `<div class="text-xs mt-0.5 text-yellow-400"><i class="fas fa-cut mr-1"></i>${parts}</div>`;
+      } else {
+        // dono único: não mostra linha extra — o botão ativo já indica quem é
+        rachaOwnerLine = '';
+      }
+      const personBtns = rachaPessoas.map(p => {
+        const isActive = !atr.split && !atr.splitValor && atr.owner === p;
+        return `<button onclick="rachaSetOwner(${idx},'${escapeHtml(p)}')" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${isActive ? 'border-orange-500 text-orange-400 bg-orange-500/15' : 'border-white/10 text-gray-500 hover:border-orange-400/50'}">${escapeHtml(p)}</button>`;
+      }).join('');
+      const splitBtn = item.qty > 1
+        ? `<button onclick="rachaOpenSplit(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.split ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-500 hover:border-yellow-400/50'}"><i class="fas fa-cut"></i></button>`
+        : '';
+      const splitValorBtnInline = `<button onclick="rachaOpenSplitValor(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.splitValor ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-white/10 text-gray-500 hover:border-green-400/50'}"><i class="fas fa-coins mr-1"></i>÷ R$</button>`;
+      rachaBtnsLine = `<div class="flex items-center gap-3 mt-1 flex-wrap">${personBtns}${splitBtn}${splitValorBtnInline}</div>`;
+    }
 
-const tipValue = hasTip ? (subtotalItems * 0.10) : 0;
-const finalTotal = subtotalItems + couvert + tipValue;
+    list.innerHTML += `
+      <div class="py-3 border-b border-white/10 ${_addingItem ? 'item-animate' : ''}">
+        <!-- Linha 1: Qtd x Nome + Valor total -->
+        <div class="flex items-center justify-between">
+          <div class="text-base font-semibold">${escapeHtml(item.name)}</div>
+          <div class="font-bold text-base text-white whitespace-nowrap pl-3">R$ ${totalRow.toFixed(2)}</div>
+        </div>
+        <!-- Linha 2: unidade (se qty>1) OU info divisão racha OU ambos -->
+        ${unitPriceDisplay}${rachaOwnerLine}
+        <!-- Linha 3: Botões de atribuição racha (só se racha ativo) -->
+        ${rachaBtnsLine}
+        <!-- Linha 4: Botões ação editar/−/+ -->
+        <div class="flex items-center gap-3 mt-2">
+          <button onclick="startEdit(${idx})" class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 text-green-400 hover:bg-green-500/20 transition-colors">
+            <i class="fas fa-pencil-alt text-xs"></i>
+          </button>
+          <button onclick="decrementItem(${idx})" class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 transition-colors">
+            <i class="fas fa-minus text-sm"></i>
+          </button>
+          <button onclick="incrementItem(${idx})" class="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 transition-colors">
+            <i class="fas fa-plus text-sm"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  });
 
-document.getElementById('res-items').innerHTML = `R$ ${subtotalItems.toFixed(2)}`;
-document.getElementById('res-items-couvert').innerHTML = `R$ ${couvert.toFixed(2)}`;
-document.getElementById('res-couvert-row').style.display = couvert > 0 ? '' : 'none';
-document.getElementById('res-tip').innerHTML = `R$ ${tipValue.toFixed(2)}`;
-document.getElementById('grand-total').innerHTML = `R$ ${finalTotal.toFixed(2)}`;
+  const tipValue = hasTip ? (subtotalItems * 0.10) : 0;
+  const finalTotal = subtotalItems + couvert + tipValue;
 
-// Controla visibilidade dos botões de racha (Editar divisão / Desfazer / + Pessoa)
-const rachaAcoesBar = document.getElementById('racha-acoes-bar');
-if (rachaAcoesBar) {
-rachaAcoesBar.style.display = meuTotalRacha !== null ? '' : 'none';
-}
+  document.getElementById('res-items').innerHTML = `R$ ${subtotalItems.toFixed(2)}`;
+  document.getElementById('res-items-couvert').innerHTML = `R$ ${couvert.toFixed(2)}`;
+  document.getElementById('res-couvert-row').style.display = couvert > 0 ? '' : 'none';
+  document.getElementById('res-tip').innerHTML = `R$ ${tipValue.toFixed(2)}`;
+  document.getElementById('grand-total').innerHTML = `R$ ${finalTotal.toFixed(2)}`;
 
-// Minha parte (racha) — recalcula dinamicamente
-const minhaParteBox = document.getElementById('minha-parte-box');
-if (meuTotalRacha !== null) {
-// Recalcula sempre com base nos itens e atribuições atuais
-let consumoVoce = 0;
-consumption.forEach((item, idx) => {
-const atr = rachaAtribuicoes[idx];
-if (!atr) return;
-if (atr.splitValor) {
-consumoVoce += atr.splitValor['Você'] || 0;
-} else if (atr.split) {
-consumoVoce += (atr.split['Você'] || 0) * item.price;
-} else if (atr.owner === 'Você') {
-consumoVoce += item.qty * item.price;
-}
-});
-const gorjetaVoce = hasTip ? consumoVoce * 0.10 : 0;
-meuTotalRacha = consumoVoce + couvert + gorjetaVoce;
-localStorage.setItem('botequim_meu_total_racha', meuTotalRacha);
-document.getElementById('minha-parte-valor').textContent = `R$ ${meuTotalRacha.toFixed(2)}`;
-minhaParteBox.classList.remove('hidden');
-} else {
-minhaParteBox.classList.add('hidden');
-}
+  // Controla visibilidade dos botões de racha (Editar divisão / Desfazer / + Pessoa)
+  const rachaAcoesBar = document.getElementById('racha-acoes-bar');
+  if (rachaAcoesBar) {
+    rachaAcoesBar.style.display = meuTotalRacha !== null ? '' : 'none';
+  }
 
-// Escala dinâmica: próximo múltiplo de 50 acima do total
-const scaleMax = finalTotal > 0 ? Math.ceil(finalTotal / 50) * 50 : 50;
-// Barra mostra onde o total se posiciona na escala
-const progressPercent = finalTotal > 0 ? (finalTotal / scaleMax) * 100 : 0;
-document.getElementById('progress-fill').style.width = `${progressPercent}%`;
+  // Minha parte (racha) — recalcula dinamicamente
+  const minhaParteBox = document.getElementById('minha-parte-box');
+  if (meuTotalRacha !== null) {
+    // Recalcula sempre com base nos itens e atribuições atuais
+    let consumoVoce = 0;
+    consumption.forEach((item, idx) => {
+      const atr = rachaAtribuicoes[idx];
+      if (!atr) return;
+      if (atr.splitValor) {
+        consumoVoce += atr.splitValor['Você'] || 0;
+      } else if (atr.split) {
+        consumoVoce += (atr.split['Você'] || 0) * item.price;
+      } else if (atr.owner === 'Você') {
+        consumoVoce += item.qty * item.price;
+      }
+    });
+    const gorjetaVoce = hasTip ? consumoVoce * 0.10 : 0;
+    meuTotalRacha = consumoVoce + couvert + gorjetaVoce;
+    localStorage.setItem('botequim_meu_total_racha', meuTotalRacha);
+    document.getElementById('minha-parte-valor').textContent = `R$ ${meuTotalRacha.toFixed(2)}`;
+    minhaParteBox.classList.remove('hidden');
+  } else {
+    minhaParteBox.classList.add('hidden');
+  }
 
-const s = document.getElementById('progress-scale');
-if (s) {
-const marks = [0, scaleMax*0.25, scaleMax*0.5, scaleMax*0.75, scaleMax];
-s.innerHTML = marks.map(v => `<span>R$${Math.round(v)}</span>`).join('');
-}
+  // Escala dinâmica: próximo múltiplo de 50 acima do total
+  const scaleMax = finalTotal > 0 ? Math.ceil(finalTotal / 50) * 50 : 50;
+  // Barra mostra onde o total se posiciona na escala
+  const progressPercent = finalTotal > 0 ? (finalTotal / scaleMax) * 100 : 0;
+  document.getElementById('progress-fill').style.width = `${progressPercent}%`;
 
-localStorage.setItem('botequim_baron', JSON.stringify(consumption));
-if (meuTotalRacha !== null) {
-localStorage.setItem('botequim_racha_pessoas', JSON.stringify(rachaPessoas));
-localStorage.setItem('botequim_racha_atribuicoes', JSON.stringify(rachaAtribuicoes));
-}
+  const s = document.getElementById('progress-scale');
+  if (s) {
+    const marks = [0, scaleMax*0.25, scaleMax*0.5, scaleMax*0.75, scaleMax];
+    s.innerHTML = marks.map(v => `<span>R$${Math.round(v)}</span>`).join('');
+  }
 
-if (editingIndex === null && list.lastChild) {
-list.lastChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
+  localStorage.setItem('botequim_baron', JSON.stringify(consumption));
+  if (meuTotalRacha !== null) {
+    localStorage.setItem('botequim_racha_pessoas', JSON.stringify(rachaPessoas));
+    localStorage.setItem('botequim_racha_atribuicoes', JSON.stringify(rachaAtribuicoes));
+  }
+
+  if (editingIndex === null && list.lastChild) {
+    list.lastChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
 }
 
 function escapeHtml(text) {
@@ -2708,8 +2717,8 @@ navigator.serviceWorker.register('./sw.js');
 <div class="text-sm text-gray-400">Os itens serão apagados<br><span class="text-red-400 font-semibold">sem salvar no histórico</span>.</div>
 </div>
 <div class="flex gap-3 w-full mt-2">
-<button onclick="closeModal('limpar-tela-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">Cancelar</button>
 <button onclick="confirmarLimparTela()" class="flex-1 py-3 rounded-xl text-sm font-bold bg-red-500 text-white">Limpar</button>
+<button onclick="closeModal('limpar-tela-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">Cancelar</button>
 </div>
 </div>
 </div>
