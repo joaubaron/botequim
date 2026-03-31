@@ -36,13 +36,13 @@ const cache = await caches.open(CACHE_NAME);
 for (const asset of ESSENTIAL_ASSETS) {
 try {
 const response = await fetch(asset, {
-    cache: 'no-cache'  // Evita cache durante instalação
+cache: 'no-cache'  // Evita cache durante instalação
 });
 if (response.ok) {
-    await cache.put(asset, response);
-    console.log(`✅ Cached: ${asset}`);
+await cache.put(asset, response);
+console.log(`✅ Cached: ${asset}`);
 } else {
-    console.log(`⚠️ Failed to cache ${asset}: status ${response.status}`);
+console.log(`⚠️ Failed to cache ${asset}: status ${response.status}`);
 }
 } catch (err) {
 console.log(`❌ Error caching ${asset}:`, err);
@@ -53,14 +53,14 @@ console.log(`❌ Error caching ${asset}:`, err);
 for (const url of EXTERNAL_CACHE) {
 try {
 const response = await fetch(url, {
-    mode: 'cors',
-    credentials: 'omit'
+mode: 'cors',
+credentials: 'omit'
 });
 if (response.ok) {
-    await cache.put(url, response);
-    console.log(`✅ Cached external: ${url}`);
+await cache.put(url, response);
+console.log(`✅ Cached external: ${url}`);
 } else {
-    console.log(`⚠️ Failed to cache external ${url}: status ${response.status}`);
+console.log(`⚠️ Failed to cache external ${url}: status ${response.status}`);
 }
 } catch (err) {
 console.log(`❌ Error caching external ${url}:`, err);
@@ -141,23 +141,23 @@ return cachedResponse;
 try {
 const networkResponse = await fetch(event.request);
 if (networkResponse && networkResponse.status === 200) {
-    const cache = await caches.open(CACHE_NAME);
-    cache.put(event.request, networkResponse.clone());
-    console.log(`🌐 Network & cached: ${url.pathname}`);
+const cache = await caches.open(CACHE_NAME);
+cache.put(event.request, networkResponse.clone());
+console.log(`🌐 Network & cached: ${url.pathname}`);
 }
 return networkResponse;
 } catch (error) {
 console.log(`❌ Failed to fetch: ${url.pathname}`);
 // Fallback para imagem padrão se for imagem
 if (event.request.destination === 'image') {
-    return caches.match('./icon.png');
+return caches.match('./icon.png');
 }
 return new Response('Recurso indisponível offline', {
-    status: 503,
-    statusText: 'Service Unavailable',
-    headers: new Headers({
-        'Content-Type': 'text/plain'
-    })
+status: 503,
+statusText: 'Service Unavailable',
+headers: new Headers({
+'Content-Type': 'text/plain'
+})
 });
 }
 })()
