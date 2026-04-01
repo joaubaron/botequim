@@ -16,7 +16,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
+<style>	
 body { 
 background: #243447;
 color: #e0e0e0; 
@@ -239,7 +239,7 @@ height: auto !important;
 </head>
 <body class="p-4 max-w-md mx-auto relative pb-24">
 
-<header class="text-left mb-3 px-1 pr-2 flex justify-between items-center overflow-visible">
+<header class="text-left mb-3 px-1 pr-1 flex justify-between items-center overflow-visible">
 <div class="overflow-visible">
 <h1 class="flex items-center text-3xl font-bold italic pr-1 overflow-visible gap-2">
 <img src="botequim.png" alt="Botequim" class="h-[57px] object-contain">
@@ -250,7 +250,7 @@ height: auto !important;
 </p>
 
 </div>
-<div class="flex gap-6 self-start">
+<div class="flex gap-4 self-start">
 <div class="text-2xl cursor-pointer" onclick="showHistory()">
 <i class="fas fa-history" style="position:relative; top:11px;"></i>
 </div>
@@ -2918,7 +2918,7 @@ if (e.key === 'Enter') buscarManualBtn.click();
 
 // Adicione um botão no cabeçalho para abrir a busca
 function adicionarBotaoBuscaLugares() {
-const header = document.querySelector('header .flex.gap-3');
+const header = document.querySelector('header .flex.gap-4');
 if (header && !document.getElementById('btn-busca-lugares')) {
 const btnBusca = document.createElement('div');
 btnBusca.id = 'btn-busca-lugares';
@@ -3186,7 +3186,7 @@ cidadeManual.onkeypress = (e) => {
 // Adiciona botão no cabeçalho com ícone do mapa
 function adicionarBotaoBuscaLugares() {
 setTimeout(() => {
-const header = document.querySelector('header .flex.gap-3');
+const header = document.querySelector('header .flex.gap-4');
 if (header && !document.getElementById('btn-busca-lugares')) {
 const btnBusca = document.createElement('div');
 btnBusca.id = 'btn-busca-lugares';
