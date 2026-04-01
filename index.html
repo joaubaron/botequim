@@ -2768,15 +2768,15 @@ resolve(null);
 
 // Função principal para detectar a cidade (silenciosa, tenta IP primeiro)
 async function detectarCidadeSilenciosa() {
-// Primeiro tenta IP (sem perguntar permissão)
-let location = await getCityFromIP();
-
-// Se falhar, tenta geolocalização do navegador (vai pedir permissão)
-if (!location) {
-location = await getCityFromBrowser();
-}
-
-return location;
+    // Primeiro tenta geolocalização do navegador (GPS) - mais precisa
+    let location = await getCityFromBrowser();
+    
+    // Se falhar (usuário negou permissão ou GPS desativado), tenta IP
+    if (!location) {
+        location = await getCityFromIP();
+    }
+    
+    return location;
 }
 
 // Função para abrir busca de bares e restaurantes com IA do Google
@@ -2995,15 +2995,6 @@ resolve(null);
 { timeout: 5000 }
 );
 });
-}
-
-// Função principal para detectar a cidade
-async function detectarCidadeSilenciosa() {
-let location = await getCityFromIP();
-if (!location) {
-location = await getCityFromBrowser();
-}
-return location;
 }
 
 // Função para abrir busca com IA (udm=50)
