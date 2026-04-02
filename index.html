@@ -2842,9 +2842,10 @@ buscaModal.innerHTML = `
 	</div>
 
 	<div class="grid grid-cols-2 gap-3">
-		<button id="buscar-ia-btn" class="py-3 rounded-xl text-sm font-bold btn-accent">
-			🍺 Bares por aqui
-		</button>
+<button id="buscar-ia-btn"
+  class="py-3 rounded-xl text-sm font-bold bg-orange-400 text-white transition-transform active:scale-95">
+  <i class="fas fa-beer-mug-empty mr-2"></i> Bares por aqui
+</button>
 		<button id="buscar-maps-btn" class="py-3 rounded-xl text-sm font-bold"
 			style="background:rgba(66,133,244,0.2); color:#4285f4; border:1px solid rgba(66,133,244,0.3);">
 			<i class="fas fa-map mr-2 text-sm"></i>Google Maps
@@ -2853,21 +2854,50 @@ buscaModal.innerHTML = `
 </div>
 
 <div id="busca-error" style="display:none;">
-	<div class="text-center py-4">
-		<i class="fas fa-exclamation-triangle text-yellow-400 text-2xl mb-2"></i>
-		<p class="text-sm text-gray-400 mb-2">Não foi possível detectar sua cidade.</p>
-		<input id="cidade-manual-input" type="text" placeholder="Ex: Blumenau, SC" 
-			class="w-full mt-2 p-2 rounded-lg text-sm bg-gray-700 text-white border border-orange-500/30">
-		<div class="grid grid-cols-2 gap-3 mt-3">
-			<button id="buscar-manual-ia" class="py-2 rounded-lg text-sm font-bold btn-accent">
-				<i class="fas fa-robot mr-1 text-sm"></i>🍺 Bares por aqui
-			</button>
-			<button id="buscar-manual-maps" class="py-2 rounded-lg text-sm font-bold"
-				style="background:rgba(66,133,244,0.2); color:#4285f4;">
-				<i class="fas fa-map mr-1 text-sm"></i>Google Maps
-			</button>
-		</div>
-	</div>
+  <div class="text-center py-4">
+
+    <!-- Ícone -->
+    <i class="fas fa-exclamation-triangle text-amber-300/80 text-2xl mb-2"></i>
+
+    <!-- Texto -->
+    <p class="text-sm text-gray-400 mb-2 font-medium tracking-wide">
+      Não foi possível detectar sua cidade.
+    </p>
+
+    <!-- Campo cidade -->
+    <input id="cidade-manual-input" type="text" placeholder="Ex: Blumenau, SC" 
+      class="w-full mt-2 p-3 rounded-xl text-sm bg-white/4 text-white border border-white/8 backdrop-blur-md placeholder-gray-400 focus:outline-none focus:border-amber-300/30">
+
+    <!-- Botões -->
+    <div class="grid grid-cols-2 gap-3 mt-4">
+
+      <!-- Botão principal -->
+      <button id="buscar-ia-btn"
+        class="py-3 rounded-xl text-sm font-semibold tracking-wide transition-all active:scale-95 backdrop-blur-md"
+        style="
+          background: rgba(251, 146, 60, 0.14);
+          border: 1px solid rgba(251, 146, 60, 0.28);
+          color: #ffffff;
+          box-shadow: 0 6px 18px rgba(0,0,0,0.22);
+        ">
+        <i class="fas fa-beer-mug-empty mr-2"></i>
+        Bares por aqui
+      </button>
+
+      <!-- Botão secundário -->
+      <button id="buscar-manual-maps"
+        class="py-3 rounded-xl text-sm font-semibold tracking-wide backdrop-blur-md transition-all active:scale-95"
+        style="
+          background: rgba(66,133,244,0.07);
+          border: 1px solid rgba(66,133,244,0.16);
+          color: rgba(160,190,255,0.9);
+        ">
+        <i class="fas fa-map mr-2 text-sm"></i>
+        Google Maps
+      </button>
+
+    </div>
+  </div>
 </div>
 </div>
 `;
