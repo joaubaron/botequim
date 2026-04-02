@@ -2753,11 +2753,29 @@ try {
 		'Sergipe':'SE','Tocantins':'TO'
 	};
 
+	// Nominatim às vezes retorna "Estado do Amapá", "Estado de São Paulo" etc.
+	function normalizeStateName(raw) {
+		return raw
+			.replace(/^Estado\s+d[aeo]\s+/i, '')
+			.replace(/^Estado\s+/i, '')
+			.trim();
+	}
+
 	let city = data.address.city || data.address.town || data.address.village || data.address.municipality;
 	let stateRaw = data.address.state || data.address.region || data.address.province || '';
-	let stateUF = data.address.state_code
-		? data.address.state_code.replace(/^BR-/i, '').toUpperCase()
-		: (STATE_TO_UF[stateRaw] || stateRaw.substring(0, 2).toUpperCase());
+	let countryCode = (data.address.country_code || '').toUpperCase();
+
+	let stateUF;
+	if (data.address.state_code) {
+		// Remove prefixo BR- (ex: BR-SC → SC) ou US- (ex: US-CA → CA)
+		stateUF = data.address.state_code.replace(/^[A-Z]{2}-/i, '').toUpperCase();
+	} else if (countryCode === 'BR') {
+		const normalized = normalizeStateName(stateRaw);
+		stateUF = STATE_TO_UF[normalized] || STATE_TO_UF[stateRaw] || stateRaw.substring(0, 2).toUpperCase();
+	} else {
+		// Internacional: usa abreviação direta ou 2 primeiras letras
+		stateUF = stateRaw.length <= 3 ? stateRaw.toUpperCase() : stateRaw.substring(0, 2).toUpperCase();
+	}
 
 	if (city) {
 		resolve({
@@ -2872,7 +2890,7 @@ buscaModal.innerHTML = `
     <div class="grid grid-cols-2 gap-3 mt-4">
 
       <!-- Botão principal -->
-      <button id="buscar-ia-btn"
+      <button id="buscar-manual-ia"
         class="py-3 rounded-xl text-sm font-semibold tracking-wide transition-all active:scale-95"
         style="background:#f97316; color:#000000;">
         <i class="fas fa-beer-mug-empty mr-2"></i>
