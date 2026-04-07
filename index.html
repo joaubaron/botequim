@@ -348,12 +348,9 @@ class="text-xs text-orange-400 font-bold py-2 px-3 rounded-lg flex items-center 
 
 <h2 id="resumo-titulo" class="font-bold mb-5 text-gray-500 tracking-widest flex items-center justify-between gap-2">
 <span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo</span>
-<button onclick="window.open('https://joaubaron.github.io/botequim/', '_blank')" title="Abrir Botequim" class="text-orange-500 hover:text-orange-400 transition-colors" style="background:none;border:none;cursor:pointer;padding:0; line-height: 1;">
-<i class="fas fa-qrcode" style="font-size: 48px !important; display: inline-block !important; width: auto !important; height: auto !important;"></i>
-</button>
 </h2>
 
-<div id="add-pessoa-inline-panel" class="hidden mt-2 mb-4" style="display:none">
+<div id="add-pessoa-inline-panel" class="mt-2 mb-4" style="display:none">
 <div class="flex gap-2 items-center">
 <input id="add-pessoa-inline-input" type="text" placeholder="Nome da pessoa" maxlength="20"
 class="flex-1 p-2 rounded-lg text-sm"
@@ -1550,6 +1547,8 @@ document.getElementById('modal-edit-qty').value = item.qty;
 document.getElementById('edit-modal').classList.add('active');
 }
 
+let _pendingEditIndex = null;
+
 function saveModalEdit() {
 if (editingIndex === null) return;
 const newName = document.getElementById('modal-edit-name').value.trim();
@@ -1564,18 +1563,39 @@ if (rachaAtribuicoes[editingIndex]) {
 if (rachaAtribuicoes[editingIndex].splitValor) {
 recalcularSplitValor(editingIndex);
 } else if (rachaAtribuicoes[editingIndex].split) {
-if (confirm('A divisão por quantidade será perdida. Deseja manter como "Você"?')) {
-rachaAtribuicoes[editingIndex] = { owner: 'Você' };
+_pendingEditIndex = editingIndex;
+document.getElementById('confirmar-perder-racha-modal').classList.add('active');
+return;
 }
 }
+_finalizarSaveModalEdit();
+} else {
+document.getElementById('validation-modal').classList.add('active');
 }
+}
+
+function confirmarPerderRacha() {
+if (_pendingEditIndex !== null) {
+rachaAtribuicoes[_pendingEditIndex] = { owner: 'Você' };
+}
+document.getElementById('confirmar-perder-racha-modal').classList.remove('active');
+_finalizarSaveModalEdit();
+}
+
+function cancelarPerderRacha() {
+document.getElementById('confirmar-perder-racha-modal').classList.remove('active');
+_pendingEditIndex = null;
+editingIndex = null;
+closeModal('edit-modal');
+updateCalculos();
+}
+
+function _finalizarSaveModalEdit() {
+_pendingEditIndex = null;
 editingIndex = null;
 closeModal('edit-modal');
 updateCalculos();
 if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
-} else {
-document.getElementById('validation-modal').classList.add('active');
-}
 }
 
 function updateCalculos() {
@@ -2857,16 +2877,22 @@ buscaModal.innerHTML = `
 <button onclick="closeModal('busca-lugares-modal')" class="text-gray-400 text-xl">&times;</button>
 </div>
 
-<div id="busca-loading" style="display:flex; justify-content:center; align-items:center; min-height:120px;">
-<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500"></div>
-<span class="ml-3 text-sm text-gray-400">Detectando sua cidade...</span>
-</div>
-
-<div id="busca-content" style="display:none;">
-<div id="cidade-display" class="mb-4 p-3 bg-orange-500/10 rounded-xl">
+<div id="busca-content">
+<div id="cidade-display" class="mb-3" style="display:none;">
+<div class="p-3 bg-orange-500/10 rounded-xl mb-3">
 <i class="fas fa-location-dot text-orange-400 mr-2 text-sm"></i>
 <span id="cidade-nome" class="text-white font-semibold text-sm"></span>
 </div>
+</div>
+
+<input id="cidade-manual-input" type="text" placeholder="Ex: Blumenau, SC"
+class="w-full mb-3 p-3 rounded-xl text-sm bg-white/4 text-white border border-white/8 backdrop-blur-md placeholder-gray-400 focus:outline-none focus:border-amber-300/30">
+
+<button id="btn-detectar-gps"
+class="w-full mb-3 py-2 rounded-xl text-sm font-semibold transition-all active:scale-95"
+style="background:rgba(255,152,0,0.1); color:#f97316; border:1px solid rgba(255,152,0,0.3);">
+<i class="fas fa-location-crosshairs mr-2"></i>Detectar minha cidade
+</button>
 
 <div class="grid grid-cols-2 gap-3">
 <button id="buscar-ia-btn"
@@ -2879,48 +2905,6 @@ style="background:rgba(66,133,244,0.2); color:#4285f4; border:1px solid rgba(66,
 </button>
 </div>
 </div>
-
-<div id="busca-error" style="display:none;">
-<div class="text-center py-4">
-
-<!-- Ícone -->
-<i class="fas fa-exclamation-triangle text-amber-300/80 text-2xl mb-2"></i>
-
-<!-- Texto -->
-<p class="text-sm text-gray-400 mb-2 font-medium tracking-wide">
-Não foi possível detectar sua cidade.
-</p>
-
-<!-- Campo cidade -->
-<input id="cidade-manual-input" type="text" placeholder="Ex: Blumenau, SC" 
-class="w-full mt-2 p-3 rounded-xl text-sm bg-white/4 text-white border border-white/8 backdrop-blur-md placeholder-gray-400 focus:outline-none focus:border-amber-300/30">
-
-<!-- Botões -->
-<div class="grid grid-cols-2 gap-3 mt-4">
-
-<!-- Botão principal -->
-<button id="buscar-manual-ia"
-class="py-3 rounded-xl text-sm font-semibold tracking-wide transition-all active:scale-95"
-style="background:#f97316; color:#000000;">
-<i class="fas fa-beer-mug-empty mr-2"></i>
-Bares aqui
-</button>
-
-<!-- Botão secundário -->
-<button id="buscar-manual-maps"
-class="py-3 rounded-xl text-sm font-semibold tracking-wide backdrop-blur-md transition-all active:scale-95"
-style="
-background: rgba(66,133,244,0.07);
-border: 1px solid rgba(66,133,244,0.16);
-color: rgba(160,190,255,0.9);
-">
-<i class="fas fa-map mr-2 text-sm"></i>
-Google Maps
-</button>
-
-</div>
-</div>
-</div>
 </div>
 `;
 document.body.appendChild(buscaModal);
@@ -2928,92 +2912,74 @@ document.body.appendChild(buscaModal);
 
 openModal('busca-lugares-modal');
 
-let detectedLocation = null;
-
-detectarCidadeSilenciosa().then(location => {
-const loading = document.getElementById('busca-loading');
-const content = document.getElementById('busca-content');
-const errorDiv = document.getElementById('busca-error');
+// Limpa campo e cidade detectada ao reabrir
+const cidadeManual = document.getElementById('cidade-manual-input');
+const cidadeDisplay = document.getElementById('cidade-display');
 const cidadeNome = document.getElementById('cidade-nome');
+if (cidadeDisplay) cidadeDisplay.style.display = 'none';
 
-loading.style.display = 'none';
+function getCidadeAtual() {
+const typed = cidadeManual ? cidadeManual.value.trim() : '';
+const detected = cidadeNome ? cidadeNome.textContent.trim() : '';
+return typed || detected;
+}
 
+const btnDetectar = document.getElementById('btn-detectar-gps');
+if (btnDetectar) {
+const newBtn = btnDetectar.cloneNode(true);
+btnDetectar.parentNode.replaceChild(newBtn, btnDetectar);
+newBtn.onclick = () => {
+newBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Detectando...';
+newBtn.disabled = true;
+detectarCidadeSilenciosa().then(location => {
+newBtn.disabled = false;
+newBtn.innerHTML = '<i class="fas fa-location-crosshairs mr-2"></i>Detectar minha cidade';
 if (location && location.city) {
-detectedLocation = location;
-content.style.display = 'block';
-errorDiv.style.display = 'none';
 cidadeNome.textContent = location.fullLocation;
+if (cidadeManual) cidadeManual.value = location.fullLocation;
+cidadeDisplay.style.display = 'block';
+} else {
+showToast('Não foi possível detectar a cidade');
+}
+});
+};
+}
 
 const buscarIaBtn = document.getElementById('buscar-ia-btn');
-const buscarMapsBtn = document.getElementById('buscar-maps-btn');
-
 if (buscarIaBtn) {
 const newBtn = buscarIaBtn.cloneNode(true);
 buscarIaBtn.parentNode.replaceChild(newBtn, buscarIaBtn);
 newBtn.onclick = () => {
+const cidade = getCidadeAtual();
+if (!cidade) { showToast('📍 Digite o nome da sua cidade.'); return; }
 sessionStorage.setItem('reabrirBuscaModal', '1');
-buscarComIA(detectedLocation);
+buscarComIA({ fullLocation: cidade });
 };
 }
 
+const buscarMapsBtn = document.getElementById('buscar-maps-btn');
 if (buscarMapsBtn) {
 const newBtn = buscarMapsBtn.cloneNode(true);
 buscarMapsBtn.parentNode.replaceChild(newBtn, buscarMapsBtn);
 newBtn.onclick = () => {
+const cidade = getCidadeAtual();
+if (!cidade) { showToast('📍 Digite o nome da sua cidade.'); return; }
 sessionStorage.setItem('reabrirBuscaModal', '1');
-abrirGoogleMaps(detectedLocation);
-};
-}
-
-} else {
-content.style.display = 'none';
-errorDiv.style.display = 'block';
-detectedLocation = null;
-
-const cidadeManual = document.getElementById('cidade-manual-input');
-const buscarManualIa = document.getElementById('buscar-manual-ia');
-const buscarManualMaps = document.getElementById('buscar-manual-maps');
-
-if (buscarManualIa) {
-buscarManualIa.onclick = () => {
-const cidade = cidadeManual.value.trim();
-if (cidade) {
-const loc = { fullLocation: cidade };
-sessionStorage.setItem('reabrirBuscaModal', '1');
-buscarComIA(loc);
-} else {
-showToast('Digite o nome da sua cidade');
-}
-};
-}
-
-if (buscarManualMaps) {
-buscarManualMaps.onclick = () => {
-const cidade = cidadeManual.value.trim();
-if (cidade) {
-const loc = { fullLocation: cidade };
-sessionStorage.setItem('reabrirBuscaModal', '1');
-abrirGoogleMaps(loc);
-} else {
-showToast('Digite o nome da sua cidade');
-}
+abrirGoogleMaps({ fullLocation: cidade });
 };
 }
 
 if (cidadeManual) {
 cidadeManual.onkeypress = (e) => {
 if (e.key === 'Enter') {
-const cidade = cidadeManual.value.trim();
+const cidade = getCidadeAtual();
 if (cidade) {
-const loc = { fullLocation: cidade };
 sessionStorage.setItem('reabrirBuscaModal', '1');
-buscarComIA(loc);
+buscarComIA({ fullLocation: cidade });
 }
 }
 };
 }
-}
-});
 }
 
 // Adiciona botão no cabeçalho com ícone do mapa
@@ -3028,6 +2994,25 @@ buscarComIA(loc);
 </div>
 <p style="margin:0 0 16px; font-size:14px; color:#e0e0e0;">Escaneia e acesse o <strong style="color:#ff9800;">Botequim</strong>!</p>
 <button onclick="fecharQRCode();" style="padding:8px 24px; border:none; border-radius:10px; font-size:13px; font-weight:bold; cursor:pointer; background:#ff9800; color:#000;">Fechar</button>
+</div>
+</div>
+
+<!-- Modal Confirmar Perda de Divisão por Quantidade -->
+<div id="confirmar-perder-racha-modal" class="modal">
+<div class="modal-content" style="width:320px">
+<div class="flex flex-col items-center text-center gap-4 py-2">
+<div class="w-14 h-14 rounded-full bg-orange-500/15 flex items-center justify-center">
+<i class="fas fa-shuffle text-orange-400 text-2xl"></i>
+</div>
+<div>
+<div class="font-bold text-orange-400 text-sm mb-1">Divisão por quantidade</div>
+<div class="text-sm text-gray-400">A divisão por quantidade será perdida.<br><span class="text-orange-300 font-semibold">Manter como "Você"?</span></div>
+</div>
+<div class="flex gap-3 w-full mt-2">
+<button onclick="confirmarPerderRacha()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">Sim, manter</button>
+<button onclick="cancelarPerderRacha()" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">Cancelar</button>
+</div>
+</div>
 </div>
 </div>
 
