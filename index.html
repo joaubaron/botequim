@@ -2958,11 +2958,11 @@ function abrirBuscaLugares() {
             const usarBtn = document.getElementById('usar-cidade-detected');
             if (usarBtn) {
                 usarBtn.onclick = () => {
-                    if (cidadeManual) cidadeManual.value = location.fullLocation;
-                    cidadeDetectadaBox.style.display = 'none';
-                    cidadeManual.focus();
-                    showToast(`📍 Cidade definida: ${location.fullLocation}`);
-                };
+    if (cidadeManual) cidadeManual.value = location.fullLocation;
+    cidadeDetectadaBox.style.display = 'none';
+    // cidadeManual.focus();  ← LINHA REMOVIDA
+    showToast(`📍 Cidade definida: ${location.fullLocation}`);
+};
             }
         } else {
             // Falha na detecção
