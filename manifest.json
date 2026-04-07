@@ -1,8 +1,6 @@
 {
 "name": "Botequim",
 "short_name": "Botequim",
-"version": "1.00",
-"version_name": "1.00",
 "description": "Gerencie sua conta do bar de forma simples e rápida",
 "start_url": "./index.html",
 "scope": "./",
