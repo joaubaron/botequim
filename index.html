@@ -2983,22 +2983,27 @@ function abrirBuscaLugares() {
     });
 
     function executarBusca(tipo) {
-        let cidade = getCidadeAtual();
-        if (!cidade) {
-            showToast('📍 Digite ou selecione uma cidade primeiro');
-            cidadeManual.focus();
-            return;
-        }
-        
-        // Salva para reabrir o modal depois (se quiser)
-        sessionStorage.setItem('reabrirBuscaModal', '1');
-        
-        if (tipo === 'ia') {
-            buscarComIA({ fullLocation: cidade });
-        } else {
-            abrirGoogleMaps({ fullLocation: cidade });
-        }
+    let cidade = getCidadeAtual();
+    if (!cidade) {
+        showToast('📍 Digite ou selecione uma cidade primeiro');
+        cidadeManual.focus();
+        return;
     }
+    
+    // Salva para reabrir o modal depois
+    sessionStorage.setItem('reabrirBuscaModal', '1');
+    
+    // Se for string (digitada manualmente), converte para objeto
+    const cidadeObj = typeof cidade === 'string' 
+        ? { fullLocation: cidade } 
+        : cidade;
+    
+    if (tipo === 'ia') {
+        buscarComIA(cidadeObj);
+    } else {
+        abrirGoogleMaps(cidadeObj);
+    }
+}
 
     // Botão Bares aqui (IA)
     const buscarIaBtn = document.getElementById('buscar-ia-btn');
