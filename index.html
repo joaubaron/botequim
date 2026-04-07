@@ -2862,173 +2862,173 @@ showToast(`Abrindo Google Maps em ${cidade.fullLocation}...`);
 
 // Substitua a função abrirBuscaLugares() inteira por esta versão corrigida
 function abrirBuscaLugares() {
-    let buscaModal = document.getElementById('busca-lugares-modal');
+let buscaModal = document.getElementById('busca-lugares-modal');
 
-    if (!buscaModal) {
-        buscaModal = document.createElement('div');
-        buscaModal.id = 'busca-lugares-modal';
-        buscaModal.className = 'modal';
-        buscaModal.innerHTML = `
-        <div class="modal-content" style="width:360px; text-align:center;">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-sm font-bold text-orange-500">
-                    <i class="fas fa-map-marked-alt mr-2 text-sm"></i>Descubra lugares em:
-                </h3>
-                <button onclick="closeModal('busca-lugares-modal')" class="text-gray-400 text-xl">&times;</button>
-            </div>
+if (!buscaModal) {
+buscaModal = document.createElement('div');
+buscaModal.id = 'busca-lugares-modal';
+buscaModal.className = 'modal';
+buscaModal.innerHTML = `
+<div class="modal-content" style="width:360px; text-align:center;">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-sm font-bold text-orange-500">
+<i class="fas fa-map-marked-alt mr-2 text-sm"></i>Descubra lugares em:
+</h3>
+<button onclick="closeModal('busca-lugares-modal')" class="text-gray-400 text-xl">&times;</button>
+</div>
 
-            <div id="busca-content">
-                <!-- Status de detecção -->
-                <div id="status-deteccao" class="mb-3 text-xs text-gray-400 flex items-center justify-center gap-2">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <span>Detectando sua localização...</span>
-                </div>
+<div id="busca-content">
+<!-- Status de detecção -->
+<div id="status-deteccao" class="mb-3 text-xs text-gray-400 flex items-center justify-center gap-2">
+<i class="fas fa-spinner fa-spin"></i>
+<span>Detectando sua localização...</span>
+</div>
 
-                <!-- Cidade detectada (só aparece se sucesso) -->
-                <div id="cidade-detectada-box" class="mb-3" style="display:none;">
-                    <div class="p-3 bg-orange-500/10 rounded-xl flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <i class="fas fa-location-dot text-orange-400 text-sm"></i>
-                            <span class="text-white font-semibold text-sm" id="cidade-detectada-nome"></span>
-                        </div>
-                        <button id="usar-cidade-detected" class="text-xs bg-orange-500 text-black px-3 py-1 rounded-lg font-bold">
-                            Usar esta
-                        </button>
-                    </div>
-                </div>
+<!-- Cidade detectada (só aparece se sucesso) -->
+<div id="cidade-detectada-box" class="mb-3" style="display:none;">
+<div class="p-3 bg-orange-500/10 rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-2">
+<i class="fas fa-location-dot text-orange-400 text-sm"></i>
+<span class="text-white font-semibold text-sm" id="cidade-detectada-nome"></span>
+</div>
+<button id="usar-cidade-detected" class="text-xs bg-orange-500 text-black px-3 py-1 rounded-lg font-bold">
+Usar esta
+</button>
+</div>
+</div>
 
-                <!-- Ou digite manualmente -->
-                <div class="mb-3">
-                    <label class="text-xs text-gray-500 block text-left mb-1">Ou digite outra cidade:</label>
-                    <input id="cidade-manual-input" type="text" placeholder="Ex: São Paulo, SP | Rio de Janeiro, RJ"
-                        class="w-full p-3 rounded-xl text-sm bg-white/5 text-white border border-white/10 focus:border-orange-500/50 focus:outline-none">
-                </div>
+<!-- Ou digite manualmente -->
+<div class="mb-3">
+<label class="text-xs text-gray-500 block text-left mb-1">Ou digite outra cidade:</label>
+<input id="cidade-manual-input" type="text" placeholder="Ex: São Paulo, SP | Rio de Janeiro, RJ"
+class="w-full p-3 rounded-xl text-sm bg-white/5 text-white border border-white/10 focus:border-orange-500/50 focus:outline-none">
+</div>
 
-                <div class="grid grid-cols-2 gap-3 mt-4">
-                    <button id="buscar-ia-btn"
-                        class="py-3 rounded-xl text-sm font-bold transition-transform active:scale-95" style="background:#f97316; color:#000000;">
-                        <i class="fas fa-beer-mug-empty mr-2"></i> Bares aqui
-                    </button>
-                    <button id="buscar-maps-btn" class="py-3 rounded-xl text-sm font-bold"
-                        style="background:rgba(66,133,244,0.2); color:#4285f4; border:1px solid rgba(66,133,244,0.3);">
-                        <i class="fas fa-map mr-2 text-sm"></i> Google Maps
-                    </button>
-                </div>
-            </div>
-        </div>
-        `;
-        document.body.appendChild(buscaModal);
-    }
-
-    openModal('busca-lugares-modal');
-
-    // Reset ao abrir
-    const cidadeManual = document.getElementById('cidade-manual-input');
-    const cidadeDetectadaBox = document.getElementById('cidade-detectada-box');
-    const statusDiv = document.getElementById('status-deteccao');
-    const cidadeDetectadaNome = document.getElementById('cidade-detectada-nome');
-    
-    if (cidadeManual) cidadeManual.value = '';
-    if (cidadeDetectadaBox) cidadeDetectadaBox.style.display = 'none';
-    if (statusDiv) statusDiv.style.display = 'flex';
-    
-    let cidadeAtual = null;
-    
-    function getCidadeAtual() {
-        // Prioriza o que o usuário digitou manualmente
-        const typed = cidadeManual ? cidadeManual.value.trim() : '';
-        if (typed) return typed;
-        // Senão, usa a cidade detectada
-        if (cidadeAtual && cidadeAtual.fullLocation) return cidadeAtual.fullLocation;
-        return null;
-    }
-
-    // DETECÇÃO AUTOMÁTICA
-    if (statusDiv) statusDiv.style.display = 'flex';
-    
-    detectarCidadeSilenciosa().then(location => {
-        if (statusDiv) statusDiv.style.display = 'none';
-        
-        if (location && location.city) {
-            cidadeAtual = location;
-            cidadeDetectadaNome.textContent = location.fullLocation;
-            cidadeDetectadaBox.style.display = 'block';
-            
-            // Botão "Usar esta" - preenche o campo manual com a cidade detectada
-            const usarBtn = document.getElementById('usar-cidade-detected');
-            if (usarBtn) {
-                usarBtn.onclick = () => {
-    if (cidadeManual) cidadeManual.value = location.fullLocation;
-    cidadeDetectadaBox.style.display = 'none';
-    // cidadeManual.focus();  ← LINHA REMOVIDA
-    showToast(`📍 Cidade definida: ${location.fullLocation}`);
-};
-            }
-        } else {
-            // Falha na detecção
-            if (statusDiv) {
-                statusDiv.innerHTML = `<i class="fas fa-map-marker-alt"></i><span>Digite sua cidade abaixo</span>`;
-                statusDiv.style.color = '#f97316';
-            }
-            cidadeManual.placeholder = "Ex: Blumenau, SC | Curitiba, PR";
-            cidadeManual.focus();
-        }
-    }).catch(() => {
-        if (statusDiv) {
-            statusDiv.innerHTML = `<i class="fas fa-map-marker-alt"></i><span>Digite sua cidade abaixo</span>`;
-            statusDiv.style.color = '#f97316';
-        }
-        cidadeManual.placeholder = "Ex: Blumenau, SC | Curitiba, PR";
-        cidadeManual.focus();
-    });
-
-    function executarBusca(tipo) {
-    let cidade = getCidadeAtual();
-    if (!cidade) {
-        showToast('📍 Digite ou selecione uma cidade primeiro');
-        cidadeManual.focus();
-        return;
-    }
-    
-    // Salva para reabrir o modal depois
-    sessionStorage.setItem('reabrirBuscaModal', '1');
-    
-    // Se for string (digitada manualmente), converte para objeto
-    const cidadeObj = typeof cidade === 'string' 
-        ? { fullLocation: cidade } 
-        : cidade;
-    
-    if (tipo === 'ia') {
-        buscarComIA(cidadeObj);
-    } else {
-        abrirGoogleMaps(cidadeObj);
-    }
+<div class="grid grid-cols-2 gap-3 mt-4">
+<button id="buscar-ia-btn"
+class="py-3 rounded-xl text-sm font-bold transition-transform active:scale-95" style="background:#f97316; color:#000000;">
+<i class="fas fa-beer-mug-empty mr-2"></i> Bares aqui
+</button>
+<button id="buscar-maps-btn" class="py-3 rounded-xl text-sm font-bold"
+style="background:rgba(66,133,244,0.2); color:#4285f4; border:1px solid rgba(66,133,244,0.3);">
+<i class="fas fa-map mr-2 text-sm"></i> Google Maps
+</button>
+</div>
+</div>
+</div>
+`;
+document.body.appendChild(buscaModal);
 }
 
-    // Botão Bares aqui (IA)
-    const buscarIaBtn = document.getElementById('buscar-ia-btn');
-    if (buscarIaBtn) {
-        const newBtn = buscarIaBtn.cloneNode(true);
-        buscarIaBtn.parentNode.replaceChild(newBtn, buscarIaBtn);
-        newBtn.onclick = () => executarBusca('ia');
-    }
+openModal('busca-lugares-modal');
 
-    // Botão Google Maps
-    const buscarMapsBtn = document.getElementById('buscar-maps-btn');
-    if (buscarMapsBtn) {
-        const newBtn = buscarMapsBtn.cloneNode(true);
-        buscarMapsBtn.parentNode.replaceChild(newBtn, buscarMapsBtn);
-        newBtn.onclick = () => executarBusca('maps');
-    }
+// Reset ao abrir
+const cidadeManual = document.getElementById('cidade-manual-input');
+const cidadeDetectadaBox = document.getElementById('cidade-detectada-box');
+const statusDiv = document.getElementById('status-deteccao');
+const cidadeDetectadaNome = document.getElementById('cidade-detectada-nome');
 
-    // Enter no campo manual
-    if (cidadeManual) {
-        cidadeManual.onkeypress = (e) => {
-            if (e.key === 'Enter') {
-                executarBusca('ia');
-            }
-        };
-    }
+if (cidadeManual) cidadeManual.value = '';
+if (cidadeDetectadaBox) cidadeDetectadaBox.style.display = 'none';
+if (statusDiv) statusDiv.style.display = 'flex';
+
+let cidadeAtual = null;
+
+function getCidadeAtual() {
+// Prioriza o que o usuário digitou manualmente
+const typed = cidadeManual ? cidadeManual.value.trim() : '';
+if (typed) return typed;
+// Senão, usa a cidade detectada
+if (cidadeAtual && cidadeAtual.fullLocation) return cidadeAtual.fullLocation;
+return null;
+}
+
+// DETECÇÃO AUTOMÁTICA
+if (statusDiv) statusDiv.style.display = 'flex';
+
+detectarCidadeSilenciosa().then(location => {
+if (statusDiv) statusDiv.style.display = 'none';
+
+if (location && location.city) {
+cidadeAtual = location;
+cidadeDetectadaNome.textContent = location.fullLocation;
+cidadeDetectadaBox.style.display = 'block';
+
+// Botão "Usar esta" - preenche o campo manual com a cidade detectada
+const usarBtn = document.getElementById('usar-cidade-detected');
+if (usarBtn) {
+usarBtn.onclick = () => {
+if (cidadeManual) cidadeManual.value = location.fullLocation;
+cidadeDetectadaBox.style.display = 'none';
+// cidadeManual.focus();  ← LINHA REMOVIDA
+showToast(`📍 Cidade definida: ${location.fullLocation}`);
+};
+}
+} else {
+// Falha na detecção
+if (statusDiv) {
+statusDiv.innerHTML = `<i class="fas fa-map-marker-alt"></i><span>Digite sua cidade abaixo</span>`;
+statusDiv.style.color = '#f97316';
+}
+cidadeManual.placeholder = "Ex: Blumenau, SC | Curitiba, PR";
+cidadeManual.focus();
+}
+}).catch(() => {
+if (statusDiv) {
+statusDiv.innerHTML = `<i class="fas fa-map-marker-alt"></i><span>Digite sua cidade abaixo</span>`;
+statusDiv.style.color = '#f97316';
+}
+cidadeManual.placeholder = "Ex: Blumenau, SC | Curitiba, PR";
+cidadeManual.focus();
+});
+
+function executarBusca(tipo) {
+let cidade = getCidadeAtual();
+if (!cidade) {
+showToast('📍 Digite ou selecione uma cidade primeiro');
+cidadeManual.focus();
+return;
+}
+
+// Salva para reabrir o modal depois
+sessionStorage.setItem('reabrirBuscaModal', '1');
+
+// Se for string (digitada manualmente), converte para objeto
+const cidadeObj = typeof cidade === 'string' 
+? { fullLocation: cidade } 
+: cidade;
+
+if (tipo === 'ia') {
+buscarComIA(cidadeObj);
+} else {
+abrirGoogleMaps(cidadeObj);
+}
+}
+
+// Botão Bares aqui (IA)
+const buscarIaBtn = document.getElementById('buscar-ia-btn');
+if (buscarIaBtn) {
+const newBtn = buscarIaBtn.cloneNode(true);
+buscarIaBtn.parentNode.replaceChild(newBtn, buscarIaBtn);
+newBtn.onclick = () => executarBusca('ia');
+}
+
+// Botão Google Maps
+const buscarMapsBtn = document.getElementById('buscar-maps-btn');
+if (buscarMapsBtn) {
+const newBtn = buscarMapsBtn.cloneNode(true);
+buscarMapsBtn.parentNode.replaceChild(newBtn, buscarMapsBtn);
+newBtn.onclick = () => executarBusca('maps');
+}
+
+// Enter no campo manual
+if (cidadeManual) {
+cidadeManual.onkeypress = (e) => {
+if (e.key === 'Enter') {
+executarBusca('ia');
+}
+};
+}
 }
 
 </script>
