@@ -236,6 +236,15 @@ height: auto !important;
 }
 
 </style>
+<script>
+window.addEventListener('pageshow', function() {
+  if (sessionStorage.getItem('reabrirBuscaModal')) {
+    sessionStorage.removeItem('reabrirBuscaModal');
+    setTimeout(() => abrirBuscaLugares(), 300);
+  }
+});
+</script>
+
 </head>
 <body class="p-4 max-w-md mx-auto relative pb-24">
 
@@ -2942,8 +2951,8 @@ if (buscarIaBtn) {
 const newBtn = buscarIaBtn.cloneNode(true);
 buscarIaBtn.parentNode.replaceChild(newBtn, buscarIaBtn);
 newBtn.onclick = () => {
+	sessionStorage.setItem('reabrirBuscaModal', '1');
 	buscarComIA(detectedLocation);
-	closeModal('busca-lugares-modal');
 };
 }
 
@@ -2951,8 +2960,8 @@ if (buscarMapsBtn) {
 const newBtn = buscarMapsBtn.cloneNode(true);
 buscarMapsBtn.parentNode.replaceChild(newBtn, buscarMapsBtn);
 newBtn.onclick = () => {
+	sessionStorage.setItem('reabrirBuscaModal', '1');
 	abrirGoogleMaps(detectedLocation);
-	closeModal('busca-lugares-modal');
 };
 }
 
@@ -2970,8 +2979,8 @@ buscarManualIa.onclick = () => {
 	const cidade = cidadeManual.value.trim();
 	if (cidade) {
 		const loc = { fullLocation: cidade };
+		sessionStorage.setItem('reabrirBuscaModal', '1');
 		buscarComIA(loc);
-		closeModal('busca-lugares-modal');
 	} else {
 		showToast('Digite o nome da sua cidade');
 	}
@@ -2983,8 +2992,8 @@ buscarManualMaps.onclick = () => {
 	const cidade = cidadeManual.value.trim();
 	if (cidade) {
 		const loc = { fullLocation: cidade };
+		sessionStorage.setItem('reabrirBuscaModal', '1');
 		abrirGoogleMaps(loc);
-		closeModal('busca-lugares-modal');
 	} else {
 		showToast('Digite o nome da sua cidade');
 	}
@@ -2997,8 +3006,8 @@ cidadeManual.onkeypress = (e) => {
 		const cidade = cidadeManual.value.trim();
 		if (cidade) {
 			const loc = { fullLocation: cidade };
+			sessionStorage.setItem('reabrirBuscaModal', '1');
 			buscarComIA(loc);
-			closeModal('busca-lugares-modal');
 		}
 	}
 };
