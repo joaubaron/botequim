@@ -2817,7 +2817,7 @@ return await getCityFromBrowser();
 // Função para abrir busca com IA (udm=50)
 function buscarComIA(cidade) {
 if (!cidade || !cidade.fullLocation) {
-showToast('📍 Digite o nome da sua cidade no campo abaixo.');
+showToast('📍 Digite o nome da sua cidade.');
 return;
 }
 
@@ -2825,19 +2825,19 @@ const query = encodeURIComponent(`bares e restaurantes em ${cidade.fullLocation}
 const googleUrl = `https://www.google.com/search?q=${query}&udm=50&tbm=lcl&hl=pt-BR&gl=br`;
 
 window.open(googleUrl, '_blank');
-showToast(`🔍 Buscando com IA: bares e restaurantes em ${cidade.fullLocation}...`);
+showToast(`Buscando bares e restaurantes em ${cidade.fullLocation}...`);
 }
 
 // Função para abrir no Google Maps
 function abrirGoogleMaps(cidade) {
 if (!cidade || !cidade.fullLocation) {
-showToast('📍 Digite o nome da sua cidade no campo abaixo.');
+showToast('📍 Digite o nome da sua cidade.');
 return;
 }
 
 const mapsUrl = `https://www.google.com/maps/search/bares+restaurantes+em+${encodeURIComponent(cidade.fullLocation)}?hl=pt-BR`;
 window.open(mapsUrl, '_blank');
-showToast(`🗺️ Abrindo Google Maps para ${cidade.fullLocation}...`);
+showToast(`Abrindo Google Maps em ${cidade.fullLocation}...`);
 }
 
 // Função para mostrar modal com opções de busca - TODAS AS FONTES text-sm
