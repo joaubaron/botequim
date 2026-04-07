@@ -2860,7 +2860,6 @@ window.open(mapsUrl, '_blank');
 showToast(`Abrindo Google Maps em ${cidade.fullLocation}...`);
 }
 
-// Função para mostrar modal com opções de busca - TODAS AS FONTES text-sm
 // Substitua a função abrirBuscaLugares() inteira por esta versão corrigida
 function abrirBuscaLugares() {
     let buscaModal = document.getElementById('busca-lugares-modal');
@@ -2870,7 +2869,7 @@ function abrirBuscaLugares() {
         buscaModal.id = 'busca-lugares-modal';
         buscaModal.className = 'modal';
         buscaModal.innerHTML = `
-        <div class="modal-content" style="width:340px; text-align:center;">
+        <div class="modal-content" style="width:360px; text-align:center;">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-sm font-bold text-orange-500">
                     <i class="fas fa-map-marked-alt mr-2 text-sm"></i>Descubra lugares em:
@@ -2879,24 +2878,40 @@ function abrirBuscaLugares() {
             </div>
 
             <div id="busca-content">
-                <div id="cidade-display" class="mb-3" style="display:none;">
-                    <div class="p-3 bg-orange-500/10 rounded-xl mb-3">
-                        <i class="fas fa-location-dot text-orange-400 mr-2 text-sm"></i>
-                        <span id="cidade-nome" class="text-white font-semibold text-sm"></span>
+                <!-- Status de detecção -->
+                <div id="status-deteccao" class="mb-3 text-xs text-gray-400 flex items-center justify-center gap-2">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Detectando sua localização...</span>
+                </div>
+
+                <!-- Cidade detectada (só aparece se sucesso) -->
+                <div id="cidade-detectada-box" class="mb-3" style="display:none;">
+                    <div class="p-3 bg-orange-500/10 rounded-xl flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-location-dot text-orange-400 text-sm"></i>
+                            <span class="text-white font-semibold text-sm" id="cidade-detectada-nome"></span>
+                        </div>
+                        <button id="usar-cidade-detected" class="text-xs bg-orange-500 text-black px-3 py-1 rounded-lg font-bold">
+                            Usar esta
+                        </button>
                     </div>
                 </div>
 
-                <input id="cidade-manual-input" type="text" placeholder="Ex: Blumenau, SC"
-                    class="w-full mb-3 p-3 rounded-xl text-sm bg-white/4 text-white border border-white/8 backdrop-blur-md placeholder-gray-400 focus:outline-none focus:border-amber-300/30">
+                <!-- Ou digite manualmente -->
+                <div class="mb-3">
+                    <label class="text-xs text-gray-500 block text-left mb-1">Ou digite outra cidade:</label>
+                    <input id="cidade-manual-input" type="text" placeholder="Ex: São Paulo, SP | Rio de Janeiro, RJ"
+                        class="w-full p-3 rounded-xl text-sm bg-white/5 text-white border border-white/10 focus:border-orange-500/50 focus:outline-none">
+                </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-3 mt-4">
                     <button id="buscar-ia-btn"
                         class="py-3 rounded-xl text-sm font-bold transition-transform active:scale-95" style="background:#f97316; color:#000000;">
                         <i class="fas fa-beer-mug-empty mr-2"></i> Bares aqui
                     </button>
                     <button id="buscar-maps-btn" class="py-3 rounded-xl text-sm font-bold"
                         style="background:rgba(66,133,244,0.2); color:#4285f4; border:1px solid rgba(66,133,244,0.3);">
-                        <i class="fas fa-map mr-2 text-sm"></i>Google Maps
+                        <i class="fas fa-map mr-2 text-sm"></i> Google Maps
                     </button>
                 </div>
             </div>
@@ -2907,59 +2922,90 @@ function abrirBuscaLugares() {
 
     openModal('busca-lugares-modal');
 
-    // Limpa e reseta ao abrir
+    // Reset ao abrir
     const cidadeManual = document.getElementById('cidade-manual-input');
-    const cidadeDisplay = document.getElementById('cidade-display');
-    const cidadeNome = document.getElementById('cidade-nome');
+    const cidadeDetectadaBox = document.getElementById('cidade-detectada-box');
+    const statusDiv = document.getElementById('status-deteccao');
+    const cidadeDetectadaNome = document.getElementById('cidade-detectada-nome');
     
     if (cidadeManual) cidadeManual.value = '';
-    if (cidadeDisplay) cidadeDisplay.style.display = 'none';
+    if (cidadeDetectadaBox) cidadeDetectadaBox.style.display = 'none';
+    if (statusDiv) statusDiv.style.display = 'flex';
+    
+    let cidadeAtual = null;
     
     function getCidadeAtual() {
+        // Prioriza o que o usuário digitou manualmente
         const typed = cidadeManual ? cidadeManual.value.trim() : '';
         if (typed) return typed;
-        const detected = cidadeNome ? cidadeNome.textContent.trim() : '';
-        return detected;
+        // Senão, usa a cidade detectada
+        if (cidadeAtual && cidadeAtual.fullLocation) return cidadeAtual.fullLocation;
+        return null;
     }
 
-    // DETECÇÃO AUTOMÁTICA ao abrir o modal
-    const detectarBtn = document.getElementById('btn-detectar-gps');
-    if (detectarBtn) detectarBtn.style.display = 'none'; // esconde o botão redundante
-    
-    // Mostra loading enquanto detecta
-    if (cidadeManual) cidadeManual.placeholder = 'Detectando sua cidade...';
-    cidadeManual.disabled = true;
+    // DETECÇÃO AUTOMÁTICA
+    if (statusDiv) statusDiv.style.display = 'flex';
     
     detectarCidadeSilenciosa().then(location => {
-        cidadeManual.disabled = false;
+        if (statusDiv) statusDiv.style.display = 'none';
+        
         if (location && location.city) {
-            cidadeNome.textContent = location.fullLocation;
-            if (cidadeManual) cidadeManual.value = location.fullLocation;
-            cidadeDisplay.style.display = 'block';
-            cidadeManual.placeholder = 'Ex: Blumenau, SC';
+            cidadeAtual = location;
+            cidadeDetectadaNome.textContent = location.fullLocation;
+            cidadeDetectadaBox.style.display = 'block';
+            
+            // Botão "Usar esta" - preenche o campo manual com a cidade detectada
+            const usarBtn = document.getElementById('usar-cidade-detected');
+            if (usarBtn) {
+                usarBtn.onclick = () => {
+                    if (cidadeManual) cidadeManual.value = location.fullLocation;
+                    cidadeDetectadaBox.style.display = 'none';
+                    cidadeManual.focus();
+                    showToast(`📍 Cidade definida: ${location.fullLocation}`);
+                };
+            }
         } else {
-            cidadeManual.placeholder = 'Ex: Blumenau, SC';
-            cidadeManual.disabled = false;
+            // Falha na detecção
+            if (statusDiv) {
+                statusDiv.innerHTML = `<i class="fas fa-map-marker-alt"></i><span>Digite sua cidade abaixo</span>`;
+                statusDiv.style.color = '#f97316';
+            }
+            cidadeManual.placeholder = "Ex: Blumenau, SC | Curitiba, PR";
             cidadeManual.focus();
-            showToast('📍 Digite o nome da sua cidade manualmente');
         }
     }).catch(() => {
-        cidadeManual.disabled = false;
-        cidadeManual.placeholder = 'Ex: Blumenau, SC';
+        if (statusDiv) {
+            statusDiv.innerHTML = `<i class="fas fa-map-marker-alt"></i><span>Digite sua cidade abaixo</span>`;
+            statusDiv.style.color = '#f97316';
+        }
+        cidadeManual.placeholder = "Ex: Blumenau, SC | Curitiba, PR";
         cidadeManual.focus();
     });
 
-    // Botão Bares aqui
+    function executarBusca(tipo) {
+        let cidade = getCidadeAtual();
+        if (!cidade) {
+            showToast('📍 Digite ou selecione uma cidade primeiro');
+            cidadeManual.focus();
+            return;
+        }
+        
+        // Salva para reabrir o modal depois (se quiser)
+        sessionStorage.setItem('reabrirBuscaModal', '1');
+        
+        if (tipo === 'ia') {
+            buscarComIA({ fullLocation: cidade });
+        } else {
+            abrirGoogleMaps({ fullLocation: cidade });
+        }
+    }
+
+    // Botão Bares aqui (IA)
     const buscarIaBtn = document.getElementById('buscar-ia-btn');
     if (buscarIaBtn) {
         const newBtn = buscarIaBtn.cloneNode(true);
         buscarIaBtn.parentNode.replaceChild(newBtn, buscarIaBtn);
-        newBtn.onclick = () => {
-            const cidade = getCidadeAtual();
-            if (!cidade) { showToast('📍 Digite o nome da sua cidade.'); return; }
-            sessionStorage.setItem('reabrirBuscaModal', '1');
-            buscarComIA({ fullLocation: cidade });
-        };
+        newBtn.onclick = () => executarBusca('ia');
     }
 
     // Botão Google Maps
@@ -2967,23 +3013,14 @@ function abrirBuscaLugares() {
     if (buscarMapsBtn) {
         const newBtn = buscarMapsBtn.cloneNode(true);
         buscarMapsBtn.parentNode.replaceChild(newBtn, buscarMapsBtn);
-        newBtn.onclick = () => {
-            const cidade = getCidadeAtual();
-            if (!cidade) { showToast('📍 Digite o nome da sua cidade.'); return; }
-            sessionStorage.setItem('reabrirBuscaModal', '1');
-            abrirGoogleMaps({ fullLocation: cidade });
-        };
+        newBtn.onclick = () => executarBusca('maps');
     }
 
     // Enter no campo manual
     if (cidadeManual) {
         cidadeManual.onkeypress = (e) => {
             if (e.key === 'Enter') {
-                const cidade = getCidadeAtual();
-                if (cidade) {
-                    sessionStorage.setItem('reabrirBuscaModal', '1');
-                    buscarComIA({ fullLocation: cidade });
-                }
+                executarBusca('ia');
             }
         };
     }
