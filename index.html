@@ -2863,8 +2863,8 @@ return;
 const query = encodeURIComponent(`bares e restaurantes em ${cidade.fullLocation}`);
 const googleUrl = `https://www.google.com/search?q=${query}&udm=50&tbm=lcl&hl=pt-BR&gl=br`;
 
-window.open(googleUrl, '_blank');
 showToast(`Bares em ${cidade.fullLocation}...`);
+setTimeout(() => window.open(googleUrl, '_blank'), 1500);
 }
 
 // Função para abrir no Google Maps
@@ -2875,8 +2875,8 @@ return;
 }
 
 const mapsUrl = `https://www.google.com/maps/search/bares+restaurantes+em+${encodeURIComponent(cidade.fullLocation)}?hl=pt-BR`;
-window.open(mapsUrl, '_blank');
 showToast(`Maps em ${cidade.fullLocation}...`);
+setTimeout(() => window.open(mapsUrl, '_blank'), 1500);
 }
 
 // Atualiza os labels dos botões com o nome da cidade
@@ -2945,11 +2945,11 @@ class="w-full p-3 rounded-xl text-sm bg-white/5 text-white border border-white/1
 <div class="grid grid-cols-2 gap-3 mt-4">
 <button id="buscar-ia-btn"
 class="py-3 px-2 rounded-xl text-sm font-bold transition-transform active:scale-95 truncate" style="background:#f97316; color:#000000;">
-<i class="fas fa-beer-mug-empty mr-1"></i><span id="btn-ia-label">Bares aqui</span>
+<i class="fas fa-martini-glass-citrus mr-1"></i><span id="btn-ia-label">Bares aqui</span>
 </button>
 <button id="buscar-maps-btn" class="py-3 px-2 rounded-xl text-sm font-bold truncate"
 style="background:rgba(66,133,244,0.2); color:#4285f4; border:1px solid rgba(66,133,244,0.3);">
-<i class="fas fa-map mr-1 text-sm"></i><span id="btn-maps-label">Google Maps</span>
+<i class="fas fa-map-location-dot mr-1 text-sm"></i><span id="btn-maps-label">Google Maps</span>
 </button>
 </div>
 </div>
