@@ -19,7 +19,7 @@ jobs:
 
       - name: Atualizar CACHE_VERSION no sw.js
         run: |
-          VERSION=$(date +'%d.%m.%Y-%H%M')
+          VERSION=$(TZ="America/Sao_Paulo" date +'%d.%m.%Y-%H%M')
           sed -i "s/const CACHE_VERSION = '.*'/const CACHE_VERSION = '${VERSION}'/" sw.js
           echo "✅ CACHE_VERSION atualizado para: $VERSION"
 
