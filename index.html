@@ -2856,7 +2856,7 @@ async function detectarCidadeSilenciosa() {
 // Função para abrir busca com IA (udm=50)
 function buscarComIA(cidade) {
 if (!cidade || !cidade.fullLocation) {
-showToast('📍 Digite o nome da sua cidade.');
+showToast('📍 Digite a sua cidade.');
 return;
 }
 
@@ -2864,19 +2864,19 @@ const query = encodeURIComponent(`bares e restaurantes em ${cidade.fullLocation}
 const googleUrl = `https://www.google.com/search?q=${query}&udm=50&tbm=lcl&hl=pt-BR&gl=br`;
 
 window.open(googleUrl, '_blank');
-showToast(`Buscando bares em ${cidade.fullLocation}...`);
+showToast(`Bares em ${cidade.fullLocation}...`);
 }
 
 // Função para abrir no Google Maps
 function abrirGoogleMaps(cidade) {
 if (!cidade || !cidade.fullLocation) {
-showToast('📍 Digite o nome da sua cidade.');
+showToast('📍 Digite a sua cidade.');
 return;
 }
 
 const mapsUrl = `https://www.google.com/maps/search/bares+restaurantes+em+${encodeURIComponent(cidade.fullLocation)}?hl=pt-BR`;
 window.open(mapsUrl, '_blank');
-showToast(`Abrindo Google Maps em ${cidade.fullLocation}...`);
+showToast(`Google Maps em ${cidade.fullLocation}...`);
 }
 
 // Atualiza os labels dos botões com o nome da cidade
@@ -2936,9 +2936,9 @@ Usar esta
 <div class="mb-3">
 <label class="text-xs text-gray-500 block text-left mb-1">Ou digite outra cidade:</label>
 <div class="relative">
-<input id="cidade-manual-input" type="text" placeholder="Ex: São Paulo, SP | Rio de Janeiro, RJ"
+<input id="cidade-manual-input" type="text" placeholder="Ex: Blumenau, SC | Rio de Janeiro, RJ"
 class="w-full p-3 rounded-xl text-sm bg-white/5 text-white border border-white/10 focus:border-orange-500/50 focus:outline-none pr-9">
-<button id="limpar-cidade-btn" onclick="limparCidadeManual()" style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:#9ca3af; font-size:20px; cursor:pointer; line-height:1;">&times;</button>
+<button id="limpar-cidade-btn" onclick="limparCidadeManual()" style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:#9ca3af; font-size:22px; cursor:pointer; line-height:1;">&times;</button>
 </div>
 </div>
 
