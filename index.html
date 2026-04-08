@@ -2951,6 +2951,22 @@ class="py-3 px-2 rounded-xl text-sm font-bold transition-transform active:scale-
 style="background:rgba(66,133,244,0.2); color:#4285f4; border:1px solid rgba(66,133,244,0.3);">
 <i class="fas fa-map mr-1 text-sm"></i><span id="btn-maps-label">Google Maps</span>
 </button>
+<!-- Painel de status persistente (aparece após clicar) -->
+<div id="busca-status-panel" style="display:none; margin-top:14px; padding:12px 14px; background:rgba(255,152,0,0.08); border:1px solid rgba(255,152,0,0.25); border-radius:14px;">
+<div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+<span style="font-size:18px;">✅</span>
+<span id="busca-status-texto" style="font-size:13px; color:#e0e0e0; font-weight:600; flex:1;"></span>
+</div>
+<p style="font-size:11px; color:#9ca3af; margin:0 0 10px 0;">A busca abriu numa nova aba. Volte aqui quando quiser.</p>
+<div style="display:flex; gap:8px;">
+<button id="busca-repetir-btn" style="flex:1; padding:8px; border-radius:10px; font-size:12px; font-weight:bold; background:#f97316; color:#000; border:none; cursor:pointer;">
+<i class="fas fa-rotate-right"></i> Repetir busca
+</button>
+<button onclick="closeModal('busca-lugares-modal')" style="flex:1; padding:8px; border-radius:10px; font-size:12px; font-weight:bold; background:rgba(255,255,255,0.08); color:#d1d5db; border:none; cursor:pointer;">
+Fechar
+</button>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -3020,6 +3036,8 @@ cidadeManual.placeholder = "Ex: Blumenau, SC | Curitiba, PR";
 cidadeManual.focus();
 });
 
+let _ultimaBusca = null;
+
 function executarBusca(tipo) {
 let cidade = getCidadeAtual();
 if (!cidade) {
@@ -3028,18 +3046,39 @@ cidadeManual.focus();
 return;
 }
 
-// Salva para reabrir o modal depois
-sessionStorage.setItem('reabrirBuscaModal', '1');
-
-// Se for string (digitada manualmente), converte para objeto
-const cidadeObj = typeof cidade === 'string' 
-? { fullLocation: cidade } 
+const cidadeObj = typeof cidade === 'string'
+? { fullLocation: cidade }
 : cidade;
+
+_ultimaBusca = { tipo, cidadeObj };
 
 if (tipo === 'ia') {
 buscarComIA(cidadeObj);
 } else {
 abrirGoogleMaps(cidadeObj);
+}
+
+// Mostra painel de status persistente no modal
+const painel = document.getElementById('busca-status-panel');
+const texto = document.getElementById('busca-status-texto');
+if (painel && texto) {
+texto.textContent = tipo === 'ia'
+  ? `🍺 Bares em ${cidadeObj.fullLocation}`
+  : `📍 Maps: ${cidadeObj.fullLocation}`;
+painel.style.display = 'block';
+}
+
+// Botão repetir — troca para evitar listeners duplicados
+const oldBtn = document.getElementById('busca-repetir-btn');
+if (oldBtn) {
+const newBtn = oldBtn.cloneNode(true);
+oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+newBtn.onclick = () => {
+  if (_ultimaBusca) {
+    if (_ultimaBusca.tipo === 'ia') buscarComIA(_ultimaBusca.cidadeObj);
+    else abrirGoogleMaps(_ultimaBusca.cidadeObj);
+  }
+};
 }
 }
 
