@@ -1,0 +1,3136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="author" content="José Augusto Baron">
+<title>Botequim - Gestão de Conta</title>
+<meta name="theme-color" content="#243447">
+<meta name="description" content="Gerencie sua conta do bar de forma simples e rápida">
+<link rel="me" href="mailto:jabaron@email.com">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap">
+<script src="https://cdn.tailwindcss.com/3.4.1?plugins=forms,typography,aspect-ratio,container-queries"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>	
+body { 
+background: #243447;
+color: #e0e0e0; 
+font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+-webkit-tap-highlight-color: transparent;
+min-height: 100vh;
+}
+
+.card { 
+background: transparent;
+border-radius: 0;
+border: none;
+transition: none;
+}
+
+.card:hover {
+transform: none;
+box-shadow: none;
+}
+
+.btn-accent { 
+background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+color: #000; 
+font-weight: bold;
+transition: background 0.2s;
+}
+
+.btn-accent:active {
+transform: scale(0.95);
+}
+
+input, select, textarea { 
+background: #2d2d35 !important; 
+border: 1px solid rgba(255,152,0,0.3) !important; 
+color: white !important; 
+outline: none;
+transition: all 0.2s;
+}
+
+input:focus, select:focus {
+border-color: #ff9800 !important;
+box-shadow: 0 0 0 2px rgba(255,152,0,0.2) !important;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+
+input[type="checkbox"] { 
+accent-color: #ff9800; 
+width: 1.5rem; 
+height: 1.5rem;
+cursor: pointer;
+}
+
+/* Animações */
+@keyframes slideIn {
+from {
+opacity: 0;
+transform: translateX(-20px);
+}
+to {
+opacity: 1;
+transform: translateX(0);
+}
+}
+
+.item-animate {
+animation: slideIn 0.3s ease-out;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+width: 0px;
+background: transparent;
+}
+
+
+/* Responsividade */
+@media (max-width: 640px) {
+.card {
+border-radius: 16px;
+}
+}
+
+/* Gráfico simples de progresso */
+.progress-bar {
+height: 4px;
+background: rgba(255,152,0,0.3);
+border-radius: 2px;
+overflow: hidden;
+}
+
+.progress-fill {
+height: 100%;
+background: #ff9800;
+transition: width 0.3s ease;
+}
+
+/* Histórico */
+.history-item {
+background: rgba(0,0,0,0.2);
+border-left: 3px solid #ff9800;
+padding: 8px;
+margin-bottom: 8px;
+border-radius: 8px;
+font-size: 12px;
+cursor: pointer;
+transition: all 0.2s;
+}
+
+.history-item:hover {
+background: rgba(255,152,0,0.1);
+}
+
+/* Modal */
+.modal {
+display: none;
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(0,0,0,0.6);
+z-index: 2000;
+align-items: center;
+justify-content: center;
+backdrop-filter: blur(4px);
+}
+
+.modal.active {
+display: flex;
+}
+
+.modal-content {
+background: #1e1e2e;
+border-radius: 20px;
+padding: 20px;
+max-width: 90%;
+width: 400px;
+max-height: 80vh;
+overflow-y: auto;
+}
+
+/* Tooltip */
+.tooltip {
+position: relative;
+display: inline-block;
+}
+
+.tooltip .tooltiptext {
+visibility: hidden;
+background-color: #ff9800;
+color: black;
+text-align: center;
+border-radius: 6px;
+padding: 2px 6px;
+position: absolute;
+z-index: 1;
+bottom: 125%;
+left: 50%;
+margin-left: -40px;
+font-size: 10px;
+white-space: nowrap;
+}
+
+.tooltip:hover .tooltiptext {
+visibility: visible;
+}
+/* Toast de feedback */
+#toast {
+position: fixed;
+bottom: 90px;
+left: 50%;
+transform: translateX(-50%) translateY(20px);
+background: #1e2d1e;
+color: #4ade80;
+border: 1px solid #4ade8055;
+padding: 12px 20px;
+border-radius: 12px;
+font-size: 0.85rem;
+font-weight: 600;
+z-index: 9999;
+opacity: 0;
+transition: opacity 0.3s ease, transform 0.3s ease;
+pointer-events: none;
+white-space: nowrap;
+box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+#toast.show {
+opacity: 1;
+transform: translateX(-50%) translateY(0);
+}
+
+.comanda-wrap {
+font-family: 'Courier Prime', 'Courier New', monospace;
+color: #1a1a1a;
+background: #f5f0e8;
+padding: 24px 20px 20px;
+overflow-y: auto;
+max-height: calc(88vh - 80px);
+}
+.comanda-wrap * { font-family: 'Courier Prime', 'Courier New', monospace; }
+.comanda-dashed { border: none; border-top: 2px dashed #999; margin: 10px 0; }
+.comanda-dotted { border: none; border-top: 1px dotted #bbb; margin: 6px 0; }
+.comanda-close-btn {
+position: absolute; top: 10px; right: 14px;
+background: none; border: none; font-size: 1.4rem;
+color: #555; cursor: pointer; font-family: monospace;
+z-index: 10;
+}
+#resumo-titulo button i.fa-qrcode {
+font-size: 25px !important;
+display: inline-block !important;
+width: auto !important;
+height: auto !important;
+}
+
+</style>
+<script>
+window.addEventListener('pageshow', function() {
+if (sessionStorage.getItem('reabrirBuscaModal')) {
+sessionStorage.removeItem('reabrirBuscaModal');
+setTimeout(() => abrirBuscaLugares(), 300);
+}
+});
+</script>
+
+</head>
+<body class="p-4 max-w-md mx-auto relative pb-24">
+
+<header class="text-left mb-3 px-1 pr-1 flex justify-between items-center overflow-visible">
+<div class="overflow-visible">
+<h1 class="flex items-center text-3xl font-bold italic pr-1 overflow-visible gap-2">
+<img src="botequim.png" alt="Botequim" class="h-[57px] object-contain">
+</h1>
+
+<p id="header-subtitle" class="text-gray-400 mt-1 flex items-baseline gap-2 flex-wrap" style="font-size:15px">
+<span onclick="openBarNameModal()" style="cursor:pointer;font-size:13px;color:#f97316;margin-left:10px">Digite o nome do bar</span>
+</p>
+
+</div>
+<div class="flex gap-4 self-start">
+<div id="btn-busca-lugares" class="text-2xl cursor-pointer" onclick="abrirBuscaLugares()" title="Descobrir lugares próximos">
+<i class="fas fa-map-marked-alt" style="position:relative; top:11px;"></i>
+</div>
+<div class="text-2xl cursor-pointer" onclick="showHistory()">
+<i class="fas fa-history" style="position:relative; top:11px;"></i>
+</div>
+<div class="text-2xl cursor-pointer text-red-400" onclick="limparTela()">
+<i class="fas fa-broom" style="position:relative; top:11px;"></i>
+</div>
+</div>
+</header>
+
+<div id="main-container">
+<div class="card p-2 mb-6">
+<div class="flex justify-start items-center mb-2 gap-2">
+<button onclick="quickAddExample()" class="text-orange-500 text-xs font-bold border border-orange-900/50 px-3 py-2 rounded whitespace-nowrap" style="border: 1px dashed rgba(239,68,68,0.4);">
+<i class="fas fa-list mr-2"></i> Cardápio
+</button>
+<button onclick="openRachaModal()" class="text-yellow-400 text-xs font-bold border border-orange-900/50 px-3 py-2 rounded whitespace-nowrap" style="border: 1px dashed rgba(239,68,68,0.4);">
+<i class="fas fa-users"></i> Dividir conta
+</button>
+<button onclick="clearItems()" class="text-red-500 text-xs font-bold px-3 py-2 rounded whitespace-nowrap ml-auto" style="border: 1px dashed rgba(239,68,68,0.4);">
+<i class="fas fa-beer"></i> Nova conta
+</button>
+</div>
+
+<div id="items-list" class="space-y-0 mb-6 max-h-96 overflow-y-auto"></div>
+
+<div id="empty-hint" class="text-center pt-4 mb-4">
+<p class="text-gray-400 text-[13px] -mt-[25px]">
+Digite primeiro um item ou escolha no cardápio.
+</p>
+</div>
+
+<div id="no-bar-placeholder" onclick="openBarNameModal()" class="hidden cursor-pointer text-center py-6 rounded-xl border border-dashed border-orange-500/40 mb-6">
+<i class="fas fa-store text-orange-500 text-2xl mb-2 block"></i>
+<span class="text-orange-400 font-semibold text-sm">Toque para abrir uma nova conta.</span>
+</div>
+
+<div id="input-area">
+<div class="flex gap-2 mb-6">
+<input id="in-name" type="text" placeholder="Item (Ex: Cerveja)" class="text-sm p-2 rounded enter-submit" style="flex: 3; min-width: 0;" onfocus="this.placeholder='Item (Ex: Cerveja)'; this.select();">
+<input id="in-qty" type="number" inputmode="numeric" placeholder="Qt" class="text-sm p-2 rounded text-center enter-submit" style="width: 55px;" onfocus="this.select()">
+<input id="in-price" type="number" inputmode="decimal" step="0.01" placeholder="R$" class="text-sm p-2 rounded text-center enter-submit" style="width: 65px;" onfocus="this.select()">
+<button onclick="addItem()" aria-label="Adicionar item" class="btn-accent rounded font-bold text-xl" style="width: 45px; display: flex; align-items: center; justify-content: center;">
+<i class="fas fa-plus"></i>
+</button>
+</div>
+</div>
+
+<div class="flex items-center justify-between p-3 bg-[#2d2d35] rounded-lg">
+<div class="flex items-center gap-3">
+<i class="fas fa-music text-orange-500 text-sm leading-none"></i>
+<span class="text-gray-400 text-xs leading-none">Couvert:</span>
+<input id="in-couvert" type="number" inputmode="decimal" placeholder="R$" onchange="saveCouvertTip(); updateCalculos()" onkeypress="if(event.key==='Enter') this.blur()" class="w-12 p-1 rounded text-center text-xs" onfocus="this.select()">
+<span class="text-orange-500 text-sm leading-none"><i class="fas fa-hand-holding-heart"></i> 10%</span>
+<label class="relative inline-flex items-center cursor-pointer self-center">
+<input type="checkbox" id="in-tip" onchange="saveCouvertTip(); updateCalculos()" class="sr-only peer">
+<div class="w-9 h-5 bg-gray-600 rounded-full peer peer-checked:bg-orange-500 peer-focus:outline-none transition-all duration-200 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4"></div>
+</label>
+</div>
+<span id="item-count" class="text-xs text-gray-400 leading-none pr-1">
+<i class="fas fa-list text-orange-500 text-sm"></i> 0 itens
+</span>
+</div>
+
+</div>
+</div>
+<div class="card p-2 -mt-6">
+<div id="racha-acoes-bar" class="mt-0 flex flex-wrap justify-start gap-x-0 gap-y-1 items-center mb-3 -ml-1" style="display:none">
+<button onclick="closeModal('racha-resultado-modal'); renderRachaItens(); openModal('racha-itens-modal')" 
+class="text-xs text-yellow-400 font-bold py-2 px-3 rounded-lg">
+Editar divisão
+</button>
+<button onclick="openModal('desfazer-racha-modal')" 
+class="text-xs text-red-400 font-bold py-2 px-3 rounded-lg">
+Desfazer divisão
+</button>
+<button onclick="toggleAddPessoaInline()" id="btn-add-pessoa-inline"
+class="text-xs text-orange-400 font-bold py-2 px-3 rounded-lg flex items-center gap-0">
+<i class="fas fa-user-plus mr-1"></i>Pessoa
+</button>
+</div>
+
+<div class="border-t border-orange-500/30 mt-2 mb-4"></div>
+
+<h2 id="resumo-titulo" class="font-bold mb-5 text-gray-500 tracking-widest flex items-center justify-between gap-2">
+<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo</span>
+</h2>
+
+<div id="add-pessoa-inline-panel" class="mt-2 mb-4" style="display:none">
+<div class="flex gap-2 items-center">
+<input id="add-pessoa-inline-input" type="text" placeholder="Nome da pessoa" maxlength="20"
+class="flex-1 p-2 rounded-lg text-sm"
+style="min-width:0"
+onkeypress="if(event.key==='Enter') addPessoaInlineAndRecalculate()">
+<button onclick="addPessoaInlineAndRecalculate()" class="btn-accent px-3 py-2 rounded-lg text-xs font-bold whitespace-nowrap">
+<i class="fas fa-check"></i>
+</button>
+<button onclick="toggleAddPessoaInline()" class="text-gray-400 text-xs px-2 py-2">✕</button>
+</div>
+</div>
+
+<div class="space-y-2 border-b border-orange-500/30 pb-4 mb-4">
+<div class="flex justify-between text-sm text-gray-300 py-0 leading-4">
+<span><i class="fas fa-shopping-cart"></i> Consumo:</span> 
+<span id="res-items">R$ 0,00</span>
+</div>
+
+<div class="flex justify-between text-sm text-gray-300 py-0 leading-4">
+<span><i class="fas fa-heart"></i> Gorjeta (10%):</span> 
+<span id="res-tip">R$ 0,00</span>
+</div>
+
+<div id="res-couvert-row" class="flex justify-between text-sm text-gray-300 py-0 leading-4">
+<span><i class="fas fa-music"></i> <strong>Couvert:</strong></span> 
+<span id="res-items-couvert">R$ 0,00</span>
+</div>
+</div>
+</div>
+
+<!-- TOTAL - manter o mesmo padding dos outros -->
+<div class="flex justify-between items-center -mt-4" style="padding-left: 8px; padding-right: 8px;">
+<span class="text-base font-bold"><i class="fas fa-coins"></i> TOTAL:</span>
+<div class="flex items-center gap-8">
+<span id="grand-total" class="text-lg font-black text-orange-500">R$ 0,00</span>
+<div class="cursor-pointer flex items-center gap-1" onclick="openComanda()" title="Ver Comanda" style="opacity:0.85">
+<img id="comanda-icon" src="comanda.png" alt="Comanda" style="width: 26px; height: 26px;">
+</div>
+</div>
+</div>
+
+<!-- Espaço -->
+<div style="height: 16px;"></div>
+
+<div id="minha-parte-box" class="hidden mt-3 p-3 rounded-xl" style="background: rgba(255,152,0,0.12); border: 1px solid rgba(255,152,0,0.35); padding-left: 8px; padding-right: 8px; width: calc(100% - 16px); margin: 0 auto; box-sizing: border-box;">
+<div class="flex justify-between items-center">
+<span class="text-base font-bold text-orange-300"><i class="fas fa-user-check mr-1"></i> Minha parte na conta:</span>
+<span id="minha-parte-valor" class="text-lg font-black text-orange-400">R$ 0,00</span>
+</div>
+</div>
+
+<!-- CONSUMO - ajustar para mesmo padding -->
+<div class="flex justify-between items-center mt-3 mb-1" style="padding-left: 8px; padding-right: 8px;">
+<span style="font-size:9px; color: rgba(255,152,0,0.55); letter-spacing:0.05em;">CONSUMO</span>
+</div>
+
+<!-- Barra de progresso - mesma largura -->
+<div class="progress-bar" style="width: calc(100% - 16px); margin: 0 auto;">
+
+<div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+</div>
+
+<!-- Valores - mesma largura -->
+<div id="progress-scale" class="flex justify-between mt-1" style="font-size:9px; color: rgba(255,152,0,0.45); width: calc(100% - 16px); margin: 0 auto;">
+</div>
+
+<!-- Link da gorjeta - mesma largura -->
+<div class="flex justify-between items-center mb-1" style="width: calc(100% - 16px); margin: 15px auto 0;">
+
+<a href="https://www.instagram.com/joseaugustobaron/" 
+target="_blank" 
+rel="noopener noreferrer"
+style="font-size: 10px; text-decoration: none; color: #ff9800; opacity: 0.8;">
+2026 @baron
+</a>
+
+<a href="https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2017/lei/L13419.htm" 
+target="_blank" 
+rel="noopener noreferrer"
+style="font-size: 10px; text-decoration: none; color: #ff9800; opacity: 0.8;"
+title="Lei da Gorjeta - 10% não é obrigatório">
+<i class="fas fa-hand-holding-heart mr-1"></i>Gorjeta 10% não é obrigatória
+</a>
+</div>
+</div>
+
+<div id="barname-modal" class="modal">
+<div class="modal-content" style="width:320px">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-base font-bold text-orange-500"><i class="fas fa-store mr-2"></i>Nome do bar</h3>
+<button onclick="closeModal('barname-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
+</div>
+<input id="bar-name-input" type="text" placeholder="Ex: Boteco do Zé" maxlength="40"
+class="w-full p-3 rounded-xl text-sm mb-4"
+onkeypress="if(event.key==='Enter') confirmBarName()">
+<button onclick="confirmBarName()" class="w-full py-3 rounded-xl text-sm font-bold btn-accent">
+<i class="fas fa-check mr-1"></i> Confirmar
+</button>
+</div>
+</div>
+
+<div id="remove-modal" class="modal">
+<div class="modal-content" style="width:320px">
+<div class="flex flex-col items-center text-center gap-4 py-2">
+<div class="w-14 h-14 rounded-full bg-red-500/15 flex items-center justify-center">
+<i class="fas fa-trash-alt text-red-400 text-2xl"></i>
+</div>
+<div>
+<div class="text-sm text-gray-400">Remover <span id="remove-item-name" class="text-orange-400 font-semibold"></span>?</div>
+</div>
+<div class="flex gap-3 w-full mt-1">
+<button id="remove-confirm-btn" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+<i class="fas fa-trash-alt mr-1"></i> Remover
+</button>
+<button onclick="closeModal('remove-modal')" aria-label="Cancelar" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+Cancelar
+</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Modal Editar Item -->
+<div id="edit-modal" class="modal">
+<div class="modal-content" style="width:340px">
+<div class="flex justify-between items-center mb-5">
+<h3 class="text-lg font-bold text-orange-500"><i class="fas fa-pencil-alt mr-2"></i>Editar item</h3>
+<button onclick="closeModal('edit-modal')" aria-label="Fechar" class="text-gray-400 text-xl leading-none">&times;</button>
+</div>
+<div class="space-y-4">
+<div>
+<label class="text-xs text-gray-500 uppercase tracking-wider font-bold block mb-1">Nome</label>
+<input id="modal-edit-name" type="text" class="w-full p-3 rounded-xl text-sm" placeholder="Nome do item" onkeypress="if(event.key==='Enter') saveModalEdit()" onfocus="this.select()">
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="text-xs text-gray-500 uppercase tracking-wider font-bold block mb-1">Preço unitário</label>
+<input id="modal-edit-price" type="number" step="0.01" inputmode="decimal" class="w-full p-3 rounded-xl text-sm text-center" placeholder="R$" onkeypress="if(event.key==='Enter') saveModalEdit()" onfocus="this.select()">
+</div>
+<div>
+<label class="text-xs text-gray-500 uppercase tracking-wider font-bold block mb-1">Quantidade</label>
+<input id="modal-edit-qty" type="number" inputmode="numeric" class="w-full p-3 rounded-xl text-sm text-center" placeholder="Qt" onkeypress="if(event.key==='Enter') saveModalEdit()" onfocus="this.select()">
+</div>
+</div>
+</div>
+<div class="flex gap-3 mt-6">
+<button onclick="saveModalEdit()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+<i class="fas fa-check mr-1"></i> Salvar
+</button>
+<button onclick="closeModal('edit-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+Cancelar
+</button>
+</div>
+</div>
+</div>
+
+<!-- Modal Validação -->
+<div id="validation-modal" class="modal">
+<div class="modal-content" style="width:300px">
+<div class="flex flex-col items-center text-center gap-4 py-2">
+<div class="w-14 h-14 rounded-full bg-yellow-500/15 flex items-center justify-center">
+<i class="fas fa-exclamation-triangle text-yellow-400 text-2xl"></i>
+</div>
+<div>
+<div class="text-sm text-gray-400">Adicione um item primeiro.</div>
+</div>
+<button onclick="closeModal('validation-modal')" class="w-1/2 py-3 rounded-xl text-sm font-bold btn-accent mx-auto block">
+OK
+</button>
+</div>
+</div>
+</div>
+<div id="clear-modal" class="modal">
+<div class="modal-content" style="width:320px">
+<div class="flex flex-col items-center text-center gap-4 py-2">
+<div class="w-14 h-14 rounded-full bg-orange-500/15 flex items-center justify-center">
+<i class="fas fa-broom text-orange-400 text-2xl"></i>
+</div>
+<div>
+<div class="text-sm text-gray-400">Essa conta será fechada<br>e salva no histórico.</div>
+</div>
+<div class="flex gap-3 w-full mt-1">
+<button onclick="confirmClearItems()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+<i class="fas fa-broom mr-1"></i> Fechar
+</button>
+<button onclick="closeModal('clear-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+Cancelar
+</button>
+</div>
+</div>
+</div>
+</div>
+
+<div id="history-modal" class="modal">
+<div class="modal-content">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-xl font-bold text-orange-500"><i class="fas fa-history"></i> Histórico</h3>
+<button onclick="closeModal('history-modal')" aria-label="Fechar" class="text-2xl">&times;</button>
+</div>
+<div id="history-list" class="space-y-2 max-h-96 overflow-y-auto" style="overflow-x:hidden;"></div>
+<button onclick="clearHistory()" class="mt-3 w-1/2 py-3 rounded-xl text-sm font-bold btn-accent mx-auto block">Limpar Histórico</button>
+</div>
+</div>
+
+<!-- Modal Confirmar Reabrir Conta do Histórico -->
+<div id="reopen-history-modal" class="modal">
+<div class="modal-content" style="width:320px">
+<div class="flex flex-col items-center text-center gap-4 py-2">
+<div class="w-14 h-14 rounded-full bg-orange-500/15 flex items-center justify-center">
+<i class="fas fa-undo-alt text-orange-400 text-2xl"></i>
+</div>
+<div>
+<div class="font-bold text-orange-400 text-sm mb-1" id="reopen-history-bar-name"></div>
+<div class="text-sm text-gray-400">Reabrir esta conta vai <span class="text-red-400 font-semibold">apagar a lista atual</span>.<br>Deseja continuar?</div>
+</div>
+<div class="flex gap-3 w-full mt-1">
+<button id="reopen-history-confirm-btn" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+<i class="fas fa-undo-alt mr-1"></i> Reabrir
+</button>
+<button onclick="closeModal('reopen-history-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+Cancelar
+</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Modal Limpar Histórico -->
+<div id="clear-history-modal" class="modal">
+<div class="modal-content" style="width:320px">
+<div class="flex flex-col items-center text-center gap-4 py-2">
+<div class="w-14 h-14 rounded-full bg-red-500/15 flex items-center justify-center">
+<i class="fas fa-trash-alt text-red-400 text-2xl"></i>
+</div>
+<div>
+<div class="text-sm text-gray-400">Todo o histórico de contas será apagado.</div>
+</div>
+<div class="flex gap-3 w-full mt-1">
+<button onclick="confirmClearHistory()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent"><i class="fas fa-trash-alt mr-1"></i> Limpar</button>
+<button onclick="closeModal('clear-history-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">Cancelar</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Modal Confirmar Apagar Item do Histórico -->
+<div id="delete-history-item-modal" class="modal">
+<div class="modal-content" style="width:320px">
+<div class="flex flex-col items-center text-center gap-4 py-2">
+<div class="w-14 h-14 rounded-full bg-red-500/15 flex items-center justify-center">
+<i class="fas fa-trash-alt text-red-400 text-2xl"></i>
+</div>
+<div>
+<div class="text-sm text-gray-400">O registro <span id="delete-history-item-name" class="text-orange-400 font-semibold"></span> será removido.</div>
+</div>
+<div class="flex gap-3 w-full mt-1">
+<button id="delete-history-item-confirm-btn" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+<i class="fas fa-trash-alt mr-1"></i> Apagar
+</button>
+<button onclick="closeModal('delete-history-item-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+Cancelar
+</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Modal Confirmar Desfazer Divisão -->
+<div id="desfazer-racha-modal" class="modal">
+<div class="modal-content" style="width:320px">
+<div class="flex flex-col items-center text-center gap-4 py-2">
+<div class="w-14 h-14 rounded-full bg-red-500/15 flex items-center justify-center">
+<i class="fas fa-undo text-red-400 text-2xl"></i>
+</div>
+<div>
+<div class="text-sm text-gray-400">A divisão será desfeita e<br>todas as atribuições perdidas.</div>
+</div>
+<div class="flex gap-3 w-full mt-1">
+<button onclick="desfazerRachaEClose()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+<i class="fas fa-undo mr-1"></i> Desfazer
+</button>
+<button onclick="closeModal('desfazer-racha-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+Cancelar
+</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Modal Racha - Passo 1: Pessoas -->
+<div id="racha-pessoas-modal" class="modal">
+<div class="modal-content" style="width:360px">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-bold text-yellow-400"><i class="fas fa-users mr-2"></i>Dividir a conta</h3>
+<button onclick="closeModal('racha-pessoas-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
+</div>
+<p class="text-xs text-gray-400 mb-3">Quem vai dividir a conta com você?</p>
+<div class="flex gap-2 mb-3">
+<input id="racha-new-person" type="text" placeholder="Nome da pessoa" maxlength="20"
+class="flex-1 p-2 rounded-xl text-sm"
+onkeypress="if(event.key==='Enter') rachaAddPerson()">
+<button onclick="rachaAddPerson()" class="btn-accent px-4 rounded-xl text-sm font-bold">
+<i class="fas fa-plus"></i>
+</button>
+</div>
+<div id="racha-pessoas-list" class="space-y-2 mb-4 max-h-40 overflow-y-auto"></div>
+<div class="flex gap-3 mt-2">
+<button onclick="rachaDividirIgualmente()" class="flex-1 py-3 rounded-xl text-sm font-bold" style="background:rgba(250,204,21,0.15);color:#facc15;border:1px solid rgba(250,204,21,0.3);">
+<i class="fas fa-equals mr-1"></i> Dividir igualmente
+</button>
+</div>
+<div class="flex gap-3 mt-2">
+<button onclick="rachaProximo()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+Ajustar a divisão
+</button>
+<button onclick="closeModal('racha-pessoas-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+Cancelar
+</button>
+</div>
+</div>
+</div>
+
+<!-- Modal Racha - Passo 2: Atribuir itens -->
+<div id="racha-itens-modal" class="modal">
+<div class="modal-content" style="width:380px; max-height:85vh;">
+<div class="flex justify-between items-center mb-3">
+<h3 class="text-lg font-bold text-yellow-400"><i class="fas fa-receipt mr-2"></i>Quem vai pagar o quê?</h3>
+<button onclick="closeModal('racha-itens-modal'); closeModal('racha-pessoas-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
+</div>
+<div id="racha-itens-pessoas-chips" class="flex flex-wrap gap-2 mb-3"></div>
+<p class="text-xs text-gray-400 mb-3"><i class="fas fa-info-circle mr-1"></i>Toque para personalizar</p>
+<div id="racha-itens-list" class="space-y-3 mb-4 overflow-y-auto" style="max-height:50vh;"></div>
+<div class="flex gap-3 mt-2">
+<button onclick="rachaCalcular()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+<i class="fas fa-calculator mr-1"></i> Calcular
+</button>
+<button onclick="closeModal('racha-itens-modal'); openModal('racha-pessoas-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+Voltar
+</button>
+</div>
+</div>
+</div>
+
+<!-- Modal Racha - Passo 3: Resultado -->
+<div id="racha-resultado-modal" class="modal">
+<div class="modal-content" style="width:380px">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-bold text-yellow-400"><i class="fas fa-coins mr-2"></i>Divisão da conta</h3>
+<div class="flex gap-6">
+<button onclick="closeModal('racha-resultado-modal'); openModal('racha-itens-modal'); renderRachaItens()" class="text-xs text-yellow-400 border border-yellow-700/50 px-3 py-1 rounded-lg font-bold">
+<i class="fas fa-arrow-left mr-1"></i> Editar
+</button>
+<button onclick="closeModal('racha-resultado-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
+</div>
+</div>
+<div id="racha-resultado-pessoas-chips" class="flex flex-wrap gap-2 mb-3"></div>
+<div id="racha-resultado-list" class="space-y-3 mb-4"></div>
+<div class="flex gap-3">
+<button onclick="confirmarMinhaParte()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+<i class="fas fa-check mr-1"></i> Confirmar divisão
+</button>
+</div>
+</div>
+</div>
+
+<!-- Modal Racha - Split de quantidade -->
+<div id="racha-split-modal" class="modal">
+<div class="modal-content" style="width:340px; z-index:3000;">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-base font-bold text-yellow-400"><i class="fas fa-cut mr-2"></i>Dividir item</h3>
+<button onclick="closeModal('racha-split-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
+</div>
+<p id="racha-split-desc" class="text-sm text-gray-300 mb-4"></p>
+<div id="racha-split-inputs" class="space-y-3 mb-4"></div>
+<div class="flex gap-3 mt-2">
+<button onclick="rachaSplitConfirm()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+<i class="fas fa-check mr-1"></i> Confirmar
+</button>
+<button onclick="closeModal('racha-split-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+Cancelar
+</button>
+</div>
+</div>
+</div>
+
+<!-- Modal Racha - Split por VALOR -->
+<div id="racha-split-valor-modal" class="modal">
+<div class="modal-content" style="width:340px; z-index:3000;">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-base font-bold text-yellow-400"><i class="fas fa-dollar-sign mr-2"></i>Dividir valor</h3>
+<button onclick="closeModal('racha-split-valor-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
+</div>
+<p id="racha-split-valor-desc" class="text-sm text-gray-300 mb-1"></p>
+<p id="racha-split-valor-total-label" class="text-xs text-orange-400 font-bold mb-4"></p>
+<div id="racha-split-valor-inputs" class="space-y-3 mb-2"></div>
+<div id="racha-split-valor-restante" class="text-xs text-center mb-3"></div>
+<button onclick="rachaSplitValorIgual()" class="w-full py-2 rounded-xl text-xs font-bold mb-3" style="background:rgba(250,204,21,0.1);color:#facc15;border:1px solid rgba(250,204,21,0.25);">
+<i class="fas fa-equals mr-1"></i> Dividir igualmente
+</button>
+<div class="flex gap-3 mt-2">
+<button onclick="rachaSplitValorConfirm()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+<i class="fas fa-check mr-1"></i> Confirmar
+</button>
+<button onclick="closeModal('racha-split-valor-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+Cancelar
+</button>
+</div>
+</div>
+</div>
+
+<!-- Modal Alerta Racha - Adicionar pessoa -->
+<div id="racha-alert-modal" class="modal">
+<div class="modal-content" style="width:320px">
+<div class="flex flex-col items-center text-center gap-4 py-2">
+<div class="w-14 h-14 rounded-full bg-yellow-500/15 flex items-center justify-center">
+<i class="fas fa-user-plus text-yellow-400 text-2xl"></i>
+</div>
+<div>
+<div class="text-sm text-gray-400">Adicione alguém pra dividir a conta.<span class="text-orange-400 font-semibold"></span></div>
+</div>
+<button onclick="closeModal('racha-alert-modal')" class="w-1/2 py-3 rounded-xl text-sm font-bold btn-accent mx-auto block">
+OK, entendi
+</button>
+</div>
+</div>
+</div>
+
+<!-- Modal Confirmar Refazer Racha -->
+<div id="racha-reset-modal" class="modal">
+<div class="modal-content" style="width:320px">
+<div class="flex flex-col items-center text-center gap-4 py-2">
+<div class="w-14 h-14 rounded-full bg-yellow-500/15 flex items-center justify-center">
+<i class="fas fa-users text-yellow-400 text-2xl"></i>
+</div>
+<div>
+<div class="text-sm text-gray-400">Divisão em andamento. Refazer?</div>
+</div>
+<div class="flex gap-3 w-full mt-1">
+<button onclick="confirmarRefazerRacha()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">
+<i class="fas fa-redo mr-1"></i> Refazer
+</button>
+<button onclick="closeModal('racha-reset-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">
+Cancelar
+</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Modal Comanda -->
+<div id="comanda-modal" class="modal">
+<div class="modal-content" style="width:340px; max-height:88vh; background:#f5f0e8; border-radius:4px; padding:0; overflow:hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.6);">
+<div class="comanda-wrap" id="comanda-content">
+<!-- gerado por openComanda() -->
+</div>
+<button class="comanda-close-btn" aria-label="Fechar comanda" onclick="closeModal('comanda-modal')">✕</button>
+<div id="comanda-actions" style="background:#f5f0e8;padding:12px 20px 16px;display:flex;justify-content:center;gap:24px;border-top:1px dashed #ccc;">
+<button onclick="compartilharComandaImagem()" aria-label="Compartilhar comanda" title="" style="background:transparent;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="#25D366" xmlns="http://www.w3.org/2000/svg">
+<path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+<path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.855L.057 23.882l6.198-1.448A11.934 11.934 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.894a9.893 9.893 0 01-5.031-1.378l-.361-.214-3.741.981 1-3.635-.235-.374A9.861 9.861 0 012.106 12C2.106 6.58 6.58 2.106 12 2.106S21.894 6.58 21.894 12 17.42 21.894 12 21.894z"/>
+</svg>
+</button>
+</div>
+</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+let rachaPessoas = []; // ex: ['Você', 'João']
+let rachaAtribuicoes = []; // por item: { owner: 'Você' } ou { split: {Você:1, João:1} }
+let rachaSplitItemIdx = null;
+let rachaSplitValues = {};
+
+function openModal(id) {
+document.getElementById(id).classList.add('active');
+}
+
+function showToast(msg) {
+const toast = document.getElementById('toast');
+toast.textContent = msg;
+toast.classList.add('show');
+setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function openRachaModal() {
+if (consumption.length === 0) {
+document.getElementById('validation-modal').classList.add('active');
+return;
+}
+if (meuTotalRacha !== null) {
+openModal('racha-reset-modal');
+return;
+}
+rachaPessoas = ['Você'];
+rachaAtribuicoes = consumption.map(() => ({ owner: 'Você' }));
+renderRachaPessoas();
+openModal('racha-pessoas-modal');
+}
+
+function confirmarRefazerRacha() {
+meuTotalRacha = null;
+localStorage.removeItem('botequim_meu_total_racha');
+localStorage.removeItem('botequim_racha_pessoas');
+localStorage.removeItem('botequim_racha_atribuicoes');
+rachaPessoas = ['Você'];
+rachaAtribuicoes = consumption.map(() => ({ owner: 'Você' }));
+renderRachaPessoas();
+closeModal('racha-reset-modal');
+updateCalculos();
+openModal('racha-pessoas-modal');
+}
+
+function renderRachaPessoas() {
+const list = document.getElementById('racha-pessoas-list');
+list.innerHTML = rachaPessoas.map((p, i) => `
+<div class="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2">
+<span class="text-sm font-semibold ${i === 0 ? 'text-orange-400' : 'text-white'}">${escapeHtml(p)}</span>
+${i > 0 ? `<button onclick="rachaRemovePerson(${i})" class="text-red-400 text-xs ml-2"><i class="fas fa-times"></i></button>` : ''}
+</div>
+`).join('');
+}
+
+function rachaAddPerson() {
+const input = document.getElementById('racha-new-person');
+const name = input.value.trim();
+if (!name) return;
+if (rachaPessoas.find(p => p.toLowerCase() === name.toLowerCase())) {
+input.value = '';
+return;
+}
+rachaPessoas.push(name);
+input.value = '';
+renderRachaPessoas();
+}
+
+function rachaRemovePerson(idx) {
+const removed = rachaPessoas[idx];
+rachaPessoas.splice(idx, 1);
+// reassign items owned by removed person to Você
+rachaAtribuicoes = rachaAtribuicoes.map(a => {
+if (a.owner === removed) return { owner: 'Você' };
+if (a.split) {
+const newSplit = {};
+rachaPessoas.forEach(p => { newSplit[p] = a.split[p] || 0; });
+// redistribute removed person's qty to Você
+newSplit['Você'] = (newSplit['Você'] || 0) + (a.split[removed] || 0);
+return { split: newSplit };
+}
+return a;
+});
+renderRachaPessoas();
+}
+
+function toggleAddPessoaInline() {
+const panel = document.getElementById('add-pessoa-inline-panel');
+const isHidden = panel.style.display === 'none' || panel.style.display === '';
+panel.style.display = isHidden ? 'block' : 'none';
+if (isHidden) {
+setTimeout(() => {
+const inp = document.getElementById('add-pessoa-inline-input');
+if (inp) { inp.value = ''; inp.focus(); }
+}, 50);
+}
+}
+
+function addPessoaInlineAndRecalculate() {
+const input = document.getElementById('add-pessoa-inline-input');
+const name = input ? input.value.trim() : '';
+if (!name) return;
+if (rachaPessoas.find(p => p.toLowerCase() === name.toLowerCase())) {
+if (input) input.value = '';
+showToast('⚠️ Essa pessoa já está na divisão');
+return;
+}
+rachaPessoas.push(name);
+const totalPessoas = rachaPessoas.length;
+rachaAtribuicoes = rachaAtribuicoes.map((a, idx) => {
+const item = consumption[idx];
+const totalItem = item ? item.qty * item.price : 0;
+if (a.splitValor) {
+const parteIgual = parseFloat((totalItem / totalPessoas).toFixed(2));
+const novo = {};
+rachaPessoas.forEach(p => { novo[p] = parteIgual; });
+const soma = rachaPessoas.reduce((s, p) => s + novo[p], 0);
+const diff = parseFloat((totalItem - soma).toFixed(2));
+novo[rachaPessoas[0]] = parseFloat((novo[rachaPessoas[0]] + diff).toFixed(2));
+return { splitValor: novo };
+}
+if (a.split) {
+const novo = {};
+rachaPessoas.forEach(p => { novo[p] = a.split[p] || 0; });
+novo[name] = 0;
+return { split: novo };
+}
+return a;
+});
+if (input) input.value = '';
+document.getElementById('add-pessoa-inline-panel').style.display = 'none';
+updateCalculos();
+showToast(`➕ ${name} adicionado(a) — divisão atualizada`);
+}
+
+function rachaProximo() {
+if (rachaPessoas.length < 2) {
+document.getElementById('racha-alert-modal').classList.add('active');
+return;
+}
+closeModal('racha-pessoas-modal');
+renderRachaItens();
+openModal('racha-itens-modal');
+}
+
+function rachaDividirIgualmente() {
+if (rachaPessoas.length < 2) {
+document.getElementById('racha-alert-modal').classList.add('active');
+return;
+}
+// Distribui todos os itens igualmente por valor entre todas as pessoas
+rachaAtribuicoes = consumption.map(item => {
+const totalItem = item.qty * item.price;
+const parteIgual = parseFloat((totalItem / rachaPessoas.length).toFixed(2));
+const splitValor = {};
+rachaPessoas.forEach(p => { splitValor[p] = parteIgual; });
+// corrige arredondamento no primeiro
+const soma = rachaPessoas.reduce((s, p) => s + splitValor[p], 0);
+const diff = parseFloat((totalItem - soma).toFixed(2));
+if (Math.abs(diff) >= 0.01) splitValor[rachaPessoas[0]] = parseFloat((splitValor[rachaPessoas[0]] + diff).toFixed(2));
+return { splitValor };
+});
+closeModal('racha-pessoas-modal');
+rachaCalcular();
+}
+
+function renderPessoasChips(containerId, fromResultado) {
+const container = document.getElementById(containerId);
+if (!container) return;
+container.innerHTML = rachaPessoas.map((p, i) => {
+if (i === 0) {
+return `<span style="display:inline-flex;align-items:center;font-size:0.8rem;font-weight:700;color:#fb923c;margin-right:16px">${escapeHtml(p)}</span>`;
+}
+return `<span style="display:inline-flex;align-items:center;gap:6px;font-size:0.8rem;font-weight:700;color:#d1d5db;margin-right:16px">${escapeHtml(p)}<button data-remove-idx="${i}" data-from-resultado="${fromResultado ? '1' : '0'}" style="background:none;border:none;color:#f87171;font-size:1.2rem;font-weight:bold;cursor:pointer;padding:0 4px;">×</button></span>`;
+}).join('');
+container.querySelectorAll('button[data-remove-idx]').forEach(function(btn) {
+btn.addEventListener('click', function(e) {
+e.stopPropagation();
+e.preventDefault();
+var pessoaIdx = parseInt(btn.getAttribute('data-remove-idx'));
+var fromRes = btn.getAttribute('data-from-resultado') === '1';
+rachaRemovePersonFrom(pessoaIdx, fromRes);
+});
+});
+}
+
+function rachaRemovePersonFrom(pessoaIdx, fromResultado) {
+if (rachaPessoas.length <= 2) {
+// Só sobra "Você" — reseta a divisão e fecha os modais
+rachaPessoas = ['Você'];
+rachaAtribuicoes = consumption.map(function() { return { owner: 'Você' }; });
+meuTotalRacha = null;
+localStorage.removeItem('botequim_meu_total_racha');
+localStorage.removeItem('botequim_racha_pessoas');
+localStorage.removeItem('botequim_racha_atribuicoes');
+closeModal('racha-resultado-modal');
+closeModal('racha-itens-modal');
+updateCalculos();
+return;
+}
+var removed = rachaPessoas[pessoaIdx];
+rachaPessoas.splice(pessoaIdx, 1);
+rachaAtribuicoes = rachaAtribuicoes.map(function(a, itemIdx) {
+if (a.owner === removed) return { owner: 'Você' };
+if (a.splitValor) {
+var item = consumption[itemIdx];
+var totalItem = item ? item.qty * item.price : 0;
+var parteIgual = parseFloat((totalItem / rachaPessoas.length).toFixed(2));
+var novo = {};
+rachaPessoas.forEach(function(p) { novo[p] = parteIgual; });
+var soma = rachaPessoas.reduce(function(s, p) { return s + novo[p]; }, 0);
+var diff = parseFloat((totalItem - soma).toFixed(2));
+if (Math.abs(diff) >= 0.01) novo[rachaPessoas[0]] = parseFloat((novo[rachaPessoas[0]] + diff).toFixed(2));
+return { splitValor: novo };
+}
+if (a.split) {
+var sp = Object.assign({}, a.split);
+var qty = sp[removed] || 0;
+delete sp[removed];
+sp['Você'] = (sp['Você'] || 0) + qty;
+return { split: sp };
+}
+return a;
+});
+if (fromResultado) {
+rachaCalcular();
+renderPessoasChips('racha-resultado-pessoas-chips', true);
+} else {
+renderRachaItens();
+renderPessoasChips('racha-itens-pessoas-chips', false);
+}
+}
+
+function renderRachaItens() {
+renderPessoasChips('racha-itens-pessoas-chips', false);
+const list = document.getElementById('racha-itens-list');
+list.innerHTML = consumption.map((item, idx) => {
+const atr = rachaAtribuicoes[idx];
+let statusHtml = '';
+if (atr.splitValor) {
+const parts = Object.entries(atr.splitValor).filter(([,v]) => v > 0).map(([k,v]) => `${k}: R$${v.toFixed(2)}`).join(', ');
+statusHtml = `<span class="text-xs text-green-400">${parts}</span>`;
+} else if (atr.split) {
+const parts = Object.entries(atr.split).filter(([,v]) => v > 0).map(([k,v]) => `${k}:${v}`).join(', ');
+statusHtml = `<span class="text-xs text-yellow-400">÷ ${parts}</span>`;
+} else {
+statusHtml = `<span class="text-xs text-orange-400">${escapeHtml(atr.owner)}</span>`;
+}
+const personBtns = rachaPessoas.map(p => `
+<button onclick="rachaSetOwner(${idx},'${escapeHtml(p)}')"
+class="px-2 py-1 rounded-lg text-xs font-bold border transition-all ${atr.owner === p && !atr.split && !atr.splitValor ? 'border-orange-500 text-orange-400 bg-orange-500/10' : 'border-white/10 text-gray-400'}"
+>${escapeHtml(p)}</button>
+`).join('');
+const splitBtn = item.qty > 1
+? `<button onclick="rachaOpenSplit(${idx})" class="px-2 py-1 rounded-lg text-xs font-bold border transition-all ${atr.split ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-400'}"><i class="fas fa-cut mr-1"></i>÷ Qtd</button>`
+: '';
+const splitValorBtn = `<button onclick="rachaOpenSplitValor(${idx})" class="px-2 py-1 rounded-lg text-xs font-bold border transition-all ${atr.splitValor ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-white/10 text-gray-400'}"><i class="fas fa-coins mr-1"></i>÷ R$</button>`;
+
+// Linha do nome e total
+const totalRow = (item.qty * item.price).toFixed(2);
+const unitDisplay = item.qty > 1 
+? `<div class="text-xs text-gray-400 mt-0.5">${item.qty}x unidade: R$ ${item.price.toFixed(2)}</div>`
+: '';
+
+return `
+<div class="bg-white/5 rounded-xl p-3">
+<div class="mb-2">
+<div class="flex justify-between items-start">
+<span class="text-sm font-semibold text-white">${escapeHtml(item.name)}</span>
+<span class="text-sm font-bold text-white">R$ ${totalRow}</span>
+</div>
+${unitDisplay}
+</div>
+<div class="text-xs mb-2 ${statusHtml.includes('R$') ? 'text-green-400' : 'text-yellow-400'}">${statusHtml}</div>
+<div class="flex flex-wrap gap-2">${personBtns}${splitBtn}${splitValorBtn}</div>
+</div>
+`;
+}).join('');
+}
+
+function rachaSetOwner(idx, person) {
+rachaAtribuicoes[idx] = { owner: person }; // limpa split e splitValor
+renderRachaItens();
+updateCalculos();
+if (meuTotalRacha !== null) {
+localStorage.setItem('botequim_racha_pessoas', JSON.stringify(rachaPessoas));
+localStorage.setItem('botequim_racha_atribuicoes', JSON.stringify(rachaAtribuicoes));
+}
+}
+
+function rachaOpenSplit(idx) {
+rachaSplitItemIdx = idx;
+const item = consumption[idx];
+const atr = rachaAtribuicoes[idx];
+document.getElementById('racha-split-desc').textContent = `${item.qty}x ${item.name} — distribua as unidades:`;
+
+// Initialize split values
+rachaSplitValues = {};
+rachaPessoas.forEach(p => {
+rachaSplitValues[p] = atr.split ? (atr.split[p] || 0) : (atr.owner === p ? item.qty : 0);
+});
+
+renderSplitInputs(idx);
+openModal('racha-split-modal');
+}
+
+function renderSplitInputs(idx) {
+const item = consumption[idx];
+const inputs = document.getElementById('racha-split-inputs');
+const usado = rachaPessoas.reduce((s, p) => s + (rachaSplitValues[p] || 0), 0);
+const restante = item.qty - usado;
+
+inputs.innerHTML = rachaPessoas.map(p => {
+const val = rachaSplitValues[p] || 0;
+return `
+<div class="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2">
+<span class="text-sm font-semibold text-white w-24">${escapeHtml(p)}</span>
+<div class="flex items-center gap-3">
+<button onclick="rachaSplitChange('${escapeHtml(p)}', -1, ${idx})"
+class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 transition-colors text-lg font-bold">−</button>
+<span class="text-white font-bold w-4 text-center">${val}</span>
+<button onclick="rachaSplitChange('${escapeHtml(p)}', 1, ${idx})"
+class="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 transition-colors text-lg font-bold">+</button>
+</div>
+</div>
+`;
+}).join('');
+
+// Show remaining indicator
+inputs.innerHTML += `<div class="text-xs text-center mt-1 ${restante === 0 ? 'text-green-400' : 'text-yellow-400'}">
+${restante === 0 ? '✓ Tudo distribuído' : `Restam ${restante} unidade(s)`}
+</div>`;
+}
+
+function rachaSplitChange(person, delta, idx) {
+const item = consumption[idx];
+const atual = rachaSplitValues[person] || 0;
+const novoVal = atual + delta;
+if (novoVal < 0) return;
+const totalOutros = rachaPessoas.reduce((s, p) => s + (p !== person ? (rachaSplitValues[p] || 0) : 0), 0);
+if (novoVal + totalOutros > item.qty) return; // não deixa ultrapassar
+rachaSplitValues[person] = novoVal;
+renderSplitInputs(idx);
+}
+
+function rachaSplitConfirm() {
+const idx = rachaSplitItemIdx;
+const item = consumption[idx];
+const split = {};
+let total = 0;
+rachaPessoas.forEach(p => {
+split[p] = rachaSplitValues[p] || 0;
+total += split[p];
+});
+if (total !== item.qty) {
+// show inline — não usa alert
+renderSplitInputs(idx);
+return;
+}
+rachaAtribuicoes[idx] = { split };
+closeModal('racha-split-modal');
+renderRachaItens();
+updateCalculos();
+}
+
+// ---- SPLIT POR VALOR ----
+let rachaSplitValorItemIdx = null;
+let rachaSplitValorValues = {};
+
+function rachaOpenSplitValor(idx) {
+rachaSplitValorItemIdx = idx;
+const item = consumption[idx];
+const atr = rachaAtribuicoes[idx];
+const totalItem = item.qty * item.price;
+document.getElementById('racha-split-valor-desc').textContent = `${item.qty}x ${item.name}`;
+document.getElementById('racha-split-valor-total-label').textContent = `Total: R$ ${totalItem.toFixed(2)}`;
+
+rachaSplitValorValues = {};
+// Se já havia splitValor, restaura; senão distribui igualmente
+if (atr.splitValor) {
+rachaPessoas.forEach(p => { rachaSplitValorValues[p] = atr.splitValor[p] || 0; });
+} else {
+// distribui igualmente como ponto de partida
+const igualdade = totalItem / rachaPessoas.length;
+rachaPessoas.forEach(p => { rachaSplitValorValues[p] = parseFloat(igualdade.toFixed(2)); });
+// ajusta arredondamento no primeiro
+const soma = rachaPessoas.reduce((s,p) => s + rachaSplitValorValues[p], 0);
+const diff = parseFloat((totalItem - soma).toFixed(2));
+rachaSplitValorValues[rachaPessoas[0]] = parseFloat((rachaSplitValorValues[rachaPessoas[0]] + diff).toFixed(2));
+}
+
+renderSplitValorInputs(idx);
+openModal('racha-split-valor-modal');
+}
+
+function renderSplitValorInputs(idx) {
+const item = consumption[idx];
+const totalItem = item.qty * item.price;
+const inputs = document.getElementById('racha-split-valor-inputs');
+const totalAtribuido = rachaPessoas.reduce((s, p) => s + (rachaSplitValorValues[p] || 0), 0);
+const restante = parseFloat((totalItem - totalAtribuido).toFixed(2));
+
+inputs.innerHTML = rachaPessoas.map((p, i) => {
+const val = (rachaSplitValorValues[p] || 0).toFixed(2);
+return `
+<div class="bg-white/5 rounded-xl px-3 py-2">
+<div class="flex items-center justify-between gap-3">
+<span class="text-sm font-semibold text-white w-24 flex-shrink-0">${escapeHtml(p)}</span>
+<div class="flex items-center gap-2 flex-1">
+<span class="text-gray-400 text-sm">R$</span>
+<input type="number" inputmode="decimal" step="0.01" min="0"
+id="split-valor-input-${i}"
+value="${val}"
+onfocus="this.select()"
+oninput="rachaSplitValorChange('${escapeHtml(p)}', this.value, ${idx})"
+onkeypress="if(event.key==='Enter'){ event.preventDefault(); const next=document.getElementById('split-valor-input-${i+1}'); if(next) next.focus(); else rachaSplitValorConfirm(); }"
+class="flex-1 p-2 rounded-lg text-sm text-center font-bold"
+style="max-width:90px">
+</div>
+</div>
+</div>
+`;
+}).join('');
+
+const restEl = document.getElementById('racha-split-valor-restante');
+if (Math.abs(restante) < 0.01) {
+restEl.innerHTML = `<span class="text-green-400 font-bold">&#10003; Tudo distribuído</span>`;
+} else if (restante > 0) {
+restEl.innerHTML = `<span class="text-yellow-400">Falta R$ ${restante.toFixed(2)}</span>`;
+} else {
+restEl.innerHTML = `<span class="text-red-400">Excede em R$ ${Math.abs(restante).toFixed(2)}</span>`;
+}
+}
+
+function rachaSplitValorChange(person, rawVal, idx) {
+const val = parseFloat(rawVal) || 0;
+rachaSplitValorValues[person] = parseFloat(val.toFixed(2));
+const item = consumption[idx];
+const totalItem = item.qty * item.price;
+
+// Redistribui o restante igualmente entre as outras pessoas
+const outrasPessoas = rachaPessoas.filter(p => p !== person);
+const valorPessoaEditada = rachaSplitValorValues[person];
+const restante = totalItem - valorPessoaEditada;
+
+if (outrasPessoas.length > 0 && restante >= 0) {
+const parteIgual = parseFloat((restante / outrasPessoas.length).toFixed(2));
+outrasPessoas.forEach(p => { rachaSplitValorValues[p] = parteIgual; });
+// Corrige arredondamento na primeira pessoa da lista
+const somaOutras = outrasPessoas.reduce((s, p) => s + rachaSplitValorValues[p], 0);
+const diff = parseFloat((restante - somaOutras).toFixed(2));
+if (Math.abs(diff) > 0.001) {
+rachaSplitValorValues[outrasPessoas[0]] = parseFloat((rachaSplitValorValues[outrasPessoas[0]] + diff).toFixed(2));
+}
+}
+
+// Atualiza os inputs das outras pessoas (sem re-renderizar tudo para manter foco)
+rachaPessoas.forEach((p, i) => {
+if (p !== person) {
+const el = document.getElementById(`split-valor-input-${i}`);
+if (el) el.value = (rachaSplitValorValues[p] || 0).toFixed(2);
+}
+});
+
+// Atualiza status
+const totalAtribuido = rachaPessoas.reduce((s, p) => s + (rachaSplitValorValues[p] || 0), 0);
+const diff = parseFloat((totalItem - totalAtribuido).toFixed(2));
+const restEl = document.getElementById('racha-split-valor-restante');
+if (!restEl) return;
+if (Math.abs(diff) < 0.01) {
+restEl.innerHTML = `<span class="text-green-400 font-bold">&#10003; Tudo distribuído</span>`;
+} else if (diff > 0) {
+restEl.innerHTML = `<span class="text-yellow-400">Falta R$ ${diff.toFixed(2)}</span>`;
+} else {
+restEl.innerHTML = `<span class="text-red-400">Excede em R$ ${Math.abs(diff).toFixed(2)}</span>`;
+}
+}
+
+function rachaSplitValorIgual() {
+const idx = rachaSplitValorItemIdx;
+const item = consumption[idx];
+const totalItem = item.qty * item.price;
+const parteIgual = parseFloat((totalItem / rachaPessoas.length).toFixed(2));
+rachaPessoas.forEach(p => { rachaSplitValorValues[p] = parteIgual; });
+const soma = rachaPessoas.reduce((s, p) => s + rachaSplitValorValues[p], 0);
+const diff = parseFloat((totalItem - soma).toFixed(2));
+if (Math.abs(diff) >= 0.01) rachaSplitValorValues[rachaPessoas[0]] = parseFloat((rachaSplitValorValues[rachaPessoas[0]] + diff).toFixed(2));
+renderSplitValorInputs(idx);
+}
+
+function rachaSplitValorConfirm() {
+const idx = rachaSplitValorItemIdx;
+const item = consumption[idx];
+const totalItem = item.qty * item.price;
+
+// lê valores dos inputs no momento (caso o usuário tenha digitado sem perder foco)
+rachaPessoas.forEach((p, i) => {
+const el = document.getElementById(`split-valor-input-${i}`);
+if (el) rachaSplitValorValues[p] = parseFloat(el.value) || 0;
+});
+
+const totalAtribuido = rachaPessoas.reduce((s, p) => s + (rachaSplitValorValues[p] || 0), 0);
+const diff = Math.abs(totalItem - totalAtribuido);
+if (diff > 0.02) {
+renderSplitValorInputs(idx); // mostra erro inline
+return;
+}
+// normaliza pequenos erros de arredondamento
+const splitValor = {};
+rachaPessoas.forEach(p => { splitValor[p] = parseFloat((rachaSplitValorValues[p] || 0).toFixed(2)); });
+rachaAtribuicoes[idx] = { splitValor };
+closeModal('racha-split-valor-modal');
+renderRachaItens();
+updateCalculos();
+}
+
+function rachaCalcular() {
+const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
+const hasTip = document.getElementById('in-tip').checked;
+const totais = {};
+rachaPessoas.forEach(p => { totais[p] = { consumo: 0, couvert: couvert, gorjeta: 0 }; });
+
+consumption.forEach((item, idx) => {
+const atr = rachaAtribuicoes[idx];
+if (atr.splitValor) {
+rachaPessoas.forEach(p => {
+totais[p].consumo += atr.splitValor[p] || 0;
+});
+} else if (atr.split) {
+rachaPessoas.forEach(p => {
+const qty = atr.split[p] || 0;
+totais[p].consumo += qty * item.price;
+});
+} else {
+if (totais[atr.owner]) totais[atr.owner].consumo += item.qty * item.price;
+}
+});
+
+rachaPessoas.forEach(p => {
+totais[p].gorjeta = hasTip ? totais[p].consumo * 0.10 : 0;
+});
+
+const list = document.getElementById('racha-resultado-list');
+list.innerHTML = rachaPessoas.map(p => {
+const t = totais[p];
+const total = t.consumo + t.couvert + t.gorjeta;
+return `
+<div class="flex justify-between items-center mb-2">
+<span class="font-bold text-base ${p === 'Você' ? 'text-orange-400' : 'text-white'}">${escapeHtml(p)}</span>
+<span class="font-black text-white text-lg">R$ ${total.toFixed(2)}</span>
+</div>
+<div class="text-xs text-gray-400 space-y-1">
+<div class="flex justify-between"><span>Consumo</span><span>R$ ${t.consumo.toFixed(2)}</span></div>
+${t.couvert > 0 ? `<div class="flex justify-between"><span>Couvert</span><span>R$ ${t.couvert.toFixed(2)}</span></div>` : ''}
+${t.gorjeta > 0 ? `<div class="flex justify-between"><span>Gorjeta (10%)</span><span>R$ ${t.gorjeta.toFixed(2)}</span></div>` : ''}
+</div>
+</div>
+`;
+}).join('');
+
+closeModal('racha-itens-modal');
+openModal('racha-resultado-modal');
+renderPessoasChips('racha-resultado-pessoas-chips', true);
+}
+
+function confirmarMinhaParte() {
+const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
+const hasTip = document.getElementById('in-tip').checked;
+let consumoVoce = 0;
+
+consumption.forEach((item, idx) => {
+const atr = rachaAtribuicoes[idx];
+if (atr.splitValor) {
+consumoVoce += atr.splitValor['Você'] || 0;
+} else if (atr.split) {
+consumoVoce += (atr.split['Você'] || 0) * item.price;
+} else if (atr.owner === 'Você') {
+consumoVoce += item.qty * item.price;
+}
+});
+
+const gorjetaVoce = hasTip ? consumoVoce * 0.10 : 0;
+meuTotalRacha = consumoVoce + couvert + gorjetaVoce;
+
+localStorage.setItem('botequim_meu_total_racha', meuTotalRacha);
+closeModal('racha-resultado-modal');
+updateCalculos();
+showToast(`✅ Sua parte: R$ ${meuTotalRacha.toFixed(2).replace('.', ',')} — salvo na tela principal`);
+}
+
+function desfazerRachaEClose() {
+closeModal('desfazer-racha-modal');
+meuTotalRacha = null;
+rachaPessoas = ['Você'];
+rachaAtribuicoes = [];
+localStorage.removeItem('botequim_meu_total_racha');
+localStorage.removeItem('botequim_racha_pessoas');
+localStorage.removeItem('botequim_racha_atribuicoes');
+updateCalculos();
+}
+
+let consumption, sessionHistory;
+try {
+consumption = JSON.parse(localStorage.getItem('botequim_baron')) || [];
+sessionHistory = JSON.parse(localStorage.getItem('botequim_history')) || [];
+} catch(e) {
+consumption = [];
+sessionHistory = [];
+localStorage.removeItem('botequim_baron');
+localStorage.removeItem('botequim_history');
+}
+let editingIndex = null;
+let _addingItem = false;
+let meuTotalRacha = null;
+const _savedMeuTotal = localStorage.getItem('botequim_meu_total_racha');
+if (_savedMeuTotal !== null) meuTotalRacha = parseFloat(_savedMeuTotal);
+
+// Restaura racha ao reabrir o app
+try {
+const _savedPessoas = localStorage.getItem('botequim_racha_pessoas');
+const _savedAtrib = localStorage.getItem('botequim_racha_atribuicoes');
+if (_savedPessoas) rachaPessoas = JSON.parse(_savedPessoas);
+if (_savedAtrib) rachaAtribuicoes = JSON.parse(_savedAtrib);
+// Garante que atribuições tem o mesmo tamanho que consumption
+if (meuTotalRacha !== null && rachaAtribuicoes.length !== consumption.length) {
+rachaAtribuicoes = consumption.map((_, i) => rachaAtribuicoes[i] || { owner: 'Você' });
+}
+} catch(e) {
+rachaPessoas = ['Você'];
+rachaAtribuicoes = [];
+}
+
+// Navegação entre campos com Enter
+document.getElementById('in-name').addEventListener('keypress', function(e) {
+if (e.key === 'Enter') {
+e.preventDefault();
+document.getElementById('in-qty').focus();
+}
+});
+
+document.getElementById('in-qty').addEventListener('keypress', function(e) {
+if (e.key === 'Enter') {
+e.preventDefault();
+document.getElementById('in-price').focus();
+}
+});
+
+document.getElementById('in-price').addEventListener('keypress', function(e) {
+if (e.key === 'Enter') {
+e.preventDefault();
+addItem();
+}
+});
+
+function saveCouvertTip() {
+const couvert = document.getElementById('in-couvert').value || '';
+const tip = document.getElementById('in-tip').checked ? '1' : '0';
+localStorage.setItem('botequim_couvert', couvert);
+localStorage.setItem('botequim_tip', tip);
+}
+
+// Restaura couvert e gorjeta salvos
+(function restoreCouvertTip() {
+const savedCouvert = localStorage.getItem('botequim_couvert');
+const savedTip = localStorage.getItem('botequim_tip');
+if (savedCouvert) document.getElementById('in-couvert').value = savedCouvert;
+if (savedTip === '1') document.getElementById('in-tip').checked = true;
+})();
+
+let currentBarName = localStorage.getItem('botequim_bar_name') || '';
+
+function openBarNameModal() {
+const input = document.getElementById('bar-name-input');
+input.value = currentBarName;
+document.getElementById('barname-modal').classList.add('active');
+setTimeout(() => { input.focus(); input.select(); }, 100);
+}
+
+function confirmBarName() {
+const val = document.getElementById('bar-name-input').value.trim();
+if (!val) {
+const input = document.getElementById('bar-name-input');
+input.style.borderColor = '#f44336';
+setTimeout(() => { input.style.borderColor = ''; }, 2000);
+return;
+}
+currentBarName = val;
+localStorage.setItem('botequim_bar_name', currentBarName);
+updateResumoTitulo();
+closeModal('barname-modal');
+}
+
+function updateResumoTitulo() {
+const titulo = document.getElementById('resumo-titulo');
+const text = currentBarName
+? `<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo — ${escapeHtml(currentBarName)}</span>`
+: '<span class="flex items-center gap-2"><i class="fas fa-receipt"></i> Resumo</span>';
+const qrBtn = `<button onclick="abrirQRCode()" title="QR Code do App" style="background:none;border:none;cursor:pointer;padding:0;color:#f97316;"><i class="fas fa-qrcode" style="font-size:1.15rem;"></i></button>`;
+titulo.innerHTML = text + qrBtn;
+
+const sub = document.getElementById('header-subtitle');
+if (sub) {
+if (currentBarName) {
+sub.innerHTML = `<span onclick="openBarNameModal()" style="cursor:pointer;margin-left:10px" class="text-gray-300"><i class="fas fa-store mr-1"></i> ${escapeHtml(currentBarName)}</span>`;
+} else {
+sub.innerHTML = `<span onclick="openBarNameModal()" style="cursor:pointer;font-size:13px;color:#f97316;margin-left:10px">Digite o nome do bar</span>`;
+}
+sub.style.marginLeft = '0';
+sub.onclick = null;
+}
+toggleInputArea();
+}
+
+function toggleInputArea() {
+document.getElementById('input-area').style.display = '';
+document.getElementById('no-bar-placeholder').classList.add('hidden');
+}
+
+function startEdit(idx) {
+editingIndex = idx;
+const item = consumption[idx];
+document.getElementById('modal-edit-name').value = item.name;
+document.getElementById('modal-edit-price').value = item.price.toFixed(2);
+document.getElementById('modal-edit-qty').value = item.qty;
+document.getElementById('edit-modal').classList.add('active');
+}
+
+let _pendingEditIndex = null;
+
+function saveModalEdit() {
+if (editingIndex === null) return;
+const newName = document.getElementById('modal-edit-name').value.trim();
+const newPrice = parseFloat(document.getElementById('modal-edit-price').value);
+const newQty = parseInt(document.getElementById('modal-edit-qty').value);
+if (newName && !isNaN(newPrice) && newPrice > 0 && !isNaN(newQty) && newQty > 0) {
+consumption[editingIndex].name = newName;
+consumption[editingIndex].price = newPrice;
+consumption[editingIndex].qty = newQty;
+// Atualiza divisão proporcionalmente se splitValor; invalida se split
+if (rachaAtribuicoes[editingIndex]) {
+if (rachaAtribuicoes[editingIndex].splitValor) {
+recalcularSplitValor(editingIndex);
+} else if (rachaAtribuicoes[editingIndex].split) {
+_pendingEditIndex = editingIndex;
+document.getElementById('confirmar-perder-racha-modal').classList.add('active');
+return;
+}
+}
+_finalizarSaveModalEdit();
+} else {
+document.getElementById('validation-modal').classList.add('active');
+}
+}
+
+function confirmarPerderRacha() {
+if (_pendingEditIndex !== null) {
+rachaAtribuicoes[_pendingEditIndex] = { owner: 'Você' };
+}
+document.getElementById('confirmar-perder-racha-modal').classList.remove('active');
+_finalizarSaveModalEdit();
+}
+
+function cancelarPerderRacha() {
+document.getElementById('confirmar-perder-racha-modal').classList.remove('active');
+_pendingEditIndex = null;
+editingIndex = null;
+closeModal('edit-modal');
+updateCalculos();
+}
+
+function _finalizarSaveModalEdit() {
+_pendingEditIndex = null;
+editingIndex = null;
+closeModal('edit-modal');
+updateCalculos();
+if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
+}
+
+function updateCalculos() {
+const list = document.getElementById('items-list');
+const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
+const hasTip = document.getElementById('in-tip').checked;
+
+const hint = document.getElementById('empty-hint');
+if (hint) hint.style.display = consumption.length === 0 ? '' : 'none';
+
+const countEl = document.getElementById('item-count');
+if (countEl) {
+const n = consumption.length;
+countEl.innerHTML = `<i class="fas fa-list text-orange-500"></i> ${n === 1 ? '1 item' : n + ' itens'}`;
+}
+
+// Botão Dividir conta
+const btnRacha = document.querySelector('button[onclick="openRachaModal()"]');
+if (btnRacha) {
+btnRacha.disabled = consumption.length === 0;
+btnRacha.style.opacity = consumption.length === 0 ? '0.4' : '1';
+btnRacha.style.cursor = consumption.length === 0 ? 'not-allowed' : 'pointer';
+}
+
+// Botão Nova conta
+const btnNovaConta = document.querySelector('button[onclick="clearItems()"]');
+if (btnNovaConta) {
+btnNovaConta.disabled = consumption.length === 0;
+btnNovaConta.style.opacity = consumption.length === 0 ? '0.4' : '1';
+btnNovaConta.style.cursor = consumption.length === 0 ? 'not-allowed' : 'pointer';
+}
+
+list.innerHTML = '';
+let subtotalItems = 0;
+
+consumption.forEach((item, idx) => {
+const totalRow = item.qty * item.price;
+subtotalItems += totalRow;
+
+const unitPriceDisplay = item.qty > 1 
+? `<div class="text-sm text-gray-400"><span class="text-orange-500 font-bold">${item.qty}x</span> unidade: R$ ${item.price.toFixed(2)}</div>` 
+: '';
+
+// Racha ativo: linha 2 = info de divisão, linha 3 = botões de atribuição
+let rachaOwnerLine = '';  // linha 2: "✂ Você:1, Kiko:1" ou "💰 Você: R$100, Kiko: R$100"
+let rachaBtnsLine = '';   // linha 3: [Você] [Kiko] [✂] [💰]
+if (meuTotalRacha !== null && rachaAtribuicoes[idx]) {
+const atr = rachaAtribuicoes[idx];
+if (atr.splitValor) {
+const parts = Object.entries(atr.splitValor).filter(([,v]) => v > 0).map(([k,v]) => `${k}: R$${v.toFixed(2)}`).join(', ');
+rachaOwnerLine = `<div class="text-xs mt-0.5" style="color:#4ade80"><i class="fas fa-coins mr-1"></i>${parts}</div>`;
+} else if (atr.split) {
+const parts = Object.entries(atr.split).filter(([,v]) => v > 0).map(([k,v]) => `${k}:${v}`).join(', ');
+rachaOwnerLine = `<div class="text-xs mt-0.5 text-yellow-400"><i class="fas fa-cut mr-1"></i>${parts}</div>`;
+} else {
+// dono único: não mostra linha extra — o botão ativo já indica quem é
+rachaOwnerLine = '';
+}
+const personBtns = rachaPessoas.map(p => {
+const isActive = !atr.split && !atr.splitValor && atr.owner === p;
+return `<button onclick="rachaSetOwner(${idx},'${escapeHtml(p)}')" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${isActive ? 'border-orange-500 text-orange-400 bg-orange-500/15' : 'border-white/10 text-gray-500 hover:border-orange-400/50'}">${escapeHtml(p)}</button>`;
+}).join('');
+const splitBtn = item.qty > 1
+? `<button onclick="rachaOpenSplit(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.split ? 'border-yellow-500 text-yellow-400 bg-yellow-500/10' : 'border-white/10 text-gray-500 hover:border-yellow-400/50'}"><i class="fas fa-cut"></i></button>`
+: '';
+const splitValorBtnInline = `<button onclick="rachaOpenSplitValor(${idx})" class="px-2 py-0.5 rounded text-xs font-bold border transition-all ${atr.splitValor ? 'border-green-500 text-green-400 bg-green-500/10' : 'border-white/10 text-gray-500 hover:border-green-400/50'}"><i class="fas fa-coins mr-1"></i>÷ R$</button>`;
+rachaBtnsLine = `<div class="flex items-center gap-3 mt-1 flex-wrap">${personBtns}${splitBtn}${splitValorBtnInline}</div>`;
+}
+
+list.innerHTML += `
+<div class="py-3 border-b border-white/10 ${_addingItem ? 'item-animate' : ''}">
+<!-- Linha 1: Qtd x Nome + Valor total -->
+<div class="flex items-center justify-between">
+<div class="text-base font-semibold">${escapeHtml(item.name)}</div>
+<div class="font-bold text-base text-white whitespace-nowrap pl-3">R$ ${totalRow.toFixed(2)}</div>
+</div>
+<!-- Linha 2: unidade (se qty>1) OU info divisão racha OU ambos -->
+${unitPriceDisplay}${rachaOwnerLine}
+<!-- Linha 3: Botões de atribuição racha (só se racha ativo) -->
+${rachaBtnsLine}
+<!-- Linha 4: Botões ação editar/−/+ -->
+<div class="flex items-center gap-3 mt-2">
+<button onclick="startEdit(${idx})" class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 text-green-400 hover:bg-green-500/20 transition-colors">
+<i class="fas fa-pencil-alt text-xs"></i>
+</button>
+<button onclick="decrementItem(${idx})" class="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10 transition-colors">
+<i class="fas fa-minus text-sm"></i>
+</button>
+<button onclick="incrementItem(${idx})" class="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 transition-colors">
+<i class="fas fa-plus text-sm"></i>
+</button>
+</div>
+</div>
+`;
+});
+
+const tipValue = hasTip ? (subtotalItems * 0.10) : 0;
+const finalTotal = subtotalItems + couvert + tipValue;
+
+document.getElementById('res-items').innerHTML = `R$ ${subtotalItems.toFixed(2)}`;
+document.getElementById('res-items-couvert').innerHTML = `R$ ${couvert.toFixed(2)}`;
+document.getElementById('res-couvert-row').style.display = couvert > 0 ? '' : 'none';
+document.getElementById('res-tip').innerHTML = `R$ ${tipValue.toFixed(2)}`;
+document.getElementById('grand-total').innerHTML = `R$ ${finalTotal.toFixed(2)}`;
+
+// Controla visibilidade dos botões de racha (Editar divisão / Desfazer / + Pessoa)
+const rachaAcoesBar = document.getElementById('racha-acoes-bar');
+if (rachaAcoesBar) {
+rachaAcoesBar.style.display = meuTotalRacha !== null ? '' : 'none';
+}
+
+// Minha parte (racha) — recalcula dinamicamente
+const minhaParteBox = document.getElementById('minha-parte-box');
+if (meuTotalRacha !== null) {
+// Recalcula sempre com base nos itens e atribuições atuais
+let consumoVoce = 0;
+consumption.forEach((item, idx) => {
+const atr = rachaAtribuicoes[idx];
+if (!atr) return;
+if (atr.splitValor) {
+consumoVoce += atr.splitValor['Você'] || 0;
+} else if (atr.split) {
+consumoVoce += (atr.split['Você'] || 0) * item.price;
+} else if (atr.owner === 'Você') {
+consumoVoce += item.qty * item.price;
+}
+});
+const gorjetaVoce = hasTip ? consumoVoce * 0.10 : 0;
+meuTotalRacha = consumoVoce + couvert + gorjetaVoce;
+localStorage.setItem('botequim_meu_total_racha', meuTotalRacha);
+document.getElementById('minha-parte-valor').textContent = `R$ ${meuTotalRacha.toFixed(2)}`;
+minhaParteBox.classList.remove('hidden');
+} else {
+minhaParteBox.classList.add('hidden');
+}
+
+// Escala dinâmica: próximo múltiplo de 50 acima do total
+const scaleMax = finalTotal > 0 ? Math.ceil(finalTotal / 50) * 50 : 50;
+// Barra mostra onde o total se posiciona na escala
+const progressPercent = finalTotal > 0 ? (finalTotal / scaleMax) * 100 : 0;
+document.getElementById('progress-fill').style.width = `${progressPercent}%`;
+
+const s = document.getElementById('progress-scale');
+if (s) {
+const marks = [0, scaleMax*0.25, scaleMax*0.5, scaleMax*0.75, scaleMax];
+s.innerHTML = marks.map(v => `<span>R$${Math.round(v)}</span>`).join('');
+}
+
+localStorage.setItem('botequim_baron', JSON.stringify(consumption));
+if (meuTotalRacha !== null) {
+localStorage.setItem('botequim_racha_pessoas', JSON.stringify(rachaPessoas));
+localStorage.setItem('botequim_racha_atribuicoes', JSON.stringify(rachaAtribuicoes));
+}
+
+if (editingIndex === null && list.lastChild) {
+list.lastChild.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+}
+
+function escapeHtml(text) {
+const div = document.createElement('div');
+div.textContent = text;
+return div.innerHTML;
+}
+
+function addItem(noFocus) {
+const nameEl = document.getElementById('in-name');
+const qtyEl = document.getElementById('in-qty');
+const priceEl = document.getElementById('in-price');
+
+const name = nameEl.value.trim();
+const qty = parseInt(qtyEl.value) || 1;
+const price = parseFloat(priceEl.value) || 0;
+
+if (name && price > 0) {
+consumption.push({ name, qty, price });
+// Se racha ativo, atribui o novo item a "Você" por padrão e recalcula
+if (meuTotalRacha !== null) {
+rachaAtribuicoes.push({ owner: 'Você' });
+}
+nameEl.value = ''; 
+qtyEl.value = ''; 
+priceEl.value = '';
+
+// Remove o foco de todos os campos - o teclado não aparecerá automaticamente
+nameEl.blur();
+qtyEl.blur();
+priceEl.blur();
+
+_addingItem = true;
+updateCalculos();
+_addingItem = false;
+
+if (window.navigator && window.navigator.vibrate) {
+window.navigator.vibrate(50);
+}
+} else {
+document.getElementById('validation-modal').classList.add('active');
+}
+}
+
+const examples = {
+'🥔 Batatas Rösti': [
+{ name: 'Bacon com Champignon', price: 79.90 },
+{ name: 'Batata Rösti Costela Assada', price: 85.90 },
+{ name: 'Batata Rösti Costelinha', price: 85.90 },
+{ name: 'Carne Seca', price: 89.90 },
+{ name: 'Da Terra', price: 89.90 },
+{ name: 'Frango com Catupiry', price: 89.90 },
+{ name: 'Italiana 4 Queijos', price: 89.90 },
+{ name: 'Linguiça Blumenau', price: 85.90 },
+{ name: 'Mignon com Cheddar', price: 85.90 }
+],
+
+'🍹 Bebidas': [
+{ name: 'Água', price: 6.00 },
+{ name: 'Cachaça', price: 15.00 },
+{ name: 'Caipiras', price: 28.90 },
+{ name: 'Campari Tonic Orange', price: 35.00 },
+{ name: 'Chá Gelado', price: 10.00 },
+{ name: 'Chivas Regal', price: 35.00 },
+{ name: 'Cuba Libre', price: 28.00 },
+{ name: 'Energético', price: 18.00 },
+{ name: 'Gin Melancita', price: 35.00 },
+{ name: 'Gin Tônica', price: 30.00 },
+{ name: 'Gin Tropical', price: 35.00 },
+{ name: 'Jack Coke', price: 35.00 },
+{ name: "Jack Daniel's", price: 39.00 },
+{ name: 'Jager Bomb', price: 35.00 },
+{ name: 'Jägermeister', price: 20.00 },
+{ name: 'Johnnie Walker Black Label', price: 39.00 },
+{ name: 'Johnnie Walker Red Label', price: 29.00 },
+{ name: 'Licor de Cerveja', price: 20.00 },
+{ name: 'Limonada Suíça', price: 12.00 },
+{ name: 'Refrigerante', price: 8.00 },
+{ name: 'Steinhager', price: 18.00 },
+{ name: 'Suco de Lata', price: 8.00 },
+{ name: 'Suco Natural', price: 10.00 },
+{ name: 'Suco Polpa', price: 10.00 },
+{ name: 'Tequila', price: 20.00 },
+{ name: 'Underberg (Brasilberg)', price: 18.00 },
+{ name: 'Vodka Absolut', price: 30.00 },
+{ name: 'Vodka Kalvelage', price: 20.00 },
+{ name: 'Vodka Smirnoff', price: 22.00 }
+],
+
+'🍺 Chopes': [
+{ name: '5 Elementos Isaac Mango', price: 25.00 },
+{ name: 'Alles Blau Strong Golden Ale', price: 15.00 },
+{ name: 'Bamberg Schwarzbier', price: 12.00 },
+{ name: 'Biertal Taix Tolo Tche', price: 15.00 },
+{ name: 'Big Jack Strong Ale', price: 10.00 },
+{ name: 'Big John Bearskin Hat', price: 16.00 },
+{ name: 'Birrificio Blub Fiore', price: 15.00 },
+{ name: 'Brewteco Overhop', price: 15.00 },
+{ name: 'Capivara Little IPA', price: 13.00 },
+{ name: 'Costa Esmeralda Vinho', price: 14.00 },
+{ name: 'Dádiva 10 Anos', price: 16.00 },
+{ name: 'Delirium Red', price: 29.00 },
+{ name: 'Delirium Tremens', price: 29.00 },
+{ name: 'Donkey Head Citranela', price: 12.00 },
+{ name: 'Frida Blond Ale', price: 13.00 },
+{ name: 'Gost’s Muninn Porter', price: 16.00 },
+{ name: 'Indigo El Peacharine', price: 14.00 },
+{ name: 'Ipê Roxo', price: 13.00 },
+{ name: 'Japas Oishii', price: 15.00 },
+{ name: 'Königs Bier RIS', price: 11.00 },
+{ name: 'Macuca Bala de Coco', price: 10.00 },
+{ name: 'Maestro Morango e Pitaya', price: 15.00 },
+{ name: 'Nefasta Exilada', price: 14.00 },
+{ name: 'Nordus Equinócio', price: 15.00 },
+{ name: 'Notorious Maracutaya', price: 15.00 },
+{ name: 'Octopus Midnight Blues', price: 15.00 },
+{ name: 'Pakas Dark Sour', price: 15.00 },
+{ name: 'Pilsen', price: 12.00 },
+{ name: 'Schornstein Bock', price: 16.00 },
+{ name: 'Sour Pêssego', price: 14.00 },
+{ name: 'Trilha Double Trópicos', price: 17.00 },
+{ name: 'Trilha Mar', price: 15.00 },
+{ name: 'Undertap Mergulho Sem Fim', price: 18.00 },
+{ name: 'Verace Double Vera', price: 17.00 },
+{ name: 'Vila Weissbier', price: 13.00 },
+{ name: 'Walfanger Albert', price: 10.00 },
+{ name: 'Walfanger Sebastian', price: 10.00 },
+{ name: 'Zuid Grizette Zappa', price: 17.00 }
+],
+
+'🥨 Pratos Típicos': [
+{ name: 'Banquete Alemão', price: 321.90 },
+{ name: 'Bratwurst', price: 79.90 },
+{ name: 'Eisbein', price: 89.90 },
+{ name: 'Goulash com Cerveja', price: 82.90 },
+{ name: 'Hackepeter', price: 79.90 },
+{ name: 'Kassler', price: 79.90 },
+{ name: 'Marreco Recheado', price: 176.90 },
+{ name: 'Schlachtplatte', price: 198.90 },
+{ name: 'Wiener Schnitzel', price: 98.90 }
+],
+
+'🍝 Massas': [
+{ name: 'Mac&Costela', price: 59.90 },
+{ name: 'Mac&Porkcheese', price: 52.90 },
+{ name: 'Massa à Bolonhesa', price: 49.90 },
+{ name: 'Massa ao Mignon e Cheddar', price: 59.90 },
+{ name: 'Massa ao Pesto Genovese', price: 49.90 },
+{ name: 'Massa Camarões ao Pesto', price: 69.90 },
+{ name: 'Massa Linguiça Blumenau', price: 49.90 },
+{ name: 'Massa Quatro Queijos', price: 59.90 },
+{ name: 'Ragú de Ossobuco', price: 59.90 }
+],
+
+'🫓 Petiscos': [
+{ name: 'Alcatra Acebolada', price: 159.90 },
+{ name: 'Batata Belga', price: 49.90 },
+{ name: 'Batata Frita Palito', price: 42.90 },
+{ name: 'Bolinho de Carne Seca', price: 49.90 },
+{ name: 'Bolinho de Costela', price: 49.90 },
+{ name: 'Bolinho de Linguiça', price: 49.90 },
+{ name: 'Calabresa com Fritas', price: 79.90 },
+{ name: 'Chicken Fries', price: 59.90 },
+{ name: 'Combinado Bier Vila', price: 189.90 },
+{ name: 'Currywurst', price: 69.90 },
+{ name: 'Fish&Chips', price: 79.90 },
+{ name: 'Frango com Fritas', price: 108.00 },
+{ name: 'Frango Crocante', price: 49.90 },
+{ name: 'Linguiça na Chapa', price: 92.90 },
+{ name: 'Mussarela Sticks', price: 49.90 },
+{ name: 'Petisco de Joelho', price: 82.90 },
+{ name: 'Pipoca de Linguiça', price: 36.90 },
+{ name: 'Polenta Frita', price: 45.90 },
+{ name: 'Pork&Chips', price: 69.90 },
+{ name: 'Provoleta Alemã', price: 79.90 },
+{ name: 'Salsicha Alemã', price: 72.90 },
+{ name: 'Tirinhas de Schnitzel à Panê', price: 49.90 },
+{ name: 'Torresmo de Rolo', price: 82.90 }
+],
+
+'🥩 Pratos Principais': [
+{ name: 'Alcatra', price: 78.90 },
+{ name: 'Alcatra Grelhada', price: 189.90 },
+{ name: 'Entrecot Grelhado', price: 189.90 },
+{ name: 'Frango', price: 43.90 },
+{ name: 'Picanha Suína', price: 43.90 }
+],
+
+'🧒 Pratos Kids': [
+{ name: 'Alcatra Kids', price: 39.90 },
+{ name: 'Frango Kids', price: 35.90 },
+{ name: 'Mac&Cheese Kids', price: 35.90 },
+{ name: 'Spaghetti Bolonhesa Kids', price: 34.90 }
+],
+
+'🍛 Risotos': [
+{ name: 'Risoto Camarão Vila', price: 79.90 },
+{ name: 'Risoto de Pato', price: 59.90 },
+{ name: 'Risoto Linguiça Blumenau', price: 49.90 },
+{ name: 'Risoto Pollo, Tomate Confit', price: 49.90 },
+{ name: 'Risoto Vegetariano', price: 47.90 }
+],
+
+'🥗 Saladas': [
+{ name: 'Espaço Vila', price: 31.90 },
+{ name: 'Salada Caesar', price: 31.90 },
+{ name: 'Vila Germânica', price: 31.90 }
+],
+
+'🥪 Sanduíches': [
+{ name: 'Sanduíche de Costela', price: 48.90 },
+{ name: 'Sanduíche de Costelinha', price: 48.90 },
+{ name: 'Sanduíche de Frango', price: 48.90 },
+{ name: 'Sanduíche de Schnitzel', price: 48.90 },
+{ name: 'Smash Burger', price: 31.90 }
+],
+
+'🍰 Sobremesas': [
+{ name: 'Apfel Strudel', price: 34.90 },
+{ name: 'Brownie com Sorvete', price: 34.90 },
+{ name: 'Petit Gateau', price: 34.90 },
+{ name: 'Rote Grütze com Sorvete', price: 34.90 }
+]
+};
+
+function quickAddExample() {
+let examplesModal = document.getElementById('examples-modal');
+if (!examplesModal) {
+examplesModal = document.createElement('div');
+examplesModal.id = 'examples-modal';
+examplesModal.className = 'modal';
+examplesModal.innerHTML = `
+<div class="modal-content" style="width:340px; max-height:82vh; display:flex; flex-direction:column;">
+<div class="flex justify-between items-center mb-3" style="flex-shrink:0">
+<div class="flex items-center gap-2">
+<button id="back-to-categories" onclick="showExampleCategories()" style="display:none; background:none; border:none; cursor:pointer; padding:0;" class="text-orange-400">
+<i class="fas fa-arrow-left"></i>
+</button>
+<h3 id="examples-modal-title" class="text-lg font-bold text-orange-500">
+<i class="fas fa-list mr-2"></i>Cardápio
+</h3>
+</div>
+<button onclick="closeModal('examples-modal')" class="text-gray-400 text-xl leading-none">&times;</button>
+</div>
+<div id="examples-body" class="overflow-y-auto" style="flex:1; min-height:0;"></div>
+</div>
+`;
+document.body.appendChild(examplesModal);
+}
+showExampleCategories();
+openModal('examples-modal');
+}
+
+function showExampleCategories() {
+document.getElementById('back-to-categories').style.display = 'none';
+document.getElementById('examples-modal-title').innerHTML = '<i class="fas fa-list mr-2"></i>Cardápio';
+const body = document.getElementById('examples-body');
+body.innerHTML = Object.entries(examples).map(([cat, itens]) => `
+<div onclick="showExampleItems('${cat.replace(/'/g, "\\'")}')"
+class="flex justify-between items-center bg-white/5 rounded-xl px-4 py-3 mb-2 cursor-pointer hover:bg-white/10 transition-all"
+style="border-left: 3px solid #ff9800;">
+<span class="font-semibold text-white text-sm">${cat}</span>
+<span class="text-gray-500 text-xs flex items-center gap-2">
+<span>${itens.length} itens</span>
+<i class="fas fa-chevron-right text-orange-500/60"></i>
+</span>
+</div>
+`).join('');
+}
+
+function showExampleItems(cat) {
+document.getElementById('back-to-categories').style.display = 'inline';
+document.getElementById('examples-modal-title').textContent = cat;
+const itens = examples[cat];
+const body = document.getElementById('examples-body');
+body.innerHTML = itens.map((item, idx) => `
+<div data-cat="${escapeHtml(cat)}" data-idx="${idx}"
+class="example-item flex justify-between items-center bg-white/5 rounded-xl px-4 py-3 mb-2 cursor-pointer hover:bg-white/10 transition-all"
+style="border-left: 2px solid #ff9800;">
+<span class="text-sm font-semibold text-white">${escapeHtml(item.name)}</span>
+<span class="text-orange-400 font-bold text-sm whitespace-nowrap pl-3">R$ ${item.price.toFixed(2)}</span>
+</div>
+`).join('');
+
+body.querySelectorAll('.example-item').forEach(el => {
+el.addEventListener('click', () => {
+const c = el.dataset.cat;
+const i = parseInt(el.dataset.idx);
+const item = examples[c][i];
+addExampleItemDirect(item.name, item.price);
+});
+});
+}
+
+function addExampleItemDirect(name, price) {
+closeModal('examples-modal');
+document.getElementById('in-name').value = name;
+document.getElementById('in-price').value = price;
+document.getElementById('in-qty').value = 1;
+addItem(true);
+if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
+}
+
+function recalcularSplitValor(idx) {
+const atr = rachaAtribuicoes[idx];
+if (!atr || !atr.splitValor) return;
+const item = consumption[idx];
+const novoTotal = item.qty * item.price;
+const totalAnterior = Object.values(atr.splitValor).reduce((s, v) => s + v, 0);
+if (totalAnterior <= 0) return;
+const pessoas = Object.keys(atr.splitValor);
+const novo = {};
+pessoas.forEach(p => {
+novo[p] = parseFloat(((atr.splitValor[p] / totalAnterior) * novoTotal).toFixed(2));
+});
+const soma = pessoas.reduce((s, p) => s + novo[p], 0);
+const diff = parseFloat((novoTotal - soma).toFixed(2));
+if (Math.abs(diff) >= 0.01) novo[pessoas[0]] = parseFloat((novo[pessoas[0]] + diff).toFixed(2));
+rachaAtribuicoes[idx] = { splitValor: novo };
+}
+
+function incrementItem(idx) { 
+consumption[idx].qty += 1;
+if (rachaAtribuicoes[idx]) {
+if (rachaAtribuicoes[idx].splitValor) {
+recalcularSplitValor(idx);
+} else if (rachaAtribuicoes[idx].split) {
+rachaAtribuicoes[idx].split['Você'] = (rachaAtribuicoes[idx].split['Você'] || 0) + 1;
+showToast('⚠️ Unidade extra atribuída a Você — ajuste se necessário.');
+}
+}
+updateCalculos(); 
+}
+
+function decrementItem(idx) {
+if (consumption[idx].qty > 1) {
+consumption[idx].qty -= 1;
+if (rachaAtribuicoes[idx]) {
+if (rachaAtribuicoes[idx].splitValor) {
+recalcularSplitValor(idx);
+} else if (rachaAtribuicoes[idx].split) {
+rachaAtribuicoes[idx] = { owner: 'Você' };
+}
+}
+updateCalculos();
+} else {
+const modal = document.getElementById('remove-modal');
+document.getElementById('remove-item-name').textContent = consumption[idx].name;
+modal.classList.add('active');
+document.getElementById('remove-confirm-btn').onclick = function() {
+consumption.splice(idx, 1);
+if (rachaAtribuicoes.length > idx) rachaAtribuicoes.splice(idx, 1);
+if (editingIndex === idx) editingIndex = null;
+else if (editingIndex !== null && editingIndex > idx) editingIndex--;
+closeModal('remove-modal');
+updateCalculos();
+};
+}
+}
+
+function clearItems() {
+document.getElementById('clear-modal').classList.add('active');
+}
+
+function confirmClearItems() {
+if (consumption.length > 0) {
+const total = calculateTotal();
+const couvertVal = parseFloat(document.getElementById('in-couvert').value) || 0;
+const hasTipVal = document.getElementById('in-tip').checked;
+const subtotalVal = consumption.reduce((sum, i) => sum + (i.qty * i.price), 0);
+let histItems, histSubtotal, rachaSnapshot;
+if (meuTotalRacha !== null && rachaAtribuicoes.length === consumption.length) {
+histItems = [];
+histSubtotal = 0;
+consumption.forEach((item, idx) => {
+const atr = rachaAtribuicoes[idx];
+if (atr.splitValor) {
+const val = atr.splitValor['Você'] || 0;
+if (val > 0) {
+histItems.push({ name: item.name, qty: item.qty, price: item.price, valorFixo: val });
+histSubtotal += val;
+}
+} else {
+let myQty = 0;
+if (atr.split) myQty = atr.split['Você'] || 0;
+else if (atr.owner === 'Você') myQty = item.qty;
+if (myQty > 0) {
+histItems.push({ name: item.name, qty: myQty, price: item.price });
+histSubtotal += myQty * item.price;
+}
+}
+});
+// snapshot completo por pessoa para a comanda do histórico
+rachaSnapshot = {};
+rachaPessoas.forEach(p => { rachaSnapshot[p] = { consumo: 0, items: [] }; });
+consumption.forEach((item, idx) => {
+const atr = rachaAtribuicoes[idx];
+if (atr.splitValor) {
+rachaPessoas.forEach(p => {
+const val = atr.splitValor[p] || 0;
+if (val > 0) {
+rachaSnapshot[p].consumo += val;
+rachaSnapshot[p].items.push({ name: item.name, qty: item.qty, price: item.price, valorFixo: val });
+}
+});
+} else if (atr.split) {
+rachaPessoas.forEach(p => {
+const qty = atr.split[p] || 0;
+if (qty > 0) {
+rachaSnapshot[p].consumo += qty * item.price;
+rachaSnapshot[p].items.push({ name: item.name, qty, price: item.price });
+}
+});
+} else {
+rachaSnapshot[atr.owner].consumo += item.qty * item.price;
+rachaSnapshot[atr.owner].items.push({ name: item.name, qty: item.qty, price: item.price });
+}
+});
+rachaPessoas.forEach(p => {
+const gorj = hasTipVal ? rachaSnapshot[p].consumo * 0.10 : 0;
+rachaSnapshot[p].gorjeta = gorj;
+rachaSnapshot[p].couvert = couvertVal;
+rachaSnapshot[p].total = rachaSnapshot[p].consumo + couvertVal + gorj;
+});
+} else {
+histItems = JSON.parse(JSON.stringify(consumption));
+histSubtotal = subtotalVal;
+rachaSnapshot = null;
+}
+sessionHistory.unshift({
+date: new Date().toLocaleString(),
+bar: currentBarName || 'Botequim',
+items: histItems,
+allItems: JSON.parse(JSON.stringify(consumption)),
+allSubtotal: subtotalVal,
+allTotal: total,
+total: meuTotalRacha !== null ? meuTotalRacha : total,
+itemsCount: histItems.reduce((sum, i) => sum + i.qty, 0),
+couvert: couvertVal,
+tip: hasTipVal ? histSubtotal * 0.10 : 0,
+hasTip: hasTipVal,
+rachado: meuTotalRacha !== null,
+rachaSnapshot: rachaSnapshot,
+rachaPessoasSaved: meuTotalRacha !== null ? JSON.parse(JSON.stringify(rachaPessoas)) : null,
+rachaAtribuicoesSaved: meuTotalRacha !== null ? JSON.parse(JSON.stringify(rachaAtribuicoes)) : null
+});
+if (sessionHistory.length > 100) sessionHistory.pop();
+localStorage.setItem('botequim_history', JSON.stringify(sessionHistory));
+}
+consumption = [];
+editingIndex = null;
+currentBarName = '';
+meuTotalRacha = null;
+rachaPessoas = ['Você'];
+rachaAtribuicoes = [];
+localStorage.removeItem('botequim_meu_total_racha');
+localStorage.removeItem('botequim_racha_pessoas');
+localStorage.removeItem('botequim_racha_atribuicoes');
+localStorage.removeItem('botequim_baron');
+localStorage.removeItem('botequim_bar_name');
+updateResumoTitulo();
+document.getElementById('in-couvert').value = '';
+document.getElementById('in-tip').checked = false;
+localStorage.removeItem('botequim_couvert');
+localStorage.removeItem('botequim_tip');
+closeModal('clear-modal');
+updateCalculos();
+showToast('✅ Conta fechada e salva no histórico!');
+}
+
+function limparTela() {
+if (consumption.length === 0) return;
+document.getElementById('limpar-tela-modal').classList.add('active');
+}
+
+function confirmarLimparTela() {
+consumption = [];
+editingIndex = null;
+currentBarName = '';
+meuTotalRacha = null;
+rachaPessoas = ['Você'];
+rachaAtribuicoes = [];
+localStorage.removeItem('botequim_meu_total_racha');
+localStorage.removeItem('botequim_racha_pessoas');
+localStorage.removeItem('botequim_racha_atribuicoes');
+localStorage.removeItem('botequim_baron');
+localStorage.removeItem('botequim_bar_name');
+document.getElementById('in-couvert').value = '';
+document.getElementById('in-tip').checked = false;
+localStorage.removeItem('botequim_couvert');
+localStorage.removeItem('botequim_tip');
+updateResumoTitulo();
+updateCalculos();
+closeModal('limpar-tela-modal');
+showToast('🧹 Lista limpa!');
+}
+
+function calculateTotal() {
+const subtotal = consumption.reduce((sum, item) => sum + (item.qty * item.price), 0);
+const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
+const hasTip = document.getElementById('in-tip').checked;
+const tip = hasTip ? subtotal * 0.10 : 0;
+return subtotal + couvert + tip;
+}
+
+function showHistory() {
+const modal = document.getElementById('history-modal');
+const historyList = document.getElementById('history-list');
+
+if (sessionHistory.length === 0) {
+historyList.innerHTML = '<div class="text-center text-gray-500 py-4">Nenhum histórico ainda.</div>';
+} else {
+historyList.innerHTML = sessionHistory.map((h, idx) => `
+<div class="history-item" onclick="showHistoryDetail(${idx})">
+<div class="flex justify-between items-start">
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-bold text-orange-500">${escapeHtml(h.bar)}</span>
+<span class="text-xs text-gray-400">${h.date}</span>
+</div>
+<div class="text-xs mt-1 text-gray-300">${h.itemsCount} itens | ${h.rachado ? '<span class="text-yellow-400">Minha parte: </span>' : 'Total: '}R$ ${h.total.toFixed(2)}</div>
+<div class="text-xs text-gray-500 truncate mt-1">${h.items.map(i => i.qty + 'x ' + i.name).join(', ')}</div>
+</div>
+<div class="flex gap-2 ml-2 mt-1 flex-shrink-0">
+<button onclick="event.stopPropagation(); promptReopenHistory(${idx})" class="w-7 h-7 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center hover:bg-orange-500/40 transition-colors" title="Reabrir esta conta">
+<i class="fas fa-undo-alt text-xs"></i>
+</button>
+<button onclick="event.stopPropagation(); deleteHistoryItem(${idx})" class="w-7 h-7 rounded-lg bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500/40 transition-colors" title="Apagar este registro">
+<i class="fas fa-trash-alt text-xs"></i>
+</button>
+</div>
+</div>
+</div>
+`).join('');
+}
+
+document.getElementById('progress-fill').style.visibility = 'hidden';
+modal.classList.add('active');
+}
+
+function deleteHistoryItem(idx) {
+const h = sessionHistory[idx];
+document.getElementById('delete-history-item-name').textContent = h.bar || 'este bar';
+document.getElementById('delete-history-item-modal').classList.add('active');
+document.getElementById('delete-history-item-confirm-btn').onclick = function() {
+sessionHistory.splice(idx, 1);
+localStorage.setItem('botequim_history', JSON.stringify(sessionHistory));
+closeModal('delete-history-item-modal');
+showHistory();
+};
+}
+
+function promptReopenHistory(idx) {
+const h = sessionHistory[idx];
+document.getElementById('reopen-history-bar-name').textContent = h.bar || 'Botequim';
+document.getElementById('reopen-history-modal').classList.add('active');
+document.getElementById('reopen-history-confirm-btn').onclick = function() {
+reopenHistory(idx);
+};
+}
+
+function reopenHistory(idx) {
+const h = sessionHistory[idx];
+// Restaura os itens
+consumption = JSON.parse(JSON.stringify(h.allItems || h.items));
+currentBarName = h.bar || '';
+// Restaura couvert e gorjeta
+document.getElementById('in-couvert').value = h.couvert > 0 ? h.couvert : '';
+document.getElementById('in-tip').checked = !!h.hasTip;
+// Salva no localStorage
+localStorage.setItem('botequim_baron', JSON.stringify(consumption));
+localStorage.setItem('botequim_bar_name', currentBarName);
+// Restaura racha se existir
+if (h.rachado && h.rachaPessoasSaved && h.rachaAtribuicoesSaved) {
+rachaPessoas = JSON.parse(JSON.stringify(h.rachaPessoasSaved));
+rachaAtribuicoes = JSON.parse(JSON.stringify(h.rachaAtribuicoesSaved));
+// Recalcula meuTotalRacha
+const couvertVal = h.couvert || 0;
+const hasTipVal = !!h.hasTip;
+let consumoVoce = 0;
+consumption.forEach((item, i) => {
+const atr = rachaAtribuicoes[i];
+if (!atr) return;
+if (atr.splitValor) consumoVoce += atr.splitValor['Você'] || 0;
+else if (atr.split) consumoVoce += (atr.split['Você'] || 0) * item.price;
+else if (atr.owner === 'Você') consumoVoce += item.qty * item.price;
+});
+const gorjetaVoce = hasTipVal ? consumoVoce * 0.10 : 0;
+meuTotalRacha = consumoVoce + couvertVal + gorjetaVoce;
+localStorage.setItem('botequim_racha_pessoas', JSON.stringify(rachaPessoas));
+localStorage.setItem('botequim_racha_atribuicoes', JSON.stringify(rachaAtribuicoes));
+localStorage.setItem('botequim_meu_total_racha', meuTotalRacha);
+} else {
+// Sem racha ou histórico antigo sem dados salvos — limpa
+meuTotalRacha = null;
+rachaPessoas = ['Você'];
+rachaAtribuicoes = [];
+localStorage.removeItem('botequim_meu_total_racha');
+localStorage.removeItem('botequim_racha_pessoas');
+localStorage.removeItem('botequim_racha_atribuicoes');
+}
+// Fecha modais e atualiza tela
+closeModal('reopen-history-modal');
+closeModal('history-modal');
+updateResumoTitulo();
+updateCalculos();
+showToast('↩️ Conta reaberta! Edite como quiser.');
+}
+
+function showHistoryDetail(idx) {
+const h = sessionHistory[idx];
+// topo sempre mostra a conta completa
+const displayItems = (h.rachado && h.allItems) ? h.allItems : h.items;
+const displaySubtotal = (h.rachado && h.allSubtotal != null) ? h.allSubtotal : displayItems.reduce((s,i) => s + i.qty * i.price, 0);
+const displayTotal = (h.rachado && h.allTotal != null) ? h.allTotal : h.total;
+const couvert = h.couvert || 0;
+const tip = h.rachado && h.hasTip ? displaySubtotal * 0.10 : (h.tip || 0);
+
+let itemsHtml = '';
+displayItems.forEach(item => {
+const rowTotal = (item.qty * item.price).toFixed(2);
+const unitLine = item.qty > 1
+? `<div style="font-size:0.82rem;color:#888;margin-top:-2px;line-height:1">${item.qty}x unidade: R$ ${item.price.toFixed(2)}</div>`
+: '';
+itemsHtml += `
+<div style="margin-bottom:6px">
+<div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.82rem">
+<span>${escapeHtml(item.name)}</span>
+<span>R$ ${rowTotal}</span>
+</div>
+${unitLine}
+</div>`;
+});
+
+let rachaHistHtml = '';
+if (h.rachado && h.rachaSnapshot) {
+const pessoas = Object.keys(h.rachaSnapshot);
+const linhas = pessoas.map(p => {
+const d = h.rachaSnapshot[p];
+const isVoce = p === 'Você';
+const subItens = d.items.map(i => {
+const itemVal = i.valorFixo !== undefined ? i.valorFixo.toFixed(2) : (i.qty * i.price).toFixed(2);
+const subLine = i.valorFixo !== undefined ? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">$ dividido</div>` : (i.qty > 1 ? `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty}x unidade: R$ ${i.price.toFixed(2)}</div>` : '');
+return `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:6px">
+<div><div style="margin-bottom:0px">${escapeHtml(i.name)}</div>${subLine}</div>
+<span style="white-space:nowrap;padding-left:8px">R$ ${itemVal}</span>
+</div>`;
+}).join('');
+const extras = `
+${d.couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Couvert</span><span>R$ ${d.couvert.toFixed(2)}</span></div>` : ''}
+${d.gorjeta > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Gorjeta (10%)</span><span>R$ ${d.gorjeta.toFixed(2)}</span></div>` : ''}`;
+return `
+<div style="margin-bottom:8px">
+<div style="display:flex;justify-content:space-between;font-size:0.9rem;font-weight:700;${isVoce ? 'color:#b35a00' : 'color:#222'}">
+<span>${isVoce ? 'MINHA PARTE' : p.toUpperCase()}</span>
+<span>R$ ${d.total.toFixed(2)}</span>
+</div>
+${subItens}${extras}
+</div>`;
+}).join('');
+rachaHistHtml = `
+<hr class="comanda-dotted">
+<div style="font-size:0.72rem;color:#555;margin-bottom:6px;letter-spacing:1px">DIVISÃO DA CONTA</div>
+${linhas}`;
+} else if (h.rachado) {
+rachaHistHtml = `
+<hr class="comanda-dotted">
+<div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700;color:#b35a00">
+<span>MINHA PARTE</span><span>R$ ${h.total.toFixed(2)}</span>
+</div>`;
+}
+
+document.getElementById('comanda-content').innerHTML = `
+<div style="text-align:center;margin-bottom:4px">
+<div style="font-size:1.1rem;letter-spacing:2px;font-weight:700;text-transform:uppercase">${escapeHtml(h.bar || 'BOTEQUIM')}</div>
+</div>
+<hr class="comanda-dashed">
+<div style="font-size:0.72rem;color:#555;text-align:center;margin-bottom:2px">${h.date}</div>
+<hr class="comanda-dotted">
+<div style="font-size:0.78rem;color:#555;margin-bottom:8px;display:flex;justify-content:space-between">
+<span>ITEM</span><span>TOTAL</span>
+</div>
+${itemsHtml}
+<hr class="comanda-dashed">
+<div style="display:flex;justify-content:space-between;font-size:0.77rem;margin-bottom:4px">
+<span>CONSUMO</span><span>R$ ${displaySubtotal.toFixed(2)}</span>
+</div>
+${tip > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.77rem;margin-bottom:4px"><span>GORJETA (10%)</span><span>R$ ${tip.toFixed(2)}</span></div>` : ''}
+${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.77rem;margin-bottom:4px"><span>COUVERT</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
+<hr class="comanda-dashed">
+<div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700">
+<span>TOTAL</span><span>R$ ${displayTotal.toFixed(2)}</span>
+</div>
+${rachaHistHtml}
+<div style="margin-top:16px;text-align:right">
+</div>
+`;
+
+_comandaFromHistory = true;
+closeModal('history-modal');
+document.getElementById('comanda-modal').classList.add('active');
+}
+
+function clearHistory() {
+document.getElementById('clear-history-modal').classList.add('active');
+}
+
+function confirmClearHistory() {
+sessionHistory = [];
+localStorage.removeItem('botequim_history');
+closeModal('clear-history-modal');
+closeModal('history-modal');
+}
+
+function closeModal(modalId) {
+document.getElementById(modalId).classList.remove('active');
+if (modalId === 'history-modal') {
+document.getElementById('progress-fill').style.visibility = '';
+}
+}
+
+window.onclick = function(event) {
+if (event.target.classList.contains('modal')) {
+event.target.classList.remove('active');
+}
+};
+
+let _comandaFromHistory = false;
+
+async function compartilharComandaImagem() {
+const actions = document.getElementById('comanda-actions');
+const closeBtn = document.querySelector('.comanda-close-btn');
+const comandaWrap = document.getElementById('comanda-content');
+const shareBtn = actions.querySelector('button');
+const shareBtnOriginal = shareBtn.innerHTML;
+
+// Bloqueia botão e exibe feedback
+shareBtn.disabled = true;
+shareBtn.innerHTML = '<span style="font-size:12px;color:#555;font-family:sans-serif">Gerando...</span>';
+
+// Cria um container temporário para captura
+const tempContainer = document.createElement('div');
+tempContainer.style.position = 'fixed';
+tempContainer.style.top = '-9999px';
+tempContainer.style.left = '-9999px';
+tempContainer.style.backgroundColor = '#f5f0e8';
+tempContainer.style.fontFamily = "'Courier Prime', 'Courier New', monospace";
+tempContainer.style.padding = '24px 20px 20px';
+tempContainer.style.width = `${comandaWrap.scrollWidth}px`;
+
+// Clona o conteúdo
+const clone = comandaWrap.cloneNode(true);
+clone.style.height = 'auto';
+clone.style.maxHeight = 'none';
+clone.style.overflow = 'visible';
+clone.style.overflowY = 'visible';
+tempContainer.appendChild(clone);
+document.body.appendChild(tempContainer);
+
+// Reduz fontes apenas na imagem gerada (não afeta a comanda na tela)
+clone.querySelectorAll('[style*="font-size"]').forEach(el => {
+const match = el.style.fontSize.match(/([\d.]+)rem/);
+if (match) {
+el.style.fontSize = (parseFloat(match[1]) * 0.85) + 'rem';
+}
+});
+
+try {
+// Aguarda o clone ser inserido e renderizado completamente
+await new Promise(resolve => setTimeout(resolve, 150));
+
+// Oculta botões apenas na hora de capturar
+actions.style.display = 'none';
+closeBtn.style.display = 'none';
+
+const canvas = await html2canvas(tempContainer, {
+backgroundColor: '#f5f0e8',
+scale: 2,
+useCORS: true,
+logging: false,
+scrollX: 0,
+scrollY: 0,
+windowWidth: tempContainer.scrollWidth,
+windowHeight: tempContainer.scrollHeight,
+height: tempContainer.scrollHeight,
+width: tempContainer.scrollWidth
+});
+
+canvas.toBlob(async (blob) => {
+const file = new File([blob], 'comanda-botequim.png', { type: 'image/png' });
+if (navigator.canShare && navigator.canShare({ files: [file] })) {
+await navigator.share({ files: [file], title: 'Comanda Botequim' });
+} else {
+const a = document.createElement('a');
+a.href = URL.createObjectURL(blob);
+a.download = 'comanda-botequim.png';
+a.click();
+URL.revokeObjectURL(a.href);
+}
+}, 'image/png');
+} catch(e) {
+if (e.name !== 'AbortError') {
+alert('Não foi possível compartilhar. Tente novamente.');
+}
+console.error(e);
+} finally {
+// Remove container temporário
+document.body.removeChild(tempContainer);
+// Restaura botões
+actions.style.display = 'flex';
+closeBtn.style.display = '';
+// Restaura botão de compartilhar
+shareBtn.disabled = false;
+shareBtn.innerHTML = shareBtnOriginal;
+}
+}
+function openComanda() {
+_comandaFromHistory = false;
+const couvert = parseFloat(document.getElementById('in-couvert').value) || 0;
+const hasTip = document.getElementById('in-tip').checked;
+const subtotal = consumption.reduce((sum, i) => sum + (i.qty * i.price), 0);
+const tip = hasTip ? subtotal * 0.10 : 0;
+const total = subtotal + couvert + tip;
+const barName = currentBarName || 'BOTEQUIM';
+const now = new Date().toLocaleString('pt-BR');
+const isMeuRacha = meuTotalRacha !== null;
+
+let itemsHtml = '';
+consumption.forEach(item => {
+const rowTotal = (item.qty * item.price).toFixed(2);
+
+// Sempre mostra "Nome R$ total"
+itemsHtml += `
+<div style="margin-bottom:6px">
+<div style="display:flex;justify-content:space-between;font-weight:700;font-size:0.82rem">
+<span>${escapeHtml(item.name)}</span>
+<span>R$ ${rowTotal}</span>
+</div>`;
+
+// Se qtd > 1, mostra linha unitária
+if (item.qty > 1) {
+itemsHtml += `
+<div style="font-size:0.82rem;color:#888;margin-top:-2px;line-height:1">${item.qty}x unidade: R$ ${item.price.toFixed(2)}</div>`;
+}
+
+itemsHtml += `</div>`;
+});
+
+let rachaHtml = '';
+if (isMeuRacha) {
+const totaisPessoa = {};
+const itensPessoa = {};
+rachaPessoas.forEach(p => { totaisPessoa[p] = 0; itensPessoa[p] = []; });
+consumption.forEach((item, idx) => {
+const atr = rachaAtribuicoes[idx];
+if (atr.splitValor) {
+rachaPessoas.forEach(p => {
+const val = atr.splitValor[p] || 0;
+if (val > 0) {
+totaisPessoa[p] += val;
+itensPessoa[p].push({ name: item.name, qty: item.qty, price: item.price, valorFixo: val });
+}
+});
+} else if (atr.split) {
+rachaPessoas.forEach(p => {
+const qty = atr.split[p] || 0;
+if (qty > 0) {
+totaisPessoa[p] += qty * item.price;
+itensPessoa[p].push({ name: item.name, qty, price: item.price });
+}
+});
+} else {
+totaisPessoa[atr.owner] += item.qty * item.price;
+itensPessoa[atr.owner].push({ name: item.name, qty: item.qty, price: item.price });
+}
+});
+const linhas = rachaPessoas.map(p => {
+const gorj = hasTip ? totaisPessoa[p] * 0.10 : 0;
+const totalP = totaisPessoa[p] + couvert + gorj;
+const isVoce = p === 'Você';
+const subItens = itensPessoa[p].map(i => {
+const itemTotal = i.valorFixo !== undefined ? i.valorFixo.toFixed(2) : (i.qty * i.price).toFixed(2);
+let html = `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:6px">
+<div>${escapeHtml(i.name)}`;
+if (i.valorFixo !== undefined) {
+html += `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">$ dividido</div>`;
+} else if (i.qty > 1) {
+html += `<div style="font-size:0.72rem;color:#888;margin-top:-2px;line-height:1">${i.qty} x R$ ${i.price.toFixed(2)}</div>`;
+}
+html += `</div>
+<span style="white-space:nowrap;padding-left:8px">R$ ${itemTotal}</span>
+</div>`;
+return html;
+}).join('');
+const extras = `
+${gorj > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Gorjeta (10%)</span><span>R$ ${gorj.toFixed(2)}</span></div>` : ''}
+${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#666;padding-left:8px;margin-bottom:1px"><span>Couvert</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}`;
+return `
+<div style="margin-bottom:8px">
+<div style="display:flex;justify-content:space-between;font-size:0.9rem;font-weight:700;${isVoce ? 'color:#b35a00' : 'color:#222'}">
+<span>${isVoce ? 'MINHA PARTE' : p.toUpperCase()}</span>
+<span>R$ ${totalP.toFixed(2)}</span>
+</div>
+${subItens}${extras}
+</div>`;
+}).join('');
+rachaHtml = `
+<hr class="comanda-dotted">
+<div style="font-size:0.72rem;color:#555;margin-bottom:6px;letter-spacing:1px">DIVISÃO DA CONTA</div>
+${linhas}`;
+}
+
+document.getElementById('comanda-content').innerHTML = `
+<div style="text-align:center;margin-bottom:4px">
+<div style="font-size:1.1rem;letter-spacing:2px;font-weight:700;text-transform:uppercase">${escapeHtml(barName)}</div>
+</div>
+<hr class="comanda-dashed">
+<div style="font-size:0.72rem;color:#555;text-align:center;margin-bottom:2px">${now}</div>
+<hr class="comanda-dotted">
+<div style="font-size:0.78rem;color:#555;margin-bottom:8px;display:flex;justify-content:space-between">
+<span>ITEM</span><span>TOTAL</span>
+</div>
+${itemsHtml}
+<hr class="comanda-dashed">
+<div style="display:flex;justify-content:space-between;font-size:0.77rem;margin-bottom:4px">
+<span>CONSUMO</span><span>R$ ${subtotal.toFixed(2)}</span>
+</div>
+
+${hasTip ? `<div style="display:flex;justify-content:space-between;font-size:0.77rem;margin-bottom:4px"><span>GORJETA (10%)</span><span>R$ ${tip.toFixed(2)}</span></div>` : ''}
+${couvert > 0 ? `<div style="display:flex;justify-content:space-between;font-size:0.77rem;margin-bottom:4px"><span>COUVERT</span><span>R$ ${couvert.toFixed(2)}</span></div>` : ''}
+
+<hr class="comanda-dashed">
+<div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700">
+<span>TOTAL</span><span>R$ ${total.toFixed(2)}</span>
+</div>
+${rachaHtml}
+`;
+
+document.getElementById('comanda-modal').classList.add('active');
+}
+
+function gerarQRCodeModal() {
+const qrDiv = document.getElementById('qrcode-modal');
+if (!qrDiv) return;
+qrDiv.innerHTML = '';
+new QRCode(qrDiv, {
+text: "https://joaubaron.github.io/botequim/",
+width: 190,
+height: 190,
+colorDark: "#000000",
+colorLight: "#ffffff",
+correctLevel: QRCode.CorrectLevel.H
+});
+}
+
+function abrirQRCode() {
+const modal = document.getElementById('modal-qrcode');
+modal.style.display = 'flex';
+modal.style.opacity = '0';
+gerarQRCodeModal();
+requestAnimationFrame(() => {
+requestAnimationFrame(() => {
+modal.style.opacity = '1';
+});
+});
+}
+
+function fecharQRCode() {
+const modal = document.getElementById('modal-qrcode');
+modal.style.opacity = '0';
+setTimeout(() => { modal.style.display = 'none'; }, 250);
+}
+
+updateResumoTitulo();
+updateCalculos();
+
+if ('serviceWorker' in navigator) {
+window.addEventListener('load', () => {
+navigator.serviceWorker.register('./sw.js');
+});
+}
+
+// Função para obter a cidade do usuário via IP (geolocalização silenciosa)
+async function getCityFromIP() {
+try {
+const response = await fetch('https://ipapi.co/json/');
+const data = await response.json();
+
+if (data.city && data.country_name === 'Brazil') {
+return {
+city: data.city,
+state: data.region_code || '',
+fullLocation: data.region_code ? `${data.city}, ${data.region_code}` : data.city
+};
+}
+return null;
+} catch (error) {
+console.error('Erro ao obter localização via IP:', error);
+return null;
+}
+}
+
+// Função alternativa usando geolocalização do navegador
+function getCityFromBrowser() {
+return new Promise((resolve) => {
+if (!navigator.geolocation) {
+resolve(null);
+return;
+}
+
+navigator.geolocation.getCurrentPosition(
+async (position) => {
+try {
+const response = await fetch(
+`https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json&accept-language=pt-BR`
+);
+const data = await response.json();
+
+const STATE_TO_UF = {
+'Acre':'AC','Alagoas':'AL','Amapá':'AP','Amazonas':'AM','Bahia':'BA',
+'Ceará':'CE','Distrito Federal':'DF','Espírito Santo':'ES','Goiás':'GO',
+'Maranhão':'MA','Mato Grosso':'MT','Mato Grosso do Sul':'MS',
+'Minas Gerais':'MG','Pará':'PA','Paraíba':'PB','Paraná':'PR',
+'Pernambuco':'PE','Piauí':'PI','Rio de Janeiro':'RJ',
+'Rio Grande do Norte':'RN','Rio Grande do Sul':'RS','Rondônia':'RO',
+'Roraima':'RR','Santa Catarina':'SC','São Paulo':'SP',
+'Sergipe':'SE','Tocantins':'TO'
+};
+
+// Nominatim às vezes retorna "Estado do Amapá", "Estado de São Paulo" etc.
+function normalizeStateName(raw) {
+return raw
+.replace(/^Estado\s+d[aeo]\s+/i, '')
+.replace(/^Estado\s+/i, '')
+.trim();
+}
+
+let city = data.address.city || data.address.town || data.address.village || data.address.municipality;
+let stateRaw = data.address.state || data.address.region || data.address.province || '';
+let countryCode = (data.address.country_code || '').toUpperCase();
+
+let stateUF;
+if (data.address.state_code) {
+// Remove prefixo BR- (ex: BR-SC → SC) ou US- (ex: US-CA → CA)
+stateUF = data.address.state_code.replace(/^[A-Z]{2}-/i, '').toUpperCase();
+} else if (countryCode === 'BR') {
+const normalized = normalizeStateName(stateRaw);
+stateUF = STATE_TO_UF[normalized] || STATE_TO_UF[stateRaw] || stateRaw.substring(0, 2).toUpperCase();
+} else {
+// Internacional: usa abreviação direta ou 2 primeiras letras
+stateUF = stateRaw.length <= 3 ? stateRaw.toUpperCase() : stateRaw.substring(0, 2).toUpperCase();
+}
+
+if (city) {
+resolve({
+city: city,
+state: stateUF,
+fullLocation: stateUF ? `${city}, ${stateUF}` : city
+});
+} else {
+resolve(null);
+}
+} catch (error) {
+console.error('Erro no reverse geocoding:', error);
+resolve(null);
+}
+},
+(error) => {
+console.error('Erro de geolocalização:', error);
+resolve(null);
+},
+{ timeout: 5000 }
+);
+});
+}
+
+// Função principal: GPS primeiro, fallback por IP (WiFi e rede móvel)
+async function detectarCidadeSilenciosa() {
+// 1. Tenta GPS (mais preciso)
+try {
+const gps = await Promise.race([
+getCityFromBrowser(),
+new Promise(res => setTimeout(() => res(null), 6000))
+]);
+if (gps && gps.city) return gps;
+} catch(e) {}
+
+// 2. Fallback por IP (funciona sem permissão, WiFi e dados móveis)
+try {
+const r = await fetch('https://ipapi.co/json/');
+const d = await r.json();
+if (d && d.city) {
+const uf = d.region_code || '';
+return { city: d.city, state: uf, fullLocation: uf ? `${d.city}, ${uf}` : d.city };
+}
+} catch(e) {}
+
+return null;
+}
+
+// Função para abrir busca com IA (udm=50)
+function buscarComIA(cidade) {
+if (!cidade || !cidade.fullLocation) {
+showToast('📍 Digite a sua cidade.');
+return;
+}
+
+const query = encodeURIComponent(`bares e restaurantes em ${cidade.fullLocation}`);
+const googleUrl = `https://www.google.com/search?q=${query}&udm=50&tbm=lcl&hl=pt-BR&gl=br`;
+
+showToast(`Bares em ${cidade.fullLocation}...`);
+setTimeout(() => window.open(googleUrl, '_blank'), 1500);
+}
+
+// Função para abrir no Google Maps
+function abrirGoogleMaps(cidade) {
+if (!cidade || !cidade.fullLocation) {
+showToast('📍 Digite a sua cidade.');
+return;
+}
+
+const mapsUrl = `https://www.google.com/maps/search/bares+restaurantes+em+${encodeURIComponent(cidade.fullLocation)}?hl=pt-BR`;
+showToast(`Maps em ${cidade.fullLocation}...`);
+setTimeout(() => window.open(mapsUrl, '_blank'), 1500);
+}
+
+// Atualiza os labels dos botões com o nome da cidade
+function atualizarBotoesLabel(cidade) {
+const btnIa = document.getElementById('btn-ia-label');
+const btnMaps = document.getElementById('btn-maps-label');
+if (!btnIa || !btnMaps) return;
+if (cidade) {
+// Pega só o nome da cidade (antes da vírgula) para caber no botão
+const nome = cidade.split(',')[0].trim();
+btnIa.textContent = `em ${nome}`;
+btnMaps.textContent = `Maps: ${nome}`;
+} else {
+btnIa.textContent = 'Bares aqui';
+btnMaps.textContent = 'Google Maps';
+}
+}
+
+// Substitua a função abrirBuscaLugares() inteira por esta versão corrigida
+function abrirBuscaLugares() {
+let buscaModal = document.getElementById('busca-lugares-modal');
+
+if (!buscaModal) {
+buscaModal = document.createElement('div');
+buscaModal.id = 'busca-lugares-modal';
+buscaModal.className = 'modal';
+buscaModal.innerHTML = `
+<div class="modal-content" style="width:360px; text-align:center;">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-sm font-bold text-orange-500">
+<i class="fas fa-map-marked-alt mr-2 text-sm"></i>Descubra lugares em:
+</h3>
+<button onclick="closeModal('busca-lugares-modal')" class="text-gray-400 text-xl">&times;</button>
+</div>
+
+<div id="busca-content">
+<!-- Status de detecção -->
+<div id="status-deteccao" class="mb-3 text-xs text-gray-400 flex items-center justify-center gap-2">
+<i class="fas fa-spinner fa-spin"></i>
+<span>Detectando sua localização...</span>
+</div>
+
+<!-- Cidade detectada (só aparece se sucesso) -->
+<div id="cidade-detectada-box" class="mb-3" style="display:none;">
+<div class="p-3 bg-orange-500/10 rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-2">
+<i class="fas fa-location-dot text-orange-400 text-sm"></i>
+<span class="text-white font-semibold text-sm" id="cidade-detectada-nome"></span>
+</div>
+<button id="usar-cidade-detected" class="text-xs bg-orange-500 text-black px-3 py-1 rounded-lg font-bold">
+Usar esta
+</button>
+</div>
+</div>
+
+<!-- Ou digite manualmente -->
+<div class="mb-3">
+<label class="text-xs text-gray-500 block text-left mb-1">Ou digite outra cidade:</label>
+<div class="relative">
+<input id="cidade-manual-input" type="text" placeholder="Ex: Blumenau, SC | Rio de Janeiro, RJ"
+class="w-full p-3 rounded-xl text-sm bg-white/5 text-white border border-white/10 focus:border-orange-500/50 focus:outline-none pr-9">
+<button id="limpar-cidade-btn" onclick="limparCidadeManual()" style="display:none; position:absolute; right:10px; top:50%; transform:translateY(-50%); background:none; border:none; color:#9ca3af; font-size:22px; cursor:pointer; line-height:1;">&times;</button>
+</div>
+</div>
+
+<div class="grid grid-cols-2 gap-3 mt-4">
+<button id="buscar-ia-btn"
+class="py-3 px-2 rounded-xl text-sm font-bold transition-transform active:scale-95 truncate" style="background:#f97316; color:#000000;">
+<i class="fas fa-martini-glass-citrus mr-1"></i><span id="btn-ia-label">Bares aqui</span>
+</button>
+<button id="buscar-maps-btn" class="py-3 px-2 rounded-xl text-sm font-bold truncate"
+style="background:rgba(66,133,244,0.2); color:#4285f4; border:1px solid rgba(66,133,244,0.3);">
+<i class="fas fa-map-location-dot mr-1 text-sm"></i><span id="btn-maps-label">Google Maps</span>
+</button>
+</div>
+</div>
+</div>
+`;
+document.body.appendChild(buscaModal);
+}
+
+openModal('busca-lugares-modal');
+
+// Reset ao abrir
+const cidadeManual = document.getElementById('cidade-manual-input');
+const cidadeDetectadaBox = document.getElementById('cidade-detectada-box');
+const statusDiv = document.getElementById('status-deteccao');
+const cidadeDetectadaNome = document.getElementById('cidade-detectada-nome');
+
+if (cidadeManual) cidadeManual.value = '';
+if (cidadeDetectadaBox) cidadeDetectadaBox.style.display = 'none';
+if (statusDiv) statusDiv.style.display = 'flex';
+atualizarBotoesLabel(null);
+
+let cidadeAtual = null;
+
+function getCidadeAtual() {
+// Prioriza o que o usuário digitou manualmente
+const typed = cidadeManual ? cidadeManual.value.trim() : '';
+if (typed) return typed;
+// Senão, usa a cidade detectada
+if (cidadeAtual && cidadeAtual.fullLocation) return cidadeAtual.fullLocation;
+return null;
+}
+
+// DETECÇÃO AUTOMÁTICA
+if (statusDiv) statusDiv.style.display = 'flex';
+
+detectarCidadeSilenciosa().then(location => {
+if (statusDiv) statusDiv.style.display = 'none';
+
+if (location && location.city) {
+cidadeAtual = location;
+cidadeDetectadaNome.textContent = location.fullLocation;
+cidadeDetectadaBox.style.display = 'block';
+
+// Botão "Usar esta" - preenche o campo manual com a cidade detectada
+const usarBtn = document.getElementById('usar-cidade-detected');
+if (usarBtn) {
+usarBtn.onclick = () => {
+if (cidadeManual) cidadeManual.value = location.fullLocation;
+cidadeDetectadaBox.style.display = 'none';
+showToast(`📍 Cidade definida: ${location.fullLocation}`);
+};
+}
+} else {
+// Falha na detecção
+if (statusDiv) {
+statusDiv.innerHTML = `<i class="fas fa-map-marker-alt"></i><span>Digite sua cidade abaixo</span>`;
+statusDiv.style.color = '#f97316';
+}
+cidadeManual.placeholder = "Ex: Blumenau, SC | Curitiba, PR";
+cidadeManual.focus();
+}
+}).catch(() => {
+if (statusDiv) {
+statusDiv.innerHTML = `<i class="fas fa-map-marker-alt"></i><span>Digite sua cidade abaixo</span>`;
+statusDiv.style.color = '#f97316';
+}
+cidadeManual.placeholder = "Ex: Blumenau, SC | Curitiba, PR";
+cidadeManual.focus();
+});
+
+function executarBusca(tipo) {
+let cidade = getCidadeAtual();
+if (!cidade) {
+showToast('📍 Digite ou selecione uma cidade primeiro');
+cidadeManual.focus();
+return;
+}
+
+// Salva para reabrir o modal depois
+sessionStorage.setItem('reabrirBuscaModal', '1');
+
+// Se for string (digitada manualmente), converte para objeto
+const cidadeObj = typeof cidade === 'string' 
+? { fullLocation: cidade } 
+: cidade;
+
+if (tipo === 'ia') {
+buscarComIA(cidadeObj);
+} else {
+abrirGoogleMaps(cidadeObj);
+}
+}
+
+// Botão Bares aqui (IA)
+const buscarIaBtn = document.getElementById('buscar-ia-btn');
+if (buscarIaBtn) {
+const newBtn = buscarIaBtn.cloneNode(true);
+buscarIaBtn.parentNode.replaceChild(newBtn, buscarIaBtn);
+newBtn.onclick = () => executarBusca('ia');
+}
+
+// Botão Google Maps
+const buscarMapsBtn = document.getElementById('buscar-maps-btn');
+if (buscarMapsBtn) {
+const newBtn = buscarMapsBtn.cloneNode(true);
+buscarMapsBtn.parentNode.replaceChild(newBtn, buscarMapsBtn);
+newBtn.onclick = () => executarBusca('maps');
+}
+
+// Enter no campo manual
+if (cidadeManual) {
+cidadeManual.onkeypress = (e) => {
+if (e.key === 'Enter') {
+executarBusca('ia');
+}
+};
+cidadeManual.oninput = () => {
+const limparBtn = document.getElementById('limpar-cidade-btn');
+if (limparBtn) limparBtn.style.display = cidadeManual.value ? 'block' : 'none';
+};
+}
+
+window.limparCidadeManual = function() {
+const input = document.getElementById('cidade-manual-input');
+const limparBtn = document.getElementById('limpar-cidade-btn');
+const box = document.getElementById('cidade-detectada-box');
+if (input) input.value = '';
+if (limparBtn) limparBtn.style.display = 'none';
+if (box && cidadeAtual) box.style.display = 'block';
+};
+}
+
+</script>
+
+<div id="modal-qrcode" onclick="if(event.target===this)fecharQRCode();" style="display:none; opacity:0; transition:opacity 0.25s ease; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:10002; backdrop-filter:blur(4px); align-items:center; justify-content:center;">
+<div style="background:#1e1e2e; border-radius:20px; padding:24px 20px; text-align:center; max-width:300px; width:85%;">
+<div style="background:#ffffff; padding:15px; border-radius:16px; margin:0 auto 16px; display:inline-flex; justify-content:center;">
+<div id="qrcode-modal" style="background:white; padding:4px; border-radius:5px;"></div>
+</div>
+<p style="margin:0 0 16px; font-size:14px; color:#e0e0e0;">Escaneia e acesse o <strong style="color:#ff9800;">Botequim</strong>!</p>
+<button onclick="fecharQRCode();" style="padding:8px 24px; border:none; border-radius:10px; font-size:13px; font-weight:bold; cursor:pointer; background:#ff9800; color:#000;">Fechar</button>
+</div>
+</div>
+
+<!-- Modal Confirmar Perda de Divisão por Quantidade -->
+<div id="confirmar-perder-racha-modal" class="modal">
+<div class="modal-content" style="width:320px">
+<div class="flex flex-col items-center text-center gap-4 py-2">
+<div class="w-14 h-14 rounded-full bg-orange-500/15 flex items-center justify-center">
+<i class="fas fa-shuffle text-orange-400 text-2xl"></i>
+</div>
+<div>
+<div class="font-bold text-orange-400 text-sm mb-1">Divisão por quantidade</div>
+<div class="text-sm text-gray-400">A divisão por quantidade será perdida.<br><span class="text-orange-300 font-semibold">Manter como "Você"?</span></div>
+</div>
+<div class="flex gap-3 w-full mt-2">
+<button onclick="confirmarPerderRacha()" class="flex-1 py-3 rounded-xl text-sm font-bold btn-accent">Sim, manter</button>
+<button onclick="cancelarPerderRacha()" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">Cancelar</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Modal Confirmar Limpar Tela -->
+<div id="limpar-tela-modal" class="modal">
+<div class="modal-content" style="width:320px">
+<div class="flex flex-col items-center text-center gap-4 py-2">
+<div class="w-14 h-14 rounded-full bg-red-500/15 flex items-center justify-center">
+<i class="fas fa-broom text-red-400 text-2xl"></i>
+</div>
+<div>
+<div class="font-bold text-red-400 text-sm mb-1">Limpar lista</div>
+<div class="text-sm text-gray-400">Os itens serão apagados<br><span class="text-red-400 font-semibold">sem salvar no histórico</span>.</div>
+</div>
+<div class="flex gap-3 w-full mt-2">
+<button onclick="confirmarLimparTela()" class="flex-1 py-3 rounded-xl text-sm font-bold bg-red-500 text-white">Limpar</button>
+<button onclick="closeModal('limpar-tela-modal')" class="flex-1 py-3 rounded-xl text-sm font-bold bg-white/10 text-gray-300">Cancelar</button>
+</div>
+</div>
+</div>
+</div>
+
+</body>
+</html>
