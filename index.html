@@ -2988,7 +2988,6 @@ if (location && location.city) {
 cidadeAtual = location;
 cidadeDetectadaNome.textContent = location.fullLocation;
 cidadeDetectadaBox.style.display = 'block';
-atualizarBotoesLabel(location.fullLocation);
 
 // Botão "Usar esta" - preenche o campo manual com a cidade detectada
 const usarBtn = document.getElementById('usar-cidade-detected');
@@ -2996,7 +2995,6 @@ if (usarBtn) {
 usarBtn.onclick = () => {
 if (cidadeManual) cidadeManual.value = location.fullLocation;
 cidadeDetectadaBox.style.display = 'none';
-atualizarBotoesLabel(location.fullLocation);
 showToast(`📍 Cidade definida: ${location.fullLocation}`);
 };
 }
@@ -3066,7 +3064,8 @@ executarBusca('ia');
 };
 // Atualiza labels dos botões em tempo real ao digitar
 cidadeManual.oninput = () => {
-atualizarBotoesLabel(cidadeManual.value.trim() || (cidadeAtual && cidadeAtual.fullLocation) || null);
+const typed = cidadeManual.value.trim();
+atualizarBotoesLabel(typed || null);
 };
 }
 }
