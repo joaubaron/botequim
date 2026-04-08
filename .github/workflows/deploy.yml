@@ -23,6 +23,14 @@ jobs:
           sed -i "s/const CACHE_VERSION = '.*'/const CACHE_VERSION = '${VERSION}'/" sw.js
           echo "✅ CACHE_VERSION atualizado para: $VERSION"
 
+      - name: Commitar sw.js atualizado no main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add sw.js
+          git diff --cached --quiet || git commit -m "chore: atualiza CACHE_VERSION [skip ci]"
+          git push
+
       - name: Deploy para GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
